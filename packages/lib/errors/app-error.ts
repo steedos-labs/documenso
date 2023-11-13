@@ -1,3 +1,8 @@
+import { TRPCError } from '@trpc/server';
+import { z } from 'zod';
+
+import { TRPCClientError } from '@documenso/trpc/client';
+
 /**
  * Generic application error codes.
  */
@@ -14,6 +19,28 @@ export enum AppErrorCode {
   'SCHEMA_FAILED' = 'SchemaFailed',
   'TOO_MANY_REQUESTS' = 'TooManyRequests',
 }
+
+const genericErrorCodeToTrpcErrorCodeMap: Record<string, TRPCError['code']> = {
+  [AppErrorCode.ALREADY_EXISTS]: 'BAD_REQUEST',
+  [AppErrorCode.EXPIRED_CODE]: 'BAD_REQUEST',
+  [AppErrorCode.INVALID_BODY]: 'BAD_REQUEST',
+  [AppErrorCode.INVALID_REQUEST]: 'BAD_REQUEST',
+  [AppErrorCode.NOT_FOUND]: 'NOT_FOUND',
+  [AppErrorCode.NOT_SETUP]: 'BAD_REQUEST',
+  [AppErrorCode.UNAUTHORIZED]: 'UNAUTHORIZED',
+  [AppErrorCode.UNKNOWN_ERROR]: 'INTERNAL_SERVER_ERROR',
+  [AppErrorCode.RETRY_EXCEPTION]: 'INTERNAL_SERVER_ERROR',
+  [AppErrorCode.SCHEMA_FAILED]: 'INTERNAL_SERVER_ERROR',
+  [AppErrorCode.TOO_MANY_REQUESTS]: 'TOO_MANY_REQUESTS',
+};
+
+export const ZAppErrorJsonSchema = z.object({
+  code: z.string(),
+  message: z.string().optional(),
+  userMessage: z.string().optional(),
+});
+
+export type TAppErrorJsonSchema = z.infer<typeof ZAppErrorJsonSchema>;
 
 export class AppError extends Error {
   /**
@@ -49,13 +76,16 @@ export class AppError extends Error {
       return error;
     }
 
-    if (error instanceof Error) {
-      return new AppError('UnknownError', error.message, undefined);
+    // Todo: Teams - Handle Prisma errors.
+    // - Prisma.PrismaClientKnownRequestError
+    // - Prisma.PrismaClientKnownRequestError
+    // - etc
+
+    // Handle TRPC errors.
+    if (error instanceof TRPCClientError) {
+      const parsedJsonError = AppError.parseFromJSONString(error.message);
+      return parsedJsonError || new AppError('UnknownError', error.message);
     }
-
-    // Todo: Handle Prisma errors.
-
-    // Todo: Handle TRPC errors.
 
     // Handle completely unknown errors.
     const { code, message, userMessage } = error as {
@@ -75,5 +105,48 @@ export class AppError extends Error {
     }
 
     return new AppError(validCode, validMessage, validUserMessage);
+  }
+
+  static parseErrorToTRPCError(error: unknown): TRPCError {
+    const appError = AppError.parseError(error);
+
+    return new TRPCError({
+      code: genericErrorCodeToTrpcErrorCodeMap[appError.code] || 'BAD_REQUEST',
+      message: AppError.toJSONString(appError),
+    });
+  }
+
+  /**
+   * Convert an AppError into a JSON object which represents the error.
+   *
+   * @param appError The AppError to convert to JSON.
+   * @returns A JSON object representing the AppError.
+   */
+  static toJSON({ code, message, userMessage }: AppError): TAppErrorJsonSchema {
+    return {
+      code,
+      message,
+      userMessage,
+    };
+  }
+
+  /**
+   * Convert an AppError into a JSON string containing the relevant information.
+   *
+   * @param appError The AppError to stringify.
+   * @returns A JSON string representing the AppError.
+   */
+  static toJSONString(appError: AppError): string {
+    return JSON.stringify(AppError.toJSON(appError));
+  }
+
+  static parseFromJSONString(jsonString: string): AppError | null {
+    const parsed = ZAppErrorJsonSchema.safeParse(JSON.parse(jsonString));
+
+    if (!parsed.success) {
+      return null;
+    }
+
+    return new AppError(parsed.data.code, parsed.data.message, parsed.data.userMessage);
   }
 }

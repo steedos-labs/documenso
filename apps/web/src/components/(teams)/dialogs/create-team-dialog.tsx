@@ -7,6 +7,8 @@ import * as DialogPrimitive from '@radix-ui/react-dialog';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 
+import { WEBAPP_BASE_URL } from '@documenso/lib/constants/app';
+import { AppError, AppErrorCode } from '@documenso/lib/errors/app-error';
 import { DocumentData } from '@documenso/prisma/client';
 import { trpc } from '@documenso/trpc/react';
 import { Button } from '@documenso/ui/primitives/button';
@@ -37,7 +39,7 @@ export type CreateTeamDialogProps = {
 
 export const ZCreateTeamFormSchema = z.object({
   name: z.string().trim().min(1, { message: 'Please enter a valid name.' }),
-  url: z.string().min(1, 'Please enter a value.'),
+  url: z.string().min(1, 'Please enter a value.'), // Todo: Teams - Restrict certain symbols.
 });
 
 export type TCreateTeamFormSchema = z.infer<typeof ZCreateTeamFormSchema>;
@@ -70,9 +72,11 @@ export default function CreateTeamDialog({ trigger, ...props }: CreateTeamDialog
         duration: 5000,
       });
 
-      // router.refresh();
+      setOpen(false);
     } catch (err) {
-      if (err.message === 'TEAMURL_EXISTS') {
+      const error = AppError.parseError(err);
+
+      if (error.code === AppErrorCode.ALREADY_EXISTS) {
         form.setError('url', {
           type: 'manual',
           message: 'This URL is already in use.',
@@ -88,6 +92,10 @@ export default function CreateTeamDialog({ trigger, ...props }: CreateTeamDialog
           'We encountered an unknown error while attempting to create a team. Please try again later.',
       });
     }
+  };
+
+  const mapTextToUrl = (text: string) => {
+    return text.toLowerCase().replace(/\s+/g, '-');
   };
 
   return (
@@ -118,7 +126,21 @@ export default function CreateTeamDialog({ trigger, ...props }: CreateTeamDialog
                     <FormItem>
                       <FormLabel required>Team Name</FormLabel>
                       <FormControl>
-                        <Input className="bg-background" {...field} />
+                        <Input
+                          className="bg-background"
+                          {...field}
+                          onChange={(event) => {
+                            const oldGenericUrl = mapTextToUrl(field.value);
+                            const newGenericUrl = mapTextToUrl(event.target.value);
+
+                            const urlField = form.getValues('url');
+                            if (urlField === oldGenericUrl) {
+                              form.setValue('url', newGenericUrl);
+                            }
+
+                            field.onChange(event);
+                          }}
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -137,7 +159,7 @@ export default function CreateTeamDialog({ trigger, ...props }: CreateTeamDialog
                       {!form.formState.errors.url && (
                         <span className="text-foreground/50 text-xs font-normal">
                           {field.value
-                            ? `https://documenso.com/teams/${field.value}`
+                            ? `${WEBAPP_BASE_URL}/t/${field.value}`
                             : 'A unique URL to encapsulate your team'}
                         </span>
                       )}

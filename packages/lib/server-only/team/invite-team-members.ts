@@ -17,27 +17,31 @@ import { getTeam } from './get-teams';
 export type InviteTeamMembersOptions = {
   userId: number;
   teamId: number;
-  invites: TInviteTeamMembersMutationSchema['members'];
+  invitations: TInviteTeamMembersMutationSchema['invitations'];
 };
 
 /**
  * Invite team members via email to join a team.
  */
-export const inviteTeamMembers = async ({ userId, teamId, invites }: InviteTeamMembersOptions) => {
+export const inviteTeamMembers = async ({
+  userId,
+  teamId,
+  invitations,
+}: InviteTeamMembersOptions) => {
   const [team, currentTeamMemberEmails, currentTeamMemberInviteEmails] = await Promise.all([
     getTeam({ userId, teamId }),
     getTeamMemberEmails(teamId),
     getTeamInvites(teamId),
   ]);
 
-  const usersToInvite = invites.filter((invite) => {
+  const usersToInvite = invitations.filter((invitation) => {
     // Filter out users that are already members of the team.
-    if (currentTeamMemberEmails.includes(invite.email)) {
+    if (currentTeamMemberEmails.includes(invitation.email)) {
       return false;
     }
 
     // Filter out users that have already been invited to the team.
-    if (currentTeamMemberInviteEmails.includes(invite.email)) {
+    if (currentTeamMemberInviteEmails.includes(invitation.email)) {
       return false;
     }
 

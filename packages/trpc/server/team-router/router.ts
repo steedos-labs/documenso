@@ -1,12 +1,11 @@
-import { TRPCError } from '@trpc/server';
-
+import { AppError } from '@documenso/lib/errors/app-error';
 import { createTeam } from '@documenso/lib/server-only/team/create-team';
 import { deleteTeam } from '@documenso/lib/server-only/team/delete-team';
 import { getTeam, getTeams } from '@documenso/lib/server-only/team/get-teams';
 import { inviteTeamMembers } from '@documenso/lib/server-only/team/invite-team-members';
 import { updateTeam } from '@documenso/lib/server-only/team/update-team';
 
-import { authenticatedProcedure, procedure, router } from '../trpc';
+import { authenticatedProcedure, router } from '../trpc';
 import {
   ZCreateTeamMutationSchema,
   ZDeleteTeamMutationSchema,
@@ -18,23 +17,21 @@ import {
 export const teamRouter = router({
   getTeam: authenticatedProcedure.input(ZGetTeamMutationSchema).query(async ({ input, ctx }) => {
     try {
-      return getTeam({ teamId: input.teamId, userId: ctx.user.id });
+      return await getTeam({ teamId: input.teamId, userId: ctx.user.id });
     } catch (err) {
-      throw new TRPCError({
-        code: 'BAD_REQUEST',
-        message: 'Todo: Teams',
-      });
+      console.error(err);
+
+      throw AppError.parseErrorToTRPCError(err);
     }
   }),
 
   getTeams: authenticatedProcedure.query(async ({ ctx }) => {
     try {
-      return getTeams({ userId: ctx.user.id });
+      return await getTeams({ userId: ctx.user.id });
     } catch (err) {
-      throw new TRPCError({
-        code: 'BAD_REQUEST',
-        message: 'Todo: Teams',
-      });
+      console.error(err);
+
+      throw AppError.parseErrorToTRPCError(err);
     }
   }),
 
@@ -43,11 +40,8 @@ export const teamRouter = router({
     .mutation(async ({ input, ctx }) => {
       try {
         const { name, url } = input;
-        // 1. Validate the user can create teams.
-        // 2. Create the team.
-        // 3. Return the team.
 
-        return createTeam({
+        return await createTeam({
           userId: ctx.user.id,
           name,
           teamUrl: url,
@@ -55,17 +49,7 @@ export const teamRouter = router({
       } catch (err) {
         console.error(err);
 
-        if (err.message === 'TEAMURL_EXISTS') {
-          throw new TRPCError({
-            code: 'BAD_REQUEST',
-            message: 'TEAMURL_EXISTS',
-          });
-        }
-
-        throw new TRPCError({
-          code: 'BAD_REQUEST',
-          message: 'Todo: Teams',
-        });
+        throw AppError.parseErrorToTRPCError(err);
       }
     }),
 
@@ -73,60 +57,55 @@ export const teamRouter = router({
     .input(ZUpdateTeamMutationSchema)
     .mutation(async ({ input, ctx }) => {
       try {
+        const { teamId } = input;
+
         // 1. Validate the user can update the team.
         // 2. Update the team.
         // 3. Return the team.
         // const { password, currentPassword } = input;
-        return updateTeam({
+        return await updateTeam({
           userId: ctx.user.id,
-          password,
-          currentPassword,
+          teamId,
         });
       } catch (err) {
-        throw new TRPCError({
-          code: 'BAD_REQUEST',
-          message: 'Todo: Teams',
-        });
+        console.error(err);
+
+        throw AppError.parseErrorToTRPCError(err);
       }
     }),
 
-  deleteTeam: procedure.input(ZDeleteTeamMutationSchema).mutation(async ({ input }) => {
-    try {
-      // 1. Validate the user can delete the team.
-      // 2. Delete the team.
-      const { email } = input;
+  deleteTeam: authenticatedProcedure
+    .input(ZDeleteTeamMutationSchema)
+    .mutation(async ({ input, ctx }) => {
+      try {
+        const { teamId } = input;
 
-      return deleteTeam({
-        email,
-      });
-    } catch (err) {
-      throw new TRPCError({
-        code: 'BAD_REQUEST',
-        message: 'Todo: Teams',
-      });
-    }
-  }),
+        return await deleteTeam({
+          userId: ctx.user.id,
+          teamId,
+        });
+      } catch (err) {
+        console.error(err);
+
+        throw AppError.parseErrorToTRPCError(err);
+      }
+    }),
 
   inviteTeamMembers: authenticatedProcedure
     .input(ZInviteTeamMembersMutationSchema)
     .mutation(async ({ input, ctx }) => {
       try {
-        // Todo: Teams validate that emails are not already members of the team.
+        const { teamId, invitations } = input;
 
-        const { teamId, members } = input;
-
-        return inviteTeamMembers({
+        return await inviteTeamMembers({
           userId: ctx.user.id,
           teamId,
-          newTeamMemberInvites: members, // todo: teams
+          invitations,
         });
       } catch (err) {
         console.error(err);
 
-        throw new TRPCError({
-          code: 'BAD_REQUEST',
-          message: 'Todo: Teams',
-        });
+        throw AppError.parseErrorToTRPCError(err);
       }
     }),
 });

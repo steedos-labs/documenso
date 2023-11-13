@@ -2,27 +2,27 @@ import { prisma } from '@documenso/prisma';
 
 export type UpdateTeamOptions = {
   userId: number;
-  name: string;
-  signature: string;
+  teamId: number;
 };
 
-export const updateTeam = async ({ userId, name, signature }: UpdateTeamOptions) => {
-  // Existence check
-  await prisma.user.findFirstOrThrow({
+export const updateTeam = async ({ userId, teamId }: UpdateTeamOptions) => {
+  // Todo: Teams - Is this even required?
+  await prisma.team.findUniqueOrThrow({
     where: {
-      id: userId,
+      id: teamId,
+      ownerId: userId,
     },
   });
 
-  const updatedUser = await prisma.user.update({
+  const updatedTeam = await prisma.team.update({
     where: {
-      id: userId,
+      id: teamId,
+      ownerId: userId,
     },
     data: {
-      name,
-      signature,
+      // Todo: Teams
     },
   });
 
-  return updatedUser;
+  return updatedTeam;
 };
