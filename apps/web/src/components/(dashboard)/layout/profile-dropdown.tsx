@@ -10,8 +10,10 @@ import {
   Monitor,
   Moon,
   Palette,
+  Settings,
   Sun,
   UserCog,
+  Users,
 } from 'lucide-react';
 import { signOut } from 'next-auth/react';
 import { useTheme } from 'next-themes';
@@ -21,6 +23,7 @@ import { useFeatureFlags } from '@documenso/lib/client-only/providers/feature-fl
 import { isAdmin } from '@documenso/lib/next-auth/guards/is-admin';
 import { recipientInitials } from '@documenso/lib/utils/recipient-formatter';
 import { User } from '@documenso/prisma/client';
+import { trpc } from '@documenso/trpc/react';
 import { Avatar, AvatarFallback } from '@documenso/ui/primitives/avatar';
 import { Button } from '@documenso/ui/primitives/button';
 import {
@@ -52,6 +55,8 @@ export const ProfileDropdown = ({ user }: ProfileDropdownProps) => {
   const avatarFallback = user.name
     ? recipientInitials(user.name)
     : user.email.slice(0, 1).toUpperCase();
+
+  const { data: teams, isLoading: isTeamsLoading } = trpc.team.getTeams.useQuery();
 
   return (
     <DropdownMenu>
@@ -104,6 +109,48 @@ export const ProfileDropdown = ({ user }: ProfileDropdownProps) => {
 
         <DropdownMenuSeparator />
 
+        {!teams || teams.length === 0 || isTeamsLoading ? (
+          <DropdownMenuItem asChild>
+            <Link href="/settings/teams" className="cursor-pointer">
+              <Monitor className="mr-2 h-4 w-4" />
+              Manage Teams
+            </Link>
+          </DropdownMenuItem>
+        ) : (
+          <DropdownMenuSub>
+            <DropdownMenuSubTrigger>
+              <Users className="mr-2 h-4 w-4" />
+              Teams
+            </DropdownMenuSubTrigger>
+            <DropdownMenuPortal>
+              <DropdownMenuSubContent>
+                {/* Todo: Teams */}
+                {/* Selected team will be highlighted */}
+                <DropdownMenuRadioGroup>
+                  {teams.map((team) => (
+                    <DropdownMenuItem asChild key={team.id}>
+                      <Link href={`/settings/teams/${team.url}`} className="cursor-pointer">
+                        {/* Todo: Teams avatar */}
+                        <Sun className="mr-2 h-4 w-4" /> {team.name}
+                      </Link>
+                    </DropdownMenuItem>
+                  ))}
+                  <DropdownMenuSeparator />
+                </DropdownMenuRadioGroup>
+
+                <DropdownMenuItem asChild>
+                  <Link href="/settings/teams" className="cursor-pointer">
+                    <Settings className="mr-2 h-4 w-4" />
+                    Manage teams
+                  </Link>
+                </DropdownMenuItem>
+              </DropdownMenuSubContent>
+            </DropdownMenuPortal>
+          </DropdownMenuSub>
+        )}
+
+        <DropdownMenuSeparator />
+
         <DropdownMenuSub>
           <DropdownMenuSubTrigger>
             <Palette className="mr-2 h-4 w-4" />
@@ -127,6 +174,7 @@ export const ProfileDropdown = ({ user }: ProfileDropdownProps) => {
             </DropdownMenuSubContent>
           </DropdownMenuPortal>
         </DropdownMenuSub>
+
         <DropdownMenuSeparator />
         <DropdownMenuItem asChild>
           <Link href="https://github.com/documenso/documenso" className="cursor-pointer">

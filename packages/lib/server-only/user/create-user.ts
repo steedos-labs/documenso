@@ -25,13 +25,46 @@ export const createUser = async ({ name, email, password, signature }: CreateUse
     throw new Error('User already exists');
   }
 
-  return await prisma.user.create({
-    data: {
-      name,
-      email: email.toLowerCase(),
-      password: hashedPassword,
-      signature,
-      identityProvider: IdentityProvider.DOCUMENSO,
-    },
+  return prisma.$transaction(async (tx) => {
+    const user = await tx.user.create({
+      data: {
+        name,
+        email: email.toLowerCase(),
+        password: hashedPassword,
+        signature,
+        identityProvider: IdentityProvider.DOCUMENSO,
+      },
+    });
+
+    const acceptedTeamInvites = await tx.teamMemberInvite.findMany({
+      where: {
+        email: {
+          equals: email,
+          mode: 'insensitive',
+        },
+        status: 'ACCEPTED', // Todo: Teams use enum.
+      },
+    });
+
+    // For each team invite, add the user to the team and delete the team invite.
+    await Promise.all(
+      acceptedTeamInvites.map(async (invite) => {
+        await tx.teamMember.create({
+          data: {
+            teamId: invite.teamId,
+            userId: user.id,
+            role: invite.role,
+          },
+        });
+
+        await tx.teamMemberInvite.delete({
+          where: {
+            id: invite.id,
+          },
+        });
+      }),
+    );
+
+    return user;
   });
 };

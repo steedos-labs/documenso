@@ -35,9 +35,10 @@ export type TSignInFormSchema = z.infer<typeof ZSignInFormSchema>;
 
 export type SignInFormProps = {
   className?: string;
+  initialEmail?: string;
 };
 
-export const SignInForm = ({ className }: SignInFormProps) => {
+export const SignInForm = ({ className, initialEmail }: SignInFormProps) => {
   const { toast } = useToast();
   const [showPassword, setShowPassword] = useState(false);
 
@@ -47,7 +48,7 @@ export const SignInForm = ({ className }: SignInFormProps) => {
     formState: { errors, isSubmitting },
   } = useForm<TSignInFormSchema>({
     values: {
-      email: '',
+      email: initialEmail ?? '',
       password: '',
     },
     resolver: zodResolver(ZSignInFormSchema),

@@ -2,7 +2,15 @@ import Link from 'next/link';
 
 import { SignUpForm } from '~/components/forms/signup';
 
-export default function SignUpPage() {
+type SignUpPageProps = {
+  searchParams: {
+    email?: string;
+  };
+};
+
+export default function SignUpPage({ searchParams }: SignUpPageProps) {
+  const email = typeof searchParams.email === 'string' ? searchParams.email : undefined;
+
   return (
     <div>
       <h1 className="text-4xl font-semibold">Create a new account</h1>
@@ -12,7 +20,7 @@ export default function SignUpPage() {
         signing is within your grasp.
       </p>
 
-      <SignUpForm className="mt-4" />
+      <SignUpForm initialEmail={email} className="mt-4" />
 
       <p className="text-muted-foreground mt-6 text-center text-sm">
         Already have an account?{' '}

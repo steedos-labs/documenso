@@ -37,7 +37,10 @@ model User {
   Subscription       Subscription?
   PasswordResetToken PasswordResetToken[]
   VerificationToken  VerificationToken[]
-  
+
+  TeamMembers        TeamMember[]
+  Teams              Team[]
+
   @@index([email])
 }
 
@@ -249,4 +252,58 @@ model DocumentShareLink {
   document Document @relation(fields: [documentId], references: [id], onDelete: Cascade)
 
   @@unique([documentId, email])
+}
+
+enum TeamMemberRole {
+  ADMIN
+  MANAGER
+  MEMBER
+}
+
+enum TeamMemberStatus {
+  ACTIVE
+  PENDING
+}
+
+enum TeamMemberInviteStatus {
+  ACCEPTED
+  PENDING
+}
+
+model Team {
+  id        Int                @id @default(autoincrement())
+  name      String
+  url       String             @unique
+  avatar    String? // Todo: Teams - Use uri
+  emails    String[] // Todo: Teams - How will this work?
+  createdAt DateTime           @default(now())
+  ownerId   Int
+  members   TeamMember[]
+  invites   TeamMemberInvite[]
+
+  Owner User @relation(fields: [ownerId], references: [id])
+}
+
+model TeamMember {
+  id     Int              @id @default(autoincrement())
+  teamId Int
+  status TeamMemberStatus @default(PENDING)
+  role   TeamMemberRole
+  userId Int
+  user   User             @relation(fields: [userId], references: [id])
+  team   Team             @relation(fields: [teamId], references: [id])
+
+  @@unique([userId, teamId])
+}
+
+model TeamMemberInvite {
+  id     Int                    @id @default(autoincrement())
+  teamId Int
+  email  String
+  status TeamMemberInviteStatus @default(PENDING) // Todo: Teams - redundant? TeamMemberStatus
+  role   TeamMemberRole
+  token  String                 @unique
+  team   Team                   @relation(fields: [teamId], references: [id])
+
+  @@unique([teamId, email])
 }

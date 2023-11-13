@@ -4,6 +4,7 @@ import { documentRouter } from './document-router/router';
 import { fieldRouter } from './field-router/router';
 import { profileRouter } from './profile-router/router';
 import { shareLinkRouter } from './share-link-router/router';
+import { teamRouter } from './team-router/router';
 import { router } from './trpc';
 
 export const appRouter = router({
@@ -13,6 +14,7 @@ export const appRouter = router({
   field: fieldRouter,
   admin: adminRouter,
   shareLink: shareLinkRouter,
+  team: teamRouter,
 });
 
 export type AppRouter = typeof appRouter;

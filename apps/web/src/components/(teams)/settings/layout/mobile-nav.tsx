@@ -13,6 +13,7 @@ import { Button } from '@documenso/ui/primitives/button';
 
 export type MobileNavProps = HTMLAttributes<HTMLDivElement>;
 
+// Todo: Teams
 export const MobileNav = ({ className, ...props }: MobileNavProps) => {
   const pathname = usePathname();
 
@@ -25,7 +26,8 @@ export const MobileNav = ({ className, ...props }: MobileNavProps) => {
       className={cn('flex flex-wrap items-center justify-start gap-x-2 gap-y-4', className)}
       {...props}
     >
-      <Link href="/settings/profile">
+      todo
+      {/* <Link href="/settings/profile">
         <Button
           variant="ghost"
           className={cn(
@@ -35,20 +37,6 @@ export const MobileNav = ({ className, ...props }: MobileNavProps) => {
         >
           <User className="mr-2 h-5 w-5" />
           Profile
-        </Button>
-      </Link>
-
-      {/* Todo: Teams */}
-      <Link href="/settings/teams">
-        <Button
-          variant="ghost"
-          className={cn(
-            'w-full justify-start',
-            pathname?.startsWith('/settings/teams') && 'bg-secondary',
-          )}
-        >
-          <Key className="mr-2 h-5 w-5" />
-          Teams
         </Button>
       </Link>
 
@@ -78,7 +66,7 @@ export const MobileNav = ({ className, ...props }: MobileNavProps) => {
             Billing
           </Button>
         </Link>
-      )}
+      )} */}
     </div>
   );
 };
