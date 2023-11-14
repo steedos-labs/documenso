@@ -3,6 +3,7 @@ import {
   Button,
   Container,
   Head,
+  Hr,
   Html,
   Preview,
   Section,
@@ -26,8 +27,6 @@ export const TeamInviteEmailTemplate = ({
   inviteToken = '',
 }: TeamInviteEmailProps) => {
   const previewText = `Accept the invitation to join Todo: Teams`;
-
-  // http://localhost:3000/accept-invitation?token=O2qzglbAaitA4wx5eawXb4DMhXKSFUnU
 
   return (
     <Html>
@@ -62,6 +61,8 @@ export const TeamInviteEmailTemplate = ({
                 </Button>
               </Section>
             </Container>
+
+            <Hr className="mx-auto mt-12 max-w-xl" />
 
             <Container className="mx-auto max-w-xl">
               <TemplateFooter />

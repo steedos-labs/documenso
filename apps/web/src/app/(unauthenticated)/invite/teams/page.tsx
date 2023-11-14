@@ -1,8 +1,8 @@
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
 
-import { getRequiredServerComponentSession } from '@documenso/lib/next-auth/get-server-session';
-import { getTeam } from '@documenso/lib/server-only/team/get-teams';
+import { getServerComponentSession } from '@documenso/lib/next-auth/get-server-session';
+import { getTeamById } from '@documenso/lib/server-only/team/get-teams';
 import { prisma } from '@documenso/prisma';
 import { TeamMemberInviteStatus } from '@documenso/prisma/client';
 import { Button } from '@documenso/ui/primitives/button';
@@ -19,7 +19,7 @@ export default async function AcceptInvitationPage({ searchParams }: AcceptInvit
     redirect('/');
   }
 
-  const session = await getRequiredServerComponentSession();
+  const session = await getServerComponentSession();
 
   const teamMemberInvite = await prisma.teamMemberInvite.findUnique({
     where: {
@@ -43,7 +43,7 @@ export default async function AcceptInvitationPage({ searchParams }: AcceptInvit
     );
   }
 
-  const team = await getTeam({ teamId: teamMemberInvite.teamId });
+  const team = await getTeamById({ teamId: teamMemberInvite.teamId });
 
   const user = await prisma.user.findFirst({
     where: {

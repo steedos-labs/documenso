@@ -1,9 +1,9 @@
 import { prisma } from '@documenso/prisma';
 import { Prisma } from '@documenso/prisma/client';
 
-export interface GetTeamsOptions {
+export type GetTeamsOptions = {
   userId: number;
-}
+};
 
 export const getTeams = async ({ userId }: GetTeamsOptions) => {
   return await prisma.team.findMany({
@@ -18,17 +18,17 @@ export const getTeams = async ({ userId }: GetTeamsOptions) => {
   });
 };
 
-export interface GetTeamOptions {
+export type GetTeamByIdOptions = {
   userId?: number;
   teamId: number;
-}
+};
 
 /**
  * Get a team given a teamId.
  *
  * Provide an optional userId to check that the user is a member of the team.
  */
-export const getTeam = async ({ userId, teamId }: GetTeamOptions) => {
+export const getTeamById = async ({ userId, teamId }: GetTeamByIdOptions) => {
   const whereFilter: Prisma.TeamWhereUniqueInput = {
     id: teamId,
   };
@@ -47,19 +47,19 @@ export const getTeam = async ({ userId, teamId }: GetTeamOptions) => {
   });
 };
 
-export interface GetTeamOptions {
+export type GetTeamByUrlOptions = {
   userId?: number;
-  teamId: number;
-}
+  teamUrl: string;
+};
 
 /**
- * Get a team the members associated with it.
+ * Get a team given a teamId.
  *
  * Provide an optional userId to check that the user is a member of the team.
  */
-export const getTeamMembers = async ({ userId, teamId }: GetTeamOptions) => {
+export const getTeamByUrl = async ({ userId, teamUrl }: GetTeamByUrlOptions) => {
   const whereFilter: Prisma.TeamWhereUniqueInput = {
-    id: teamId,
+    url: teamUrl,
   };
 
   if (userId !== undefined) {
@@ -70,14 +70,8 @@ export const getTeamMembers = async ({ userId, teamId }: GetTeamOptions) => {
     };
   }
 
-  // Todo: Teams - Limit to admin only
-  // Todo: Teams - Limit member information returned
-
   // Todo: Teams - Only return the fields we need.
   return await prisma.team.findUniqueOrThrow({
     where: whereFilter,
-    include: {
-      members: true,
-    },
   });
 };

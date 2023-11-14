@@ -5,7 +5,7 @@ import { Prisma } from '@documenso/prisma/client';
 
 import { AppError, AppErrorCode } from '../../errors/app-error';
 
-export interface CreateTeamOptions {
+export type CreateTeamOptions = {
   /**
    * ID of the user creating the Team.
    */
@@ -22,7 +22,7 @@ export interface CreateTeamOptions {
    * Used as the URL path, example: https://documenso.com/settings/teams/{teamUrl}
    */
   teamUrl: string;
-}
+};
 
 export const createTeam = async ({ name, userId, teamUrl }: CreateTeamOptions) => {
   const user = await prisma.user.findUniqueOrThrow({

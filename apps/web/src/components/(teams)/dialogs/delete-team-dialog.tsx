@@ -6,7 +6,6 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 
-import { DocumentData } from '@documenso/prisma/client';
 import { trpc } from '@documenso/trpc/react';
 import { Button } from '@documenso/ui/primitives/button';
 import {
@@ -32,7 +31,6 @@ import { useToast } from '@documenso/ui/primitives/use-toast';
 export type DeleteTeamDialogProps = {
   teamId: number;
   teamName: string;
-  documentData?: DocumentData;
   trigger?: React.ReactNode;
 };
 

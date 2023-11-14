@@ -16,6 +16,10 @@ export const ZGetTeamMutationSchema = z.object({
   teamId: z.number(),
 });
 
+export const ZGetTeamMembersMutationSchema = z.object({
+  teamId: z.number(),
+});
+
 export const ZInviteTeamMembersMutationSchema = z.object({
   teamId: z.number(),
   invitations: z.array(
@@ -30,8 +34,17 @@ export const ZUpdateTeamMutationSchema = z.object({
   teamId: z.number(),
 });
 
+export const ZTransferTeamOwnershipMutationSchema = z.object({
+  teamId: z.number(),
+  newOwnerUserId: z.number(),
+});
+
 export type TCreateTeamMutationSchema = z.infer<typeof ZCreateTeamMutationSchema>;
 export type TDeleteTeamMutationSchema = z.infer<typeof ZDeleteTeamMutationSchema>;
 export type TGetTeamMutationSchema = z.infer<typeof ZGetTeamMutationSchema>;
+export type TGetTeamMembersMutationSchema = z.infer<typeof ZGetTeamMembersMutationSchema>;
 export type TInviteTeamMembersMutationSchema = z.infer<typeof ZInviteTeamMembersMutationSchema>;
 export type TUpdateTeamMutationSchema = z.infer<typeof ZUpdateTeamMutationSchema>;
+export type TTransferTeamOwnershipMutationSchema = z.infer<
+  typeof ZTransferTeamOwnershipMutationSchema
+>;

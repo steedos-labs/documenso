@@ -42,12 +42,12 @@ import { useToast } from '@documenso/ui/primitives/use-toast';
 
 export const ZInviteTeamMembersFormSchema = z
   .object({
-    members: ZInviteTeamMembersMutationSchema.shape.members,
+    invitations: ZInviteTeamMembersMutationSchema.shape.invitations,
   })
   // Todo: Teams
   .refine(
     (schema) => {
-      const emails = schema.members.map((member) => member.email.toLowerCase());
+      const emails = schema.invitations.map((invitation) => invitation.email.toLowerCase());
 
       return new Set(emails).size === emails.length;
     },
@@ -74,7 +74,7 @@ export default function InviteTeamMembersDialog({
   const form = useForm<TInviteTeamMembersFormSchema>({
     resolver: zodResolver(ZInviteTeamMembersFormSchema),
     defaultValues: {
-      members: [
+      invitations: [
         {
           email: '',
           role: TeamMemberRole.MEMBER,
@@ -89,7 +89,7 @@ export default function InviteTeamMembersDialog({
     remove: removeTeamMemberInvite,
   } = useFieldArray({
     control: form.control,
-    name: 'members',
+    name: 'invitations',
   });
 
   const { mutateAsync: inviteTeamMembers } = trpc.team.inviteTeamMembers.useMutation();
@@ -101,11 +101,11 @@ export default function InviteTeamMembersDialog({
     });
   };
 
-  const onFormSubmit = async ({ members }: TInviteTeamMembersFormSchema) => {
+  const onFormSubmit = async ({ invitations }: TInviteTeamMembersFormSchema) => {
     try {
       await inviteTeamMembers({
         teamId,
-        members,
+        invitations,
       });
 
       toast({
@@ -158,7 +158,7 @@ export default function InviteTeamMembersDialog({
                   <div className="flex w-full flex-row space-x-4" key={teamMemberInvite.id}>
                     <FormField
                       control={form.control}
-                      name={`members.${index}.email`}
+                      name={`invitations.${index}.email`}
                       render={({ field }) => (
                         <FormItem className="w-full">
                           {index === 0 && <FormLabel required>Email address</FormLabel>}
@@ -172,7 +172,7 @@ export default function InviteTeamMembersDialog({
 
                     <FormField
                       control={form.control}
-                      name={`members.${index}.role`}
+                      name={`invitations.${index}.role`}
                       render={({ field }) => (
                         <FormItem className="w-full">
                           {index === 0 && <FormLabel required>Role</FormLabel>}

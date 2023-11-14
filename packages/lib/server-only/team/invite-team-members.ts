@@ -12,7 +12,7 @@ import { TInviteTeamMembersMutationSchema } from '@documenso/trpc/server/team-ro
 
 import { WEBAPP_BASE_URL } from '../../constants/app';
 import { AppError } from '../../errors/app-error';
-import { getTeam } from './get-teams';
+import { getTeamById } from './get-teams';
 
 export type InviteTeamMembersOptions = {
   userId: number;
@@ -29,7 +29,7 @@ export const inviteTeamMembers = async ({
   invitations,
 }: InviteTeamMembersOptions) => {
   const [team, currentTeamMemberEmails, currentTeamMemberInviteEmails] = await Promise.all([
-    getTeam({ userId, teamId }),
+    getTeamById({ userId, teamId }),
     getTeamMemberEmails(teamId),
     getTeamInvites(teamId),
   ]);
