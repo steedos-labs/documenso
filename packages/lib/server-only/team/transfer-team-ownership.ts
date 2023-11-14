@@ -26,7 +26,7 @@ export const transferTeamOwnership = async ({
   // await prisma.team.findUniqueOrThrow({
   //   where: {
   //     id: teamId,
-  //     ownerId: userId,
+  //     ownerUserId: userId,
   //     members: {
   //       some: {
   //         userId: newOwnerUserId,
@@ -40,7 +40,7 @@ export const transferTeamOwnership = async ({
   return await prisma.team.update({
     where: {
       id: teamId,
-      ownerId: userId,
+      ownerUserId: userId,
       members: {
         some: {
           userId: newOwnerUserId,
@@ -48,7 +48,20 @@ export const transferTeamOwnership = async ({
       },
     },
     data: {
-      ownerId: newOwnerUserId,
+      ownerUserId: newOwnerUserId,
+      members: {
+        update: {
+          where: {
+            userId_teamId: {
+              teamId,
+              userId: newOwnerUserId,
+            },
+          },
+          data: {
+            role: 'ADMIN',
+          },
+        },
+      },
     },
   });
 };

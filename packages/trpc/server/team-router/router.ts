@@ -4,6 +4,7 @@ import { deleteTeam } from '@documenso/lib/server-only/team/delete-team';
 import { getTeamMembers } from '@documenso/lib/server-only/team/get-team-members';
 import { getTeamById, getTeams } from '@documenso/lib/server-only/team/get-teams';
 import { inviteTeamMembers } from '@documenso/lib/server-only/team/invite-team-members';
+import { removeTeamMembers } from '@documenso/lib/server-only/team/remove-team-members';
 import { transferTeamOwnership } from '@documenso/lib/server-only/team/transfer-team-ownership';
 import { updateTeam } from '@documenso/lib/server-only/team/update-team';
 
@@ -14,6 +15,7 @@ import {
   ZGetTeamMembersMutationSchema,
   ZGetTeamMutationSchema,
   ZInviteTeamMembersMutationSchema,
+  ZRemoveTeamMemberspMutationSchema,
   ZTransferTeamOwnershipMutationSchema,
   ZUpdateTeamMutationSchema,
 } from './schema';
@@ -125,14 +127,34 @@ export const teamRouter = router({
       }
     }),
 
+  removeTeamMember: authenticatedProcedure
+    .input(ZRemoveTeamMemberspMutationSchema)
+    .mutation(async ({ input, ctx }) => {
+      try {
+        const { teamId, teamMemberIds } = input;
+
+        return await removeTeamMembers({
+          userId: ctx.user.id,
+          teamId,
+          teamMemberIds,
+        });
+      } catch (err) {
+        console.error(err);
+
+        throw AppError.parseErrorToTRPCError(err);
+      }
+    }),
+
   transferTeamOwnership: authenticatedProcedure
     .input(ZTransferTeamOwnershipMutationSchema)
     .mutation(async ({ input, ctx }) => {
       try {
+        const { teamId, newOwnerUserId } = input;
+
         return await transferTeamOwnership({
           userId: ctx.user.id,
-          teamId: input.teamId,
-          newOwnerUserId: input.newOwnerUserId,
+          teamId,
+          newOwnerUserId,
         });
       } catch (err) {
         console.error(err);

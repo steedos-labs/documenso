@@ -8,6 +8,7 @@ import { Mail, PlusCircle, Trash } from 'lucide-react';
 import { useFieldArray, useForm } from 'react-hook-form';
 import { z } from 'zod';
 
+import { TEAM_MEMBER_ROLE_MAP } from '@documenso/lib/constants/teams';
 import { TeamMemberRole } from '@documenso/prisma/client';
 import { trpc } from '@documenso/trpc/react';
 import { ZInviteTeamMembersMutationSchema } from '@documenso/trpc/server/team-router/schema';
@@ -185,7 +186,7 @@ export default function InviteTeamMembersDialog({
                               <SelectContent position="popper">
                                 {Object.values(TeamMemberRole).map((role) => (
                                   <SelectItem key={role} value={role}>
-                                    {role}
+                                    {TEAM_MEMBER_ROLE_MAP[role] ?? role}
                                   </SelectItem>
                                 ))}
                               </SelectContent>

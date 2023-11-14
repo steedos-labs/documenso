@@ -271,27 +271,28 @@ enum TeamMemberInviteStatus {
 }
 
 model Team {
-  id        Int                @id @default(autoincrement())
-  name      String
-  url       String             @unique
-  avatar    String? // Todo: Teams - Use uri
-  emails    String[] // Todo: Teams - How will this work?
-  createdAt DateTime           @default(now())
-  ownerId   Int
-  members   TeamMember[]
-  invites   TeamMemberInvite[]
+  id          Int                @id @default(autoincrement())
+  name        String
+  url         String             @unique
+  avatar      String? // Todo: Teams - Use uri
+  emails      String[] // Todo: Teams - How will this work?
+  createdAt   DateTime           @default(now())
+  ownerUserId Int // Todo: Teams - Rename to ownerUserId, also ensure should this be a userId + teamId?
+  members     TeamMember[]
+  invites     TeamMemberInvite[]
 
-  Owner User @relation(fields: [ownerId], references: [id])
+  Owner User @relation(fields: [ownerUserId], references: [id])
 }
 
 model TeamMember {
-  id     Int              @id @default(autoincrement())
-  teamId Int
-  status TeamMemberStatus @default(PENDING)
-  role   TeamMemberRole
-  userId Int
-  user   User             @relation(fields: [userId], references: [id])
-  team   Team             @relation(fields: [teamId], references: [id])
+  id        Int              @id @default(autoincrement())
+  teamId    Int
+  createdAt DateTime         @default(now())
+  status    TeamMemberStatus @default(PENDING)
+  role      TeamMemberRole
+  userId    Int
+  user      User             @relation(fields: [userId], references: [id])
+  team      Team             @relation(fields: [teamId], references: [id])
 
   @@unique([userId, teamId])
 }

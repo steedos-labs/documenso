@@ -41,7 +41,7 @@ import { useToast } from '@documenso/ui/primitives/use-toast';
 export type TransferTeamDialogProps = {
   teamId: number;
   teamName: string;
-  teamOwnerId: number;
+  ownerUserId: number;
   trigger?: React.ReactNode;
 };
 
@@ -49,7 +49,7 @@ export default function TransferTeamDialog({
   trigger,
   teamId,
   teamName,
-  teamOwnerId,
+  ownerUserId,
 }: TransferTeamDialogProps) {
   const router = useRouter();
   const [open, setOpen] = useState(false);
@@ -120,7 +120,7 @@ export default function TransferTeamDialog({
   }, [open, loadingTeamMembersError, refetchTeamMembers]);
 
   const teamMembers = data
-    ? data.filter((teamMember) => teamMember.userId !== teamOwnerId)
+    ? data.filter((teamMember) => teamMember.userId !== ownerUserId)
     : undefined;
 
   return (

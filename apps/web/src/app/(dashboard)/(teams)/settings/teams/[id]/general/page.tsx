@@ -66,8 +66,12 @@ export default async function TeamsSettingsGeneralPage({ params }: TeamsSettings
       <hr className="my-6" />
 
       <div className="flex justify-end space-x-4 rounded-lg bg-gray-50/50 p-4">
-        {team.ownerId === session.user.id && (
-          <TransferTeamDialog teamOwnerId={team.ownerId} teamId={team.id} teamName={team.name} />
+        {team.ownerUserId === session.user.id && (
+          <TransferTeamDialog
+            ownerUserId={team.ownerUserId}
+            teamId={team.id}
+            teamName={team.name}
+          />
         )}
 
         <DeleteTeamDialog teamId={team.id} teamName={team.name} />

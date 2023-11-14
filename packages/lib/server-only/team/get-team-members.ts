@@ -29,6 +29,7 @@ export const getTeamMembers = async ({ userId, teamId }: GetTeamMembersOptions) 
     include: {
       user: {
         select: {
+          email: true,
           name: true,
         },
       },

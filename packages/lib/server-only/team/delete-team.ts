@@ -9,7 +9,7 @@ export const deleteTeam = async ({ userId, teamId }: DeleteTeamOptions) => {
   await prisma.team.delete({
     where: {
       id: teamId,
-      ownerId: userId,
+      ownerUserId: userId,
     },
   });
 };

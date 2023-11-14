@@ -10,14 +10,14 @@ export const updateTeam = async ({ userId, teamId }: UpdateTeamOptions) => {
   await prisma.team.findUniqueOrThrow({
     where: {
       id: teamId,
-      ownerId: userId,
+      ownerUserId: userId,
     },
   });
 
   const updatedTeam = await prisma.team.update({
     where: {
       id: teamId,
-      ownerId: userId,
+      ownerUserId: userId,
     },
     data: {
       // Todo: Teams

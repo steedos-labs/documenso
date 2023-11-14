@@ -32,6 +32,17 @@ export const ZInviteTeamMembersMutationSchema = z.object({
 
 export const ZUpdateTeamMutationSchema = z.object({
   teamId: z.number(),
+  data: z.object({
+    // Todo: Teams
+    name: z.string().min(1),
+    url: z.string().min(1), // Todo: Apply regex. Todo: lowercase, etc
+    // avatar: z.string().min(1), Todo: Teams
+  }),
+});
+
+export const ZRemoveTeamMemberspMutationSchema = z.object({
+  teamId: z.number(),
+  teamMemberIds: z.array(z.number()),
 });
 
 export const ZTransferTeamOwnershipMutationSchema = z.object({
@@ -45,6 +56,7 @@ export type TGetTeamMutationSchema = z.infer<typeof ZGetTeamMutationSchema>;
 export type TGetTeamMembersMutationSchema = z.infer<typeof ZGetTeamMembersMutationSchema>;
 export type TInviteTeamMembersMutationSchema = z.infer<typeof ZInviteTeamMembersMutationSchema>;
 export type TUpdateTeamMutationSchema = z.infer<typeof ZUpdateTeamMutationSchema>;
+export type TRemoveTeamMemberspMutationSchema = z.infer<typeof ZRemoveTeamMemberspMutationSchema>;
 export type TTransferTeamOwnershipMutationSchema = z.infer<
   typeof ZTransferTeamOwnershipMutationSchema
 >;
