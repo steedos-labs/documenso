@@ -52,7 +52,7 @@ export default function TeamsSettingsPage() {
             {/* Todo */}
             {teams?.map((team) => (
               <li key={team.id}>
-                <Link href={`/settings/teams/${team.id}`}>{team.name}</Link>
+                <Link href={`/settings/teams/${team.url}`}>{team.name}</Link>
               </li>
             ))}
           </ul>
