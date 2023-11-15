@@ -1,0 +1,83 @@
+import { P, match } from 'ts-pattern';
+
+import { prisma } from '@documenso/prisma';
+import { Prisma, Team } from '@documenso/prisma/client';
+
+import { FindResultSet } from '../../types/find-result-set';
+
+export interface FindTeamsOptions {
+  userId: number;
+  term?: string;
+  page?: number;
+  perPage?: number;
+  orderBy?: {
+    column: keyof Omit<Team, 'document'>;
+    direction: 'asc' | 'desc';
+  };
+}
+
+export const findTeams = async ({
+  userId,
+  term,
+  page = 1,
+  perPage = 10,
+  orderBy,
+}: FindTeamsOptions) => {
+  const orderByColumn = orderBy?.column ?? 'name';
+  const orderByDirection = orderBy?.direction ?? 'desc';
+
+  const termFilters: Prisma.TeamWhereInput | undefined = match(term)
+    .with(P.string.minLength(1), () => {
+      return {
+        name: {
+          contains: term,
+          mode: Prisma.QueryMode.insensitive,
+        },
+      };
+    })
+    .otherwise(() => undefined);
+
+  const whereClause: Prisma.TeamWhereInput = {
+    ...termFilters,
+    members: {
+      some: {
+        userId,
+      },
+    },
+  };
+
+  const [data, count] = await Promise.all([
+    prisma.team.findMany({
+      where: whereClause,
+      skip: Math.max(page - 1, 0) * perPage,
+      take: perPage,
+      orderBy: {
+        [orderByColumn]: orderByDirection,
+      },
+      include: {
+        members: {
+          where: {
+            userId,
+          },
+        },
+      },
+    }),
+    prisma.team.count({
+      where: whereClause,
+    }),
+  ]);
+
+  const maskedData = data.map((team) => ({
+    ...team,
+    currentTeamMember: team.members[0],
+    members: undefined,
+  }));
+
+  return {
+    data: maskedData,
+    count,
+    currentPage: Math.max(page, 1),
+    perPage,
+    totalPages: Math.ceil(count / perPage),
+  } satisfies FindResultSet<typeof maskedData>;
+};

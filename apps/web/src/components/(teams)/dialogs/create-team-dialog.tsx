@@ -159,7 +159,7 @@ export default function CreateTeamDialog({ trigger, ...props }: CreateTeamDialog
                         <span className="text-foreground/50 text-xs font-normal">
                           {field.value
                             ? `${WEBAPP_BASE_URL}/t/${field.value}`
-                            : 'A unique URL to encapsulate your team'}
+                            : 'A unique URL to identify your team'}
                         </span>
                       )}
 

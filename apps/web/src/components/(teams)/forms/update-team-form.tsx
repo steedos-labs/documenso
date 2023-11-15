@@ -1,15 +1,11 @@
 'use client';
 
-import { useState } from 'react';
-
 import { zodResolver } from '@hookform/resolvers/zod';
-import * as DialogPrimitive from '@radix-ui/react-dialog';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 
 import { WEBAPP_BASE_URL } from '@documenso/lib/constants/app';
 import { AppError, AppErrorCode } from '@documenso/lib/errors/app-error';
-import { DocumentData } from '@documenso/prisma/client';
 import { trpc } from '@documenso/trpc/react';
 import { Button } from '@documenso/ui/primitives/button';
 import {
@@ -23,9 +19,10 @@ import {
 import { Input } from '@documenso/ui/primitives/input';
 import { useToast } from '@documenso/ui/primitives/use-toast';
 
-// Todo: Teams
 export type UpdateTeamDialogProps = {
-  //
+  teamId: number;
+  teamName: string;
+  teamUrl: string;
 };
 
 export const ZUpdateTeamFormSchema = z.object({
@@ -33,26 +30,29 @@ export const ZUpdateTeamFormSchema = z.object({
   url: z.string().min(1, 'Please enter a value.'), // Todo: Teams - Restrict certain symbols.
 });
 
-export type TCreateTeamFormSchema = z.infer<typeof ZUpdateTeamFormSchema>;
+export type TUpdateTeamFormSchema = z.infer<typeof ZUpdateTeamFormSchema>;
 
-export default function UpdateTeamForm(_todo: UpdateTeamDialogProps) {
+export default function UpdateTeamForm({ teamId, teamName, teamUrl }: UpdateTeamDialogProps) {
   const { toast } = useToast();
 
   const form = useForm({
     resolver: zodResolver(ZUpdateTeamFormSchema),
     defaultValues: {
-      name: '',
-      url: '',
+      name: teamName,
+      url: teamUrl,
     },
   });
 
   const { mutateAsync: updateTeam } = trpc.team.updateTeam.useMutation();
 
-  const onFormSubmit = async ({ name, url }: TCreateTeamFormSchema) => {
+  const onFormSubmit = async ({ name, url }: TUpdateTeamFormSchema) => {
     try {
       await updateTeam({
-        name,
-        url,
+        data: {
+          name,
+          url,
+        },
+        teamId,
       });
 
       toast({
@@ -131,7 +131,7 @@ export default function UpdateTeamForm(_todo: UpdateTeamDialogProps) {
                     <span className="text-foreground/50 text-xs font-normal">
                       {field.value
                         ? `${WEBAPP_BASE_URL}/t/${field.value}`
-                        : 'A unique URL to encapsulate your team'}
+                        : 'A unique URL to identify your team'}
                     </span>
                   )}
 

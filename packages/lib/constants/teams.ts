@@ -5,3 +5,21 @@ export const TEAM_MEMBER_ROLE_MAP: Record<keyof typeof TeamMemberRole, string> =
   MANAGER: 'Manager',
   MEMBER: 'Member',
 };
+
+export const TEAM_MEMBER_ROLE_PERMISSIONS_MAP = {
+  MANAGE_TEAM: [TeamMemberRole.ADMIN, TeamMemberRole.MANAGER],
+} satisfies Record<string, TeamMemberRole[]>;
+
+/**
+ * Determines whether a team member can execute a given action.
+ *
+ * @param action The action the user is trying to execute.
+ * @param role The current role of the user.
+ * @returns Whether the user can execute the action.
+ */
+export const canExecuteTeamAction = (
+  action: keyof typeof TEAM_MEMBER_ROLE_PERMISSIONS_MAP,
+  role: keyof typeof TEAM_MEMBER_ROLE_MAP,
+) => {
+  return TEAM_MEMBER_ROLE_PERMISSIONS_MAP[action].some((i) => i === role);
+};

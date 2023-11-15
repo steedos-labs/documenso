@@ -260,11 +260,6 @@ enum TeamMemberRole {
   MEMBER
 }
 
-enum TeamMemberStatus {
-  ACTIVE
-  PENDING
-}
-
 enum TeamMemberInviteStatus {
   ACCEPTED
   PENDING
@@ -277,7 +272,7 @@ model Team {
   avatar      String? // Todo: Teams - Use uri
   emails      String[] // Todo: Teams - How will this work?
   createdAt   DateTime           @default(now())
-  ownerUserId Int // Todo: Teams - Rename to ownerUserId, also ensure should this be a userId + teamId?
+  ownerUserId Int
   members     TeamMember[]
   invites     TeamMemberInvite[]
 
@@ -285,14 +280,13 @@ model Team {
 }
 
 model TeamMember {
-  id        Int              @id @default(autoincrement())
+  id        Int            @id @default(autoincrement())
   teamId    Int
-  createdAt DateTime         @default(now())
-  status    TeamMemberStatus @default(PENDING)
+  createdAt DateTime       @default(now())
   role      TeamMemberRole
   userId    Int
-  user      User             @relation(fields: [userId], references: [id])
-  team      Team             @relation(fields: [teamId], references: [id])
+  user      User           @relation(fields: [userId], references: [id])
+  team      Team           @relation(fields: [teamId], references: [id])
 
   @@unique([userId, teamId])
 }
@@ -301,7 +295,7 @@ model TeamMemberInvite {
   id     Int                    @id @default(autoincrement())
   teamId Int
   email  String
-  status TeamMemberInviteStatus @default(PENDING) // Todo: Teams - redundant? TeamMemberStatus
+  status TeamMemberInviteStatus @default(PENDING)
   role   TeamMemberRole
   token  String                 @unique
   team   Team                   @relation(fields: [teamId], references: [id])

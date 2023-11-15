@@ -26,19 +26,18 @@ export default async function TeamsSettingsGeneralPage({ params }: TeamsSettings
     <div>
       <SettingsHeader title="Team Profile" subtitle="Here you can edit your team's details." />
 
-      <div className="mb-4 flex flex-row items-center space-x-4">
-        {/* Team icon */}
+      {/* Todo: Teams avatar */}
+      {/* <div className="mb-4 flex flex-row items-center space-x-4">
         <div className="flex h-10 w-10 items-center justify-center rounded-lg border">D</div>
 
-        {/* Todo: Teams - Dark/Light mode, new variant? */}
-        <Button variant="outline" className="bg-black/50">
+        <Button variant="outline">
           Change team icon
         </Button>
 
         <Button variant="ghost">Remove</Button>
-      </div>
+      </div> */}
 
-      <UpdateTeamForm />
+      <UpdateTeamForm teamId={team.id} teamName={team.name} teamUrl={team.url} />
 
       <hr className="my-6" />
 

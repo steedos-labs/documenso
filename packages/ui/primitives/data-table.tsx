@@ -12,6 +12,7 @@ import {
   useReactTable,
 } from '@tanstack/react-table';
 
+import { Skeleton } from './skeleton';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from './table';
 
 export type DataTableChildren<TData> = (_table: TTable<TData>) => React.ReactNode;
@@ -24,14 +25,25 @@ export interface DataTableProps<TData, TValue> {
   totalPages?: number;
   onPaginationChange?: (_page: number, _perPage: number) => void;
   children?: DataTableChildren<TData>;
+  skeleton?: {
+    enable: boolean;
+    rows: number;
+    component?: React.ReactNode;
+  };
+  error?: {
+    enable: boolean;
+    component?: React.ReactNode;
+  };
 }
 
 export function DataTable<TData, TValue>({
   columns,
   data,
+  error,
   perPage,
   currentPage,
   totalPages,
+  skeleton,
   onPaginationChange,
   children,
 }: DataTableProps<TData, TValue>) {
@@ -102,6 +114,18 @@ export function DataTable<TData, TValue>({
                     </TableCell>
                   ))}
                 </TableRow>
+              ))
+            ) : error?.enable ? (
+              <TableRow>
+                {error.component ?? (
+                  <TableCell colSpan={columns.length} className="h-24 text-center">
+                    Something went wrong.
+                  </TableCell>
+                )}
+              </TableRow>
+            ) : skeleton?.enable ? (
+              Array.from({ length: skeleton.rows }).map((_, i) => (
+                <TableRow key={`skeleton-row-${i}`}>{skeleton.component ?? <Skeleton />}</TableRow>
               ))
             ) : (
               <TableRow>
