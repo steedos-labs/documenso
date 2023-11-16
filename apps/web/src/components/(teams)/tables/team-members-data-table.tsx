@@ -2,16 +2,15 @@
 
 import { useEffect, useState } from 'react';
 
-import Link from 'next/link';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 
-import { ArrowRight, DoorOpen, Edit, MoreHorizontal } from 'lucide-react';
+import { Edit, MoreHorizontal } from 'lucide-react';
 import { z } from 'zod';
 
 import { useDebouncedValue } from '@documenso/lib/client-only/hooks/use-debounced-value';
 import { useUpdateSearchParams } from '@documenso/lib/client-only/hooks/use-update-search-params';
-import { WEBAPP_BASE_URL } from '@documenso/lib/constants/app';
-import { TEAM_MEMBER_ROLE_MAP, canExecuteTeamAction } from '@documenso/lib/constants/teams';
+import { TEAM_MEMBER_ROLE_MAP } from '@documenso/lib/constants/teams';
+import { recipientInitials } from '@documenso/lib/utils/recipient-formatter';
 import { trpc } from '@documenso/trpc/react';
 import { Avatar, AvatarFallback } from '@documenso/ui/primitives/avatar';
 import { DataTable } from '@documenso/ui/primitives/data-table';
@@ -28,6 +27,8 @@ import { Skeleton } from '@documenso/ui/primitives/skeleton';
 import { TableCell } from '@documenso/ui/primitives/table';
 
 import { LocaleDate } from '~/components/formatter/locale-date';
+
+import TeamMemberTableTabs from './team-member-table-tabs';
 
 export const ZTeamsDataTableSearchParamsSchema = z.object({
   query: z
@@ -46,7 +47,11 @@ export const ZTeamsDataTableSearchParamsSchema = z.object({
     .catch(() => undefined),
 });
 
-export default function TeamsDataTable() {
+export type TeamMembersDataTableProps = {
+  teamId: number;
+};
+
+export default function TeamMembersDataTable({ teamId }: TeamMembersDataTableProps) {
   const router = useRouter();
   const searchParams = useSearchParams()!;
   const pathname = usePathname();
@@ -61,8 +66,9 @@ export default function TeamsDataTable() {
   const debouncedSearchQuery = useDebouncedValue(searchQuery, 500);
 
   const { data, isLoading, isInitialLoading, isLoadingError, isFetching, isPreviousData } =
-    trpc.team.findTeams.useQuery(
+    trpc.team.findTeamMembers.useQuery(
       {
+        teamId,
         term: parsedSearchParams.query,
         page: parsedSearchParams.page,
         perPage: parsedSearchParams.perPage,
@@ -107,43 +113,49 @@ export default function TeamsDataTable() {
 
   return (
     <div>
-      <InputWithLoader
-        defaultValue={searchQuery}
-        onChange={(e) => setSearchQuery(e.target.value)}
-        placeholder="Search teams"
-        className="mt-4"
-        loading={isFetching && !isInitialLoading && isPreviousData}
-      />
+      <div className="mt-4 flex flex-row items-center justify-between space-x-4">
+        <InputWithLoader
+          defaultValue={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          placeholder="Search team members"
+          loading={isFetching && !isInitialLoading && isPreviousData}
+        />
+
+        <TeamMemberTableTabs />
+      </div>
 
       <div className="relative mt-4">
         <DataTable
           columns={[
             {
-              header: 'Team',
-              accessorKey: 'name',
-              cell: ({ row }) => (
-                <Link href={`/t/${row.original.url}`} scroll={false}>
+              header: 'Team Member',
+              cell: ({ row }) => {
+                const avatarFallbackText = row.original.user.name
+                  ? recipientInitials(row.original.user.name) // Todo: Teams - Extract to `nameInitials`
+                  : row.original.user.email.slice(0, 1).toUpperCase();
+
+                return (
                   <div className="flex max-w-xs items-center gap-2">
                     <Avatar className="dark:border-border h-12 w-12 border-2 border-solid border-white">
                       <AvatarFallback className="text-xs text-gray-400">
-                        {row.original.name.slice(0, 1).toUpperCase()}
+                        {avatarFallbackText}
                       </AvatarFallback>
                     </Avatar>
 
                     <div className="flex flex-col text-sm">
-                      <span className="text-foreground/80 font-semibold">{row.original.name}</span>
-                      <span className="text-muted-foreground">
-                        {WEBAPP_BASE_URL}/t/{row.original.url}
+                      <span className="text-foreground/80 font-semibold">
+                        {row.original.user.name}
                       </span>
+                      <span className="text-muted-foreground">{row.original.user.email}</span>
                     </div>
                   </div>
-                </Link>
-              ),
+                );
+              },
             },
             {
               header: 'Role',
               accessorKey: 'role',
-              cell: ({ row }) => TEAM_MEMBER_ROLE_MAP[row.original.currentTeamMember.role],
+              cell: ({ row }) => TEAM_MEMBER_ROLE_MAP[row.original.role] ?? row.original.role,
             },
             {
               header: 'Member Since',
@@ -161,42 +173,27 @@ export default function TeamsDataTable() {
                   <DropdownMenuContent className="w-52" align="start" forceMount>
                     <DropdownMenuLabel>Actions</DropdownMenuLabel>
 
-                    <DropdownMenuItem asChild>
-                      <Link href={`/t/${row.original.url}`}>
-                        <ArrowRight className="mr-2 h-4 w-4" />
-                        View
-                      </Link>
+                    <DropdownMenuItem>
+                      <Edit className="mr-2 h-4 w-4" />
+                      Edit
                     </DropdownMenuItem>
 
-                    {canExecuteTeamAction('MANAGE_TEAM', row.original.currentTeamMember.role) && (
-                      <DropdownMenuItem asChild>
-                        <Link href={`/settings/teams/${row.original.url}/general`}>
-                          <Edit className="mr-2 h-4 w-4" />
-                          Manage
-                        </Link>
-                      </DropdownMenuItem>
-                    )}
-
-                    {row.original.ownerUserId !== row.original.currentTeamMember.userId && (
-                      // Todo: Teams.
-                      <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
-                        <DoorOpen className="mr-2 h-4 w-4" />
-                        Leave
-                      </DropdownMenuItem>
-
-                      // <DeleteTeamMemberDialog
-                      //   teamId={team.id}
-                      //   teamName={team.name}
-                      //   teamMemberId={row.original.id}
-                      //   teamMemberName={row.original.user.name ?? row.original.user.email}
-                      //   trigger={
-                      //     <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
-                      //       <DoorOpen className="mr-2 h-4 w-4" />
-                      //       Leave
-                      //     </DropdownMenuItem>
-                      //   }
-                      // />
-                    )}
+                    {/* Todo: Teams. */}
+                    {/* <DeleteTeamMemberDialog
+                      teamId={team.id}
+                      teamName={team.name}
+                      teamMemberId={row.original.id}
+                      teamMemberName={row.original.user.name ?? row.original.user.email}
+                      trigger={
+                        <DropdownMenuItem
+                          onSelect={(e) => e.preventDefault()}
+                          disabled={team.ownerUserId === row.original.userId}
+                        >
+                          <Trash2 className="mr-2 h-4 w-4" />
+                          Remove
+                        </DropdownMenuItem>
+                      }
+                    /> */}
                   </DropdownMenuContent>
                 </DropdownMenu>
               ),

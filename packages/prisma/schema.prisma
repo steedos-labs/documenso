@@ -292,13 +292,14 @@ model TeamMember {
 }
 
 model TeamMemberInvite {
-  id     Int                    @id @default(autoincrement())
-  teamId Int
-  email  String
-  status TeamMemberInviteStatus @default(PENDING)
-  role   TeamMemberRole
-  token  String                 @unique
-  team   Team                   @relation(fields: [teamId], references: [id])
+  id        Int                    @id @default(autoincrement())
+  teamId    Int
+  createdAt DateTime               @default(now())
+  email     String
+  status    TeamMemberInviteStatus @default(PENDING)
+  role      TeamMemberRole
+  token     String                 @unique
+  team      Team                   @relation(fields: [teamId], references: [id])
 
   @@unique([teamId, email])
 }

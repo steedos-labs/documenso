@@ -1,6 +1,8 @@
 import { AppError } from '@documenso/lib/errors/app-error';
 import { createTeam } from '@documenso/lib/server-only/team/create-team';
 import { deleteTeam } from '@documenso/lib/server-only/team/delete-team';
+import { findTeamMemberInvites } from '@documenso/lib/server-only/team/find-team-member-invites';
+import { findTeamMembers } from '@documenso/lib/server-only/team/find-team-members';
 import { findTeams } from '@documenso/lib/server-only/team/find-teams';
 import { getTeamMembers } from '@documenso/lib/server-only/team/get-team-members';
 import { getTeamById, getTeams } from '@documenso/lib/server-only/team/get-teams';
@@ -13,6 +15,7 @@ import { authenticatedProcedure, router } from '../trpc';
 import {
   ZCreateTeamMutationSchema,
   ZDeleteTeamMutationSchema,
+  ZFindTeamMemberInvitesQuerySchema,
   ZFindTeamMembersQuerySchema,
   ZFindTeamsQuerySchema,
   ZGetTeamMembersQuerySchema,
@@ -125,17 +128,28 @@ export const teamRouter = router({
     }
   }),
 
-  // Todo: Teams
+  findTeamMemberInvites: authenticatedProcedure
+    .input(ZFindTeamMemberInvitesQuerySchema)
+    .query(async ({ input, ctx }) => {
+      try {
+        return await findTeamMemberInvites({
+          userId: ctx.user.id,
+          ...input,
+        });
+      } catch (err) {
+        console.error(err);
+
+        throw AppError.parseErrorToTRPCError(err);
+      }
+    }),
+
   findTeamMembers: authenticatedProcedure
     .input(ZFindTeamMembersQuerySchema)
     .query(async ({ input, ctx }) => {
       try {
-        const { teamId, newOwnerUserId } = input;
-
-        return await transferTeamOwnership({
+        return await findTeamMembers({
           userId: ctx.user.id,
-          teamId,
-          newOwnerUserId,
+          ...input,
         });
       } catch (err) {
         console.error(err);

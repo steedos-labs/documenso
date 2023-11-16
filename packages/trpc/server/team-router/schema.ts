@@ -51,9 +51,18 @@ export const ZFindTeamsQuerySchema = z.object({
   perPage: z.number().optional(),
 });
 
+export const ZFindTeamMemberInvitesQuerySchema = z.object({
+  teamId: z.number(),
+  term: z.string().optional(),
+  page: z.number().optional(),
+  perPage: z.number().optional(),
+});
+
 export const ZFindTeamMembersQuerySchema = z.object({
   teamId: z.number(),
-  newOwnerUserId: z.number(),
+  term: z.string().optional(),
+  page: z.number().optional(),
+  perPage: z.number().optional(),
 });
 
 export const ZTransferTeamOwnershipMutationSchema = z.object({
@@ -69,6 +78,7 @@ export type TInviteTeamMembersMutationSchema = z.infer<typeof ZInviteTeamMembers
 export type TUpdateTeamMutationSchema = z.infer<typeof ZUpdateTeamMutationSchema>;
 export type TRemoveTeamMemberspMutationSchema = z.infer<typeof ZRemoveTeamMemberspMutationSchema>;
 export type TFindTeamsQuerySchema = z.infer<typeof ZFindTeamsQuerySchema>;
+export type TFindTeamMemberInvitesQuerySchema = z.infer<typeof ZFindTeamMembersQuerySchema>;
 export type TFindTeamMembersQuerySchema = z.infer<typeof ZFindTeamMembersQuerySchema>;
 export type TTransferTeamOwnershipMutationSchema = z.infer<
   typeof ZTransferTeamOwnershipMutationSchema

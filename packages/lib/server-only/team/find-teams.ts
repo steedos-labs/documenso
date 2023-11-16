@@ -11,7 +11,7 @@ export interface FindTeamsOptions {
   page?: number;
   perPage?: number;
   orderBy?: {
-    column: keyof Omit<Team, 'document'>;
+    column: keyof Team;
     direction: 'asc' | 'desc';
   };
 }
@@ -27,14 +27,12 @@ export const findTeams = async ({
   const orderByDirection = orderBy?.direction ?? 'desc';
 
   const termFilters: Prisma.TeamWhereInput | undefined = match(term)
-    .with(P.string.minLength(1), () => {
-      return {
-        name: {
-          contains: term,
-          mode: Prisma.QueryMode.insensitive,
-        },
-      };
-    })
+    .with(P.string.minLength(1), () => ({
+      name: {
+        contains: term,
+        mode: Prisma.QueryMode.insensitive,
+      },
+    }))
     .otherwise(() => undefined);
 
   const whereClause: Prisma.TeamWhereInput = {

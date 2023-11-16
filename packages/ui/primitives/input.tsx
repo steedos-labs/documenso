@@ -1,5 +1,7 @@
 import * as React from 'react';
 
+import { Loader } from 'lucide-react';
+
 import { cn } from '../lib/utils';
 
 export type InputProps = React.InputHTMLAttributes<HTMLInputElement>;
@@ -23,6 +25,23 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
   },
 );
 
-Input.displayName = 'Input';
+const InputWithLoader = React.forwardRef<HTMLInputElement, InputProps & { loading?: boolean }>(
+  ({ loading, ...props }, ref) => {
+    return (
+      <div className="relative w-full">
+        <Input ref={ref} {...props} className={`pr-8 ${props.className}`} />
 
-export { Input };
+        {loading && (
+          <div className="absolute bottom-0 right-0 top-0 flex h-full items-center justify-center">
+            <Loader className="text-muted-foreground mr-2 h-5 w-5 animate-spin" />
+          </div>
+        )}
+      </div>
+    );
+  },
+);
+
+Input.displayName = 'Input';
+InputWithLoader.displayName = 'InputWithLoader';
+
+export { Input, InputWithLoader };
