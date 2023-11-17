@@ -1,19 +1,24 @@
 import { AppError } from '@documenso/lib/errors/app-error';
 import { createTeam } from '@documenso/lib/server-only/team/create-team';
 import { deleteTeam } from '@documenso/lib/server-only/team/delete-team';
+import { deleteTeamMemberInvitations } from '@documenso/lib/server-only/team/delete-team-invitations';
+import { deleteTeamMembers } from '@documenso/lib/server-only/team/delete-team-members';
 import { findTeamMemberInvites } from '@documenso/lib/server-only/team/find-team-member-invites';
 import { findTeamMembers } from '@documenso/lib/server-only/team/find-team-members';
 import { findTeams } from '@documenso/lib/server-only/team/find-teams';
 import { getTeamMembers } from '@documenso/lib/server-only/team/get-team-members';
 import { getTeamById, getTeams } from '@documenso/lib/server-only/team/get-teams';
-import { inviteTeamMembers } from '@documenso/lib/server-only/team/invite-team-members';
-import { removeTeamMembers } from '@documenso/lib/server-only/team/remove-team-members';
+import {
+  inviteTeamMembers,
+  resendTeamMemberInvitation,
+} from '@documenso/lib/server-only/team/invite-team-members';
 import { transferTeamOwnership } from '@documenso/lib/server-only/team/transfer-team-ownership';
 import { updateTeam } from '@documenso/lib/server-only/team/update-team';
 
 import { authenticatedProcedure, router } from '../trpc';
 import {
   ZCreateTeamMutationSchema,
+  ZDeleteTeamMemberInvitationsMutationSchema,
   ZDeleteTeamMutationSchema,
   ZFindTeamMemberInvitesQuerySchema,
   ZFindTeamMembersQuerySchema,
@@ -21,7 +26,8 @@ import {
   ZGetTeamMembersQuerySchema,
   ZGetTeamQuerySchema,
   ZInviteTeamMembersMutationSchema,
-  ZRemoveTeamMemberspMutationSchema,
+  ZRemoveTeamMembersMutationSchema,
+  ZResendTeamMemberInvitationMutationSchema,
   ZTransferTeamOwnershipMutationSchema,
   ZUpdateTeamMutationSchema,
 } from './schema';
@@ -115,6 +121,21 @@ export const teamRouter = router({
       }
     }),
 
+  deleteTeamMemberInvitations: authenticatedProcedure
+    .input(ZDeleteTeamMemberInvitationsMutationSchema)
+    .mutation(async ({ input, ctx }) => {
+      try {
+        return await deleteTeamMemberInvitations({
+          userId: ctx.user.id,
+          ...input,
+        });
+      } catch (err) {
+        console.error(err);
+
+        throw AppError.parseErrorToTRPCError(err);
+      }
+    }),
+
   findTeams: authenticatedProcedure.input(ZFindTeamsQuerySchema).query(async ({ input, ctx }) => {
     try {
       return await findTeams({
@@ -176,16 +197,31 @@ export const teamRouter = router({
       }
     }),
 
-  removeTeamMember: authenticatedProcedure
-    .input(ZRemoveTeamMemberspMutationSchema)
+  deleteTeamMembers: authenticatedProcedure
+    .input(ZRemoveTeamMembersMutationSchema)
     .mutation(async ({ input, ctx }) => {
       try {
         const { teamId, teamMemberIds } = input;
 
-        return await removeTeamMembers({
+        return await deleteTeamMembers({
           userId: ctx.user.id,
           teamId,
           teamMemberIds,
+        });
+      } catch (err) {
+        console.error(err);
+
+        throw AppError.parseErrorToTRPCError(err);
+      }
+    }),
+
+  resendTeamMemberInvitation: authenticatedProcedure
+    .input(ZResendTeamMemberInvitationMutationSchema)
+    .mutation(async ({ input, ctx }) => {
+      try {
+        await resendTeamMemberInvitation({
+          userId: ctx.user.id,
+          ...input,
         });
       } catch (err) {
         console.error(err);

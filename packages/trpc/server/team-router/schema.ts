@@ -8,8 +8,38 @@ export const ZCreateTeamMutationSchema = z.object({
   // avatar: z.string().min(1), Todo: Teams
 });
 
+export const ZDeleteTeamMembersMutationSchema = z.object({
+  teamId: z.number(),
+  teamMemberIds: z.array(z.number()),
+});
+
 export const ZDeleteTeamMutationSchema = z.object({
   teamId: z.number(),
+});
+
+export const ZDeleteTeamMemberInvitationsMutationSchema = z.object({
+  teamId: z.number(),
+  invitationIds: z.array(z.number()),
+});
+
+export const ZFindTeamsQuerySchema = z.object({
+  term: z.string().optional(),
+  page: z.number().optional(),
+  perPage: z.number().optional(),
+});
+
+export const ZFindTeamMemberInvitesQuerySchema = z.object({
+  teamId: z.number(),
+  term: z.string().optional(),
+  page: z.number().optional(),
+  perPage: z.number().optional(),
+});
+
+export const ZFindTeamMembersQuerySchema = z.object({
+  teamId: z.number(),
+  term: z.string().optional(),
+  page: z.number().optional(),
+  perPage: z.number().optional(),
 });
 
 export const ZGetTeamQuerySchema = z.object({
@@ -40,29 +70,9 @@ export const ZUpdateTeamMutationSchema = z.object({
   }),
 });
 
-export const ZRemoveTeamMemberspMutationSchema = z.object({
+export const ZResendTeamMemberInvitationMutationSchema = z.object({
   teamId: z.number(),
-  teamMemberIds: z.array(z.number()),
-});
-
-export const ZFindTeamsQuerySchema = z.object({
-  term: z.string().optional(),
-  page: z.number().optional(),
-  perPage: z.number().optional(),
-});
-
-export const ZFindTeamMemberInvitesQuerySchema = z.object({
-  teamId: z.number(),
-  term: z.string().optional(),
-  page: z.number().optional(),
-  perPage: z.number().optional(),
-});
-
-export const ZFindTeamMembersQuerySchema = z.object({
-  teamId: z.number(),
-  term: z.string().optional(),
-  page: z.number().optional(),
-  perPage: z.number().optional(),
+  invitationId: z.number(),
 });
 
 export const ZTransferTeamOwnershipMutationSchema = z.object({
@@ -71,12 +81,15 @@ export const ZTransferTeamOwnershipMutationSchema = z.object({
 });
 
 export type TCreateTeamMutationSchema = z.infer<typeof ZCreateTeamMutationSchema>;
+export type TDeleteTeamMembersMutationSchema = z.infer<typeof ZDeleteTeamMembersMutationSchema>;
 export type TDeleteTeamMutationSchema = z.infer<typeof ZDeleteTeamMutationSchema>;
 export type TGetTeamQuerySchema = z.infer<typeof ZGetTeamQuerySchema>;
 export type TGetTeamMembersQuerySchema = z.infer<typeof ZGetTeamMembersQuerySchema>;
 export type TInviteTeamMembersMutationSchema = z.infer<typeof ZInviteTeamMembersMutationSchema>;
 export type TUpdateTeamMutationSchema = z.infer<typeof ZUpdateTeamMutationSchema>;
-export type TRemoveTeamMemberspMutationSchema = z.infer<typeof ZRemoveTeamMemberspMutationSchema>;
+export type TResendTeamMemberInvitationMutationSchema = z.infer<
+  typeof ZResendTeamMemberInvitationMutationSchema
+>;
 export type TFindTeamsQuerySchema = z.infer<typeof ZFindTeamsQuerySchema>;
 export type TFindTeamMemberInvitesQuerySchema = z.infer<typeof ZFindTeamMembersQuerySchema>;
 export type TFindTeamMembersQuerySchema = z.infer<typeof ZFindTeamMembersQuerySchema>;

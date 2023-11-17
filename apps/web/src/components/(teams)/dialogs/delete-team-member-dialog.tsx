@@ -2,9 +2,8 @@
 
 import { useState } from 'react';
 
-import { useRouter } from 'next/navigation';
-
 import { trpc } from '@documenso/trpc/react';
+import { Avatar, AvatarFallback } from '@documenso/ui/primitives/avatar';
 import { Button } from '@documenso/ui/primitives/button';
 import {
   Dialog,
@@ -22,6 +21,7 @@ export type DeleteTeamMemberDialogProps = {
   teamName: string;
   teamMemberId: number;
   teamMemberName: string;
+  teamMemberEmail: string;
   trigger?: React.ReactNode;
 };
 
@@ -31,20 +31,18 @@ export default function DeleteTeamMemberDialog({
   teamName,
   teamMemberId,
   teamMemberName,
+  teamMemberEmail,
 }: DeleteTeamMemberDialogProps) {
-  const router = useRouter();
   const [open, setOpen] = useState(false);
 
   const { toast } = useToast();
 
-  const { mutateAsync: deleteTeamMember, isLoading: isDeletingTeamMember } =
-    trpc.team.removeTeamMember.useMutation();
+  const { mutateAsync: removeTeamMembers, isLoading: isDeletingTeamMember } =
+    trpc.team.removeTeamMembers.useMutation();
 
-  const handleDeleteTeamMember = async () => {
+  const handleRemoveTeamMember = async () => {
     try {
-      await deleteTeamMember({ teamId, teamMemberIds: [teamMemberId] });
-
-      router.refresh();
+      await removeTeamMembers({ teamId, teamMemberIds: [teamMemberId] });
 
       toast({
         title: 'Success',
@@ -75,10 +73,25 @@ export default function DeleteTeamMemberDialog({
           <DialogTitle>Are you sure?</DialogTitle>
 
           <DialogDescription className="mt-4">
-            You are about to remove <span className="font-semibold">{teamMemberName}</span> from{' '}
+            You are about to remove the following user from{' '}
             <span className="font-semibold">{teamName}</span>.
           </DialogDescription>
         </DialogHeader>
+
+        <div className="rounded-lg border-2 px-4 py-2">
+          <div className="flex max-w-xs items-center gap-2">
+            <Avatar className="dark:border-border h-12 w-12 border-2 border-solid border-white">
+              <AvatarFallback className="text-xs text-gray-400">
+                {teamMemberName.slice(0, 1).toUpperCase()}
+              </AvatarFallback>
+            </Avatar>
+
+            <div className="flex flex-col text-sm">
+              <span className="text-foreground/80 font-semibold">{teamMemberName}</span>
+              <span className="text-muted-foreground">{teamMemberEmail}</span>
+            </div>
+          </div>
+        </div>
 
         <fieldset className="flex h-full flex-col space-y-4" disabled={isDeletingTeamMember}>
           <DialogFooter className="space-x-4">
@@ -95,7 +108,7 @@ export default function DeleteTeamMemberDialog({
               type="submit"
               variant="destructive"
               loading={isDeletingTeamMember}
-              onClick={async () => handleDeleteTeamMember()}
+              onClick={async () => handleRemoveTeamMember()}
               className="w-full"
             >
               Delete

@@ -7,9 +7,15 @@ import TeamMembersDataTable from '~/components/(teams)/tables/team-members-data-
 
 export type TeamsMemberPageDataTableProps = {
   teamId: number;
+  teamName: string;
+  teamOwnerUserId: number;
 };
 
-export default function TeamsMemberPageDataTable({ teamId }: TeamsMemberPageDataTableProps) {
+export default function TeamsMemberPageDataTable({
+  teamId,
+  teamName,
+  teamOwnerUserId,
+}: TeamsMemberPageDataTableProps) {
   const searchParams = useSearchParams();
 
   const view = searchParams?.get('tab') === 'invites' ? 'invites' : 'members';
@@ -18,5 +24,7 @@ export default function TeamsMemberPageDataTable({ teamId }: TeamsMemberPageData
     return <TeamMemberInvitesDataTable key="invites" teamId={teamId} />;
   }
 
-  return <TeamMembersDataTable teamId={teamId} />;
+  return (
+    <TeamMembersDataTable teamId={teamId} teamName={teamName} teamOwnerUserId={teamOwnerUserId} />
+  );
 }

@@ -46,7 +46,6 @@ export const createTeam = async ({ name, userId, teamUrl }: CreateTeamOptions) =
           create: [
             {
               userId,
-              status: 'ACTIVE',
               role: 'ADMIN',
             },
           ],

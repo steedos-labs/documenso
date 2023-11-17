@@ -52,7 +52,7 @@ export const findTeamMemberInvites = async ({
 
   const whereClause: Prisma.TeamMemberInviteWhereInput = {
     ...termFilters,
-    id: userTeam.id,
+    teamId: userTeam.id,
   };
 
   const [data, count] = await Promise.all([

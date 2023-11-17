@@ -54,7 +54,7 @@ export const findTeamMembers = async ({
 
   const whereClause: Prisma.TeamMemberWhereInput = {
     ...termFilters,
-    id: userTeam.id,
+    teamId: userTeam.id,
   };
 
   let orderByClause: Prisma.TeamMemberOrderByWithRelationInput = {

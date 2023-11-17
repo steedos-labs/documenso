@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 
-import { Edit, MoreHorizontal } from 'lucide-react';
+import { Edit, MoreHorizontal, Trash2 } from 'lucide-react';
 import { z } from 'zod';
 
 import { useDebouncedValue } from '@documenso/lib/client-only/hooks/use-debounced-value';
@@ -28,6 +28,7 @@ import { TableCell } from '@documenso/ui/primitives/table';
 
 import { LocaleDate } from '~/components/formatter/locale-date';
 
+import DeleteTeamMemberDialog from '../dialogs/delete-team-member-dialog';
 import TeamMemberTableTabs from './team-member-table-tabs';
 
 export const ZTeamsDataTableSearchParamsSchema = z.object({
@@ -48,10 +49,16 @@ export const ZTeamsDataTableSearchParamsSchema = z.object({
 });
 
 export type TeamMembersDataTableProps = {
+  teamOwnerUserId: number;
   teamId: number;
+  teamName: string;
 };
 
-export default function TeamMembersDataTable({ teamId }: TeamMembersDataTableProps) {
+export default function TeamMembersDataTable({
+  teamOwnerUserId,
+  teamId,
+  teamName,
+}: TeamMembersDataTableProps) {
   const router = useRouter();
   const searchParams = useSearchParams()!;
   const pathname = usePathname();
@@ -178,22 +185,27 @@ export default function TeamMembersDataTable({ teamId }: TeamMembersDataTablePro
                       Edit
                     </DropdownMenuItem>
 
-                    {/* Todo: Teams. */}
-                    {/* <DeleteTeamMemberDialog
-                      teamId={team.id}
-                      teamName={team.name}
+                    <DeleteTeamMemberDialog
+                      teamId={teamId}
+                      teamName={teamName}
                       teamMemberId={row.original.id}
-                      teamMemberName={row.original.user.name ?? row.original.user.email}
+                      teamMemberName={row.original.user.name ?? ''}
+                      teamMemberEmail={row.original.user.email}
                       trigger={
                         <DropdownMenuItem
                           onSelect={(e) => e.preventDefault()}
-                          disabled={team.ownerUserId === row.original.userId}
+                          disabled={teamOwnerUserId === row.original.userId}
+                          title={
+                            teamOwnerUserId === row.original.userId
+                              ? 'You cannot remove the team owner'
+                              : 'Remove team member'
+                          }
                         >
                           <Trash2 className="mr-2 h-4 w-4" />
                           Remove
                         </DropdownMenuItem>
                       }
-                    /> */}
+                    />
                   </DropdownMenuContent>
                 </DropdownMenu>
               ),

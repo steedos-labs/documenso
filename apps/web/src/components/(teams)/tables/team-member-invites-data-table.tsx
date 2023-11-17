@@ -24,6 +24,7 @@ import {
 import { InputWithLoader } from '@documenso/ui/primitives/input';
 import { Skeleton } from '@documenso/ui/primitives/skeleton';
 import { TableCell } from '@documenso/ui/primitives/table';
+import { useToast } from '@documenso/ui/primitives/use-toast';
 
 import { LocaleDate } from '~/components/formatter/locale-date';
 
@@ -57,6 +58,8 @@ export default function TeamMemberInvitesDataTable({ teamId }: TeamMemberInvites
   const pathname = usePathname();
   const updateSearchParams = useUpdateSearchParams();
 
+  const { toast } = useToast();
+
   const parsedSearchParams = ZTeamsDataTableSearchParamsSchema.parse(
     Object.fromEntries(searchParams ?? []),
   );
@@ -77,6 +80,40 @@ export default function TeamMemberInvitesDataTable({ teamId }: TeamMemberInvites
         keepPreviousData: true,
       },
     );
+
+  const { mutateAsync: resendTeamMemberInvitation } =
+    trpc.team.resendTeamMemberInvitation.useMutation({
+      onSuccess: () => {
+        toast({
+          title: 'Success',
+          description: 'Invitation has been resent',
+        });
+      },
+      onError: () => {
+        toast({
+          title: 'Something went wrong',
+          description: 'Unable to resend invitation. Please try again.',
+          variant: 'destructive',
+        });
+      },
+    });
+
+  const { mutateAsync: deleteTeamMemberInvitations } =
+    trpc.team.deleteTeamMemberInvitations.useMutation({
+      onSuccess: () => {
+        toast({
+          title: 'Success',
+          description: 'Invitation has been deleted',
+        });
+      },
+      onError: () => {
+        toast({
+          title: 'Something went wrong',
+          description: 'Unable to delete invitation. Please try again.',
+          variant: 'destructive',
+        });
+      },
+    });
 
   const onPaginationChange = (page: number, perPage: number) => {
     updateSearchParams({
@@ -167,12 +204,26 @@ export default function TeamMemberInvitesDataTable({ teamId }: TeamMemberInvites
                   <DropdownMenuContent className="w-52" align="start" forceMount>
                     <DropdownMenuLabel>Actions</DropdownMenuLabel>
 
-                    <DropdownMenuItem>
+                    <DropdownMenuItem
+                      onClick={async () =>
+                        resendTeamMemberInvitation({
+                          teamId,
+                          invitationId: row.original.id,
+                        })
+                      }
+                    >
                       <History className="mr-2 h-4 w-4" />
                       Resend invitation
                     </DropdownMenuItem>
 
-                    <DropdownMenuItem>
+                    <DropdownMenuItem
+                      onClick={async () =>
+                        deleteTeamMemberInvitations({
+                          teamId,
+                          invitationIds: [row.original.id],
+                        })
+                      }
+                    >
                       <Trash2 className="mr-2 h-4 w-4" />
                       Remove invitation
                     </DropdownMenuItem>

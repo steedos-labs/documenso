@@ -25,7 +25,11 @@ export default async function TeamsSettingsMembersPage({ params }: TeamsSettings
         <InviteTeamMembersDialog teamId={team.id} />
       </SettingsHeader>
 
-      <TeamsMemberPageDataTable teamId={team.id} />
+      <TeamsMemberPageDataTable
+        teamId={team.id}
+        teamName={team.name}
+        teamOwnerUserId={team.ownerUserId}
+      />
     </div>
   );
 }

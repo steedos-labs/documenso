@@ -81,24 +81,31 @@ export const inviteTeamMembers = async ({
   }
 };
 
-export type ResendTeamMemberInviteEmailOptions = {
+export type ResendTeamMemberInvitationOptions = {
+  /**
+   * The ID of the user who is initiating this action.
+   */
   userId: number;
+
+  /**
+   * The ID of the team.
+   */
   teamId: number;
-  teamMemberInviteId: number;
+
+  /**
+   * The IDs of the invitations to resend.
+   */
+  invitationId: number;
 };
 
 /**
  * Resend an email for a given team member invite.
- *
- * @param userId The ID of the user resending the invite. Not to be mistaken for the user being invited.
- * @param teamId The ID of the team.
- * @param teamMemberInviteId The ID of the invite to resend.
  */
-export const resendTeamMemberInviteEmail = async ({
+export const resendTeamMemberInvitation = async ({
   userId,
   teamId,
-  teamMemberInviteId,
-}: ResendTeamMemberInviteEmailOptions) => {
+  invitationId,
+}: ResendTeamMemberInvitationOptions) => {
   await prisma.$transaction(async (tx) => {
     const team = await tx.team.findUniqueOrThrow({
       where: {
@@ -120,7 +127,7 @@ export const resendTeamMemberInviteEmail = async ({
 
     const teamMemberInvite = await tx.teamMemberInvite.findUniqueOrThrow({
       where: {
-        id: teamMemberInviteId,
+        id: invitationId,
         teamId,
       },
     });
