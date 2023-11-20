@@ -19,6 +19,7 @@ import { authenticatedProcedure, router } from '../trpc';
 import {
   ZCreateTeamMutationSchema,
   ZDeleteTeamMemberInvitationsMutationSchema,
+  ZDeleteTeamMembersMutationSchema,
   ZDeleteTeamMutationSchema,
   ZFindTeamMemberInvitesQuerySchema,
   ZFindTeamMembersQuerySchema,
@@ -26,7 +27,6 @@ import {
   ZGetTeamMembersQuerySchema,
   ZGetTeamQuerySchema,
   ZInviteTeamMembersMutationSchema,
-  ZRemoveTeamMembersMutationSchema,
   ZResendTeamMemberInvitationMutationSchema,
   ZTransferTeamOwnershipMutationSchema,
   ZUpdateTeamMutationSchema,
@@ -198,7 +198,7 @@ export const teamRouter = router({
     }),
 
   deleteTeamMembers: authenticatedProcedure
-    .input(ZRemoveTeamMembersMutationSchema)
+    .input(ZDeleteTeamMembersMutationSchema)
     .mutation(async ({ input, ctx }) => {
       try {
         const { teamId, teamMemberIds } = input;

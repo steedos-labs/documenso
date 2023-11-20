@@ -5,46 +5,21 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 
-import { ArrowRight, DoorOpen, Edit, MoreHorizontal } from 'lucide-react';
-import { z } from 'zod';
-
 import { useDebouncedValue } from '@documenso/lib/client-only/hooks/use-debounced-value';
 import { useUpdateSearchParams } from '@documenso/lib/client-only/hooks/use-update-search-params';
 import { WEBAPP_BASE_URL } from '@documenso/lib/constants/app';
 import { TEAM_MEMBER_ROLE_MAP, canExecuteTeamAction } from '@documenso/lib/constants/teams';
+import { ZBaseTableSearchParamsSchema } from '@documenso/lib/types/search-params';
 import { trpc } from '@documenso/trpc/react';
 import { Avatar, AvatarFallback } from '@documenso/ui/primitives/avatar';
+import { Button } from '@documenso/ui/primitives/button';
 import { DataTable } from '@documenso/ui/primitives/data-table';
 import { DataTablePagination } from '@documenso/ui/primitives/data-table-pagination';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuTrigger,
-} from '@documenso/ui/primitives/dropdown-menu';
 import { InputWithLoader } from '@documenso/ui/primitives/input';
 import { Skeleton } from '@documenso/ui/primitives/skeleton';
 import { TableCell } from '@documenso/ui/primitives/table';
 
 import { LocaleDate } from '~/components/formatter/locale-date';
-
-export const ZTeamsDataTableSearchParamsSchema = z.object({
-  query: z
-    .string()
-    .optional()
-    .catch(() => undefined),
-  page: z.coerce
-    .number()
-    .min(1)
-    .optional()
-    .catch(() => undefined),
-  perPage: z.coerce
-    .number()
-    .min(1)
-    .optional()
-    .catch(() => undefined),
-});
 
 export default function TeamsDataTable() {
   const router = useRouter();
@@ -52,7 +27,7 @@ export default function TeamsDataTable() {
   const pathname = usePathname();
   const updateSearchParams = useUpdateSearchParams();
 
-  const parsedSearchParams = ZTeamsDataTableSearchParamsSchema.parse(
+  const parsedSearchParams = ZBaseTableSearchParamsSchema.parse(
     Object.fromEntries(searchParams ?? []),
   );
 
@@ -151,54 +126,38 @@ export default function TeamsDataTable() {
               cell: ({ row }) => <LocaleDate date={row.original.createdAt} />,
             },
             {
-              header: 'Actions',
+              id: 'actions',
               cell: ({ row }) => (
-                <DropdownMenu>
-                  <DropdownMenuTrigger>
-                    <MoreHorizontal className="text-muted-foreground h-5 w-5" />
-                  </DropdownMenuTrigger>
+                <div className="flex justify-end space-x-2">
+                  {canExecuteTeamAction('MANAGE_TEAM', row.original.currentTeamMember.role) && (
+                    <Button variant="outline" asChild>
+                      <Link href={`/settings/teams/${row.original.url}/general`}>Manage</Link>
+                    </Button>
+                  )}
 
-                  <DropdownMenuContent className="w-52" align="start" forceMount>
-                    <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                  <Button
+                    variant="destructive"
+                    disabled={row.original.ownerUserId !== row.original.currentTeamMember.userId}
+                    onSelect={(e) => e.preventDefault()}
+                  >
+                    Leave
+                  </Button>
 
-                    <DropdownMenuItem asChild>
-                      <Link href={`/t/${row.original.url}`}>
-                        <ArrowRight className="mr-2 h-4 w-4" />
-                        View
-                      </Link>
-                    </DropdownMenuItem>
-
-                    {canExecuteTeamAction('MANAGE_TEAM', row.original.currentTeamMember.role) && (
-                      <DropdownMenuItem asChild>
-                        <Link href={`/settings/teams/${row.original.url}/general`}>
-                          <Edit className="mr-2 h-4 w-4" />
-                          Manage
-                        </Link>
-                      </DropdownMenuItem>
-                    )}
-
-                    {row.original.ownerUserId !== row.original.currentTeamMember.userId && (
-                      // Todo: Teams.
-                      <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
-                        <DoorOpen className="mr-2 h-4 w-4" />
-                        Leave
-                      </DropdownMenuItem>
-
-                      // <DeleteTeamMemberDialog
-                      //   teamId={team.id}
-                      //   teamName={team.name}
-                      //   teamMemberId={row.original.id}
-                      //   teamMemberName={row.original.user.name ?? row.original.user.email}
-                      //   trigger={
-                      //     <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
-                      //       <DoorOpen className="mr-2 h-4 w-4" />
-                      //       Leave
-                      //     </DropdownMenuItem>
-                      //   }
-                      // />
-                    )}
-                  </DropdownMenuContent>
-                </DropdownMenu>
+                  {
+                    // <DeleteTeamMemberDialog
+                    //   teamId={team.id}
+                    //   teamName={team.name}
+                    //   teamMemberId={row.original.id}
+                    //   teamMemberName={row.original.user.name ?? row.original.user.email}
+                    //   trigger={
+                    //     <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
+                    //       <DoorOpen className="mr-2 h-4 w-4" />
+                    //       Leave
+                    //     </DropdownMenuItem>
+                    //   }
+                    // />
+                  }
+                </div>
               ),
             },
           ]}
@@ -215,13 +174,13 @@ export default function TeamsDataTable() {
             rows: 3,
             component: (
               <>
-                <TableCell className="w-1/2 py-4 pr-4">
+                <TableCell className="w-1/3 py-4 pr-4">
                   <div className="flex w-full flex-row items-center">
                     <Skeleton className="h-12 w-12 flex-shrink-0 rounded-full" />
 
                     <div className="ml-2 flex flex-grow flex-col">
-                      <Skeleton className="h-4 w-1/3 max-w-[8rem]" />
-                      <Skeleton className="mt-1 h-4 w-1/2 max-w-[12rem]" />
+                      <Skeleton className="h-4 w-1/2 max-w-[8rem]" />
+                      <Skeleton className="mt-1 h-4 w-2/3 max-w-[12rem]" />
                     </div>
                   </div>
                 </TableCell>
@@ -232,7 +191,10 @@ export default function TeamsDataTable() {
                   <Skeleton className="h-4 w-20 rounded-full" />
                 </TableCell>
                 <TableCell>
-                  <Skeleton className="h-4 w-6 rounded-full" />
+                  <div className="flex flex-row justify-end space-x-2">
+                    <Skeleton className="h-10 w-20 rounded" />
+                    <Skeleton className="h-10 w-16 rounded" />
+                  </div>
                 </TableCell>
               </>
             ),

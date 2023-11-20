@@ -37,12 +37,12 @@ export default function DeleteTeamMemberDialog({
 
   const { toast } = useToast();
 
-  const { mutateAsync: removeTeamMembers, isLoading: isDeletingTeamMember } =
-    trpc.team.removeTeamMembers.useMutation();
+  const { mutateAsync: deleteTeamMembers, isLoading: isDeletingTeamMember } =
+    trpc.team.deleteTeamMembers.useMutation();
 
   const handleRemoveTeamMember = async () => {
     try {
-      await removeTeamMembers({ teamId, teamMemberIds: [teamMemberId] });
+      await deleteTeamMembers({ teamId, teamMemberIds: [teamMemberId] });
 
       toast({
         title: 'Success',

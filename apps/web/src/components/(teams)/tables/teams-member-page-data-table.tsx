@@ -1,6 +1,13 @@
 'use client';
 
-import { useSearchParams } from 'next/navigation';
+import { useEffect, useState } from 'react';
+
+import Link from 'next/link';
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
+
+import { useDebouncedValue } from '@documenso/lib/client-only/hooks/use-debounced-value';
+import { Input } from '@documenso/ui/primitives/input';
+import { Tabs, TabsList, TabsTrigger } from '@documenso/ui/primitives/tabs';
 
 import TeamMemberInvitesDataTable from '~/components/(teams)/tables/team-member-invites-data-table';
 import TeamMembersDataTable from '~/components/(teams)/tables/team-members-data-table';
@@ -17,14 +24,66 @@ export default function TeamsMemberPageDataTable({
   teamOwnerUserId,
 }: TeamsMemberPageDataTableProps) {
   const searchParams = useSearchParams();
+  const router = useRouter();
+  const pathname = usePathname();
 
-  const view = searchParams?.get('tab') === 'invites' ? 'invites' : 'members';
+  const [searchQuery, setSearchQuery] = useState(() => searchParams?.get('query') ?? '');
 
-  if (view === 'invites') {
-    return <TeamMemberInvitesDataTable key="invites" teamId={teamId} />;
-  }
+  const debouncedSearchQuery = useDebouncedValue(searchQuery, 500);
+
+  const currentTab = searchParams?.get('tab') === 'invites' ? 'invites' : 'members';
+
+  /**
+   * Handle debouncing the search query.
+   */
+  useEffect(() => {
+    if (!pathname) {
+      return;
+    }
+
+    const params = new URLSearchParams(searchParams?.toString());
+
+    params.set('query', debouncedSearchQuery);
+
+    if (debouncedSearchQuery === '') {
+      params.delete('query');
+    }
+
+    router.push(`${pathname}?${params.toString()}`);
+  }, [debouncedSearchQuery, pathname, router, searchParams]);
 
   return (
-    <TeamMembersDataTable teamId={teamId} teamName={teamName} teamOwnerUserId={teamOwnerUserId} />
+    <div>
+      <div className="my-4 flex flex-row items-center justify-between space-x-4">
+        <Input
+          defaultValue={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          placeholder="Search"
+        />
+
+        <Tabs value={currentTab} className="flex-shrink-0 overflow-x-auto">
+          <TabsList>
+            <TabsTrigger className="min-w-[60px]" value="members" asChild>
+              <Link href={pathname ?? '/'}>All</Link>
+            </TabsTrigger>
+
+            <TabsTrigger className="min-w-[60px]" value="invites" asChild>
+              <Link href={`${pathname}?tab=invites`}>Pending</Link>
+            </TabsTrigger>
+          </TabsList>
+        </Tabs>
+      </div>
+
+      {currentTab === 'invites' ? (
+        <TeamMemberInvitesDataTable key="invites" teamId={teamId} />
+      ) : (
+        <TeamMembersDataTable
+          key="members"
+          teamId={teamId}
+          teamName={teamName}
+          teamOwnerUserId={teamOwnerUserId}
+        />
+      )}
+    </div>
   );
 }
