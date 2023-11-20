@@ -1,25 +1,12 @@
 'use client';
 
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 
-import {
-  CreditCard,
-  Key,
-  LogOut,
-  User as LucideUser,
-  Monitor,
-  Moon,
-  Palette,
-  Settings,
-  Sun,
-  UserCog,
-  Users,
-} from 'lucide-react';
+import { CheckCircle2, ChevronsUpDown, Plus, Settings2 } from 'lucide-react';
 import { signOut } from 'next-auth/react';
-import { useTheme } from 'next-themes';
-import { LuGithub } from 'react-icons/lu';
 
-import { useFeatureFlags } from '@documenso/lib/client-only/providers/feature-flag';
+import { TEAM_MEMBER_ROLE_MAP } from '@documenso/lib/constants/teams';
 import { isAdmin } from '@documenso/lib/next-auth/guards/is-admin';
 import { recipientInitials } from '@documenso/lib/utils/recipient-formatter';
 import { User } from '@documenso/prisma/client';
@@ -31,13 +18,7 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuLabel,
-  DropdownMenuPortal,
-  DropdownMenuRadioGroup,
-  DropdownMenuRadioItem,
   DropdownMenuSeparator,
-  DropdownMenuSub,
-  DropdownMenuSubContent,
-  DropdownMenuSubTrigger,
   DropdownMenuTrigger,
 } from '@documenso/ui/primitives/dropdown-menu';
 
@@ -46,153 +27,156 @@ export type ProfileDropdownProps = {
 };
 
 export const ProfileDropdown = ({ user }: ProfileDropdownProps) => {
-  const { getFlag } = useFeatureFlags();
-  const { theme, setTheme } = useTheme();
-  const isUserAdmin = isAdmin(user);
+  const pathname = usePathname();
 
-  const isBillingEnabled = getFlag('app_billing');
+  const isUserAdmin = isAdmin(user);
 
   const avatarFallback = user.name
     ? recipientInitials(user.name)
     : user.email.slice(0, 1).toUpperCase();
 
-  const { data: teams, isLoading: isTeamsLoading } = trpc.team.getTeams.useQuery();
+  const { data: teams } = trpc.team.getTeams.useQuery();
+
+  const selectedTeam = teams?.find((team) => pathname?.startsWith(`/t/${team.url}`));
 
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="ghost" className="relative h-10 w-10 rounded-full">
-          <Avatar className="h-10 w-10">
-            <AvatarFallback>{avatarFallback}</AvatarFallback>
+        <Button variant="ghost" className="relative flex h-12 flex-row items-center px-2 py-2">
+          <Avatar className="dark:border-border h-10 w-10 border-2 border-solid border-white">
+            <AvatarFallback>
+              {selectedTeam ? selectedTeam.name.slice(0, 1) : avatarFallback}
+            </AvatarFallback>
           </Avatar>
+
+          <div className="ml-2 flex min-w-[10rem] flex-col text-left font-normal">
+            <span className="text-foreground">{selectedTeam ? selectedTeam.name : user.name}</span>
+            <span className="text-muted-foreground text-xs">
+              {selectedTeam
+                ? TEAM_MEMBER_ROLE_MAP[selectedTeam.currentTeamMember.role]
+                : 'Personal Account'}
+            </span>
+          </div>
+
+          <ChevronsUpDown className="ml-2 h-4 w-4" />
         </Button>
       </DropdownMenuTrigger>
 
-      <DropdownMenuContent className="w-56" align="end" forceMount>
-        <DropdownMenuLabel>Account</DropdownMenuLabel>
-
-        {isUserAdmin && (
-          <>
-            <DropdownMenuItem asChild>
-              <Link href="/admin" className="cursor-pointer">
-                <UserCog className="mr-2 h-4 w-4" />
-                Admin
-              </Link>
-            </DropdownMenuItem>
-
-            <DropdownMenuSeparator />
-          </>
-        )}
+      {/* Todo: Teams - className="w-56" */}
+      <DropdownMenuContent className="w-full min-w-[20rem]" align="end" forceMount>
+        <DropdownMenuLabel>Personal</DropdownMenuLabel>
 
         <DropdownMenuItem asChild>
-          <Link href="/settings/profile" className="cursor-pointer">
-            <LucideUser className="mr-2 h-4 w-4" />
-            Profile
+          <Link href="/">
+            {/* Todo: Extract */}
+            <div className="flex w-full max-w-xs items-center gap-2">
+              <Avatar className="dark:border-border h-10 w-10 border-2 border-solid border-white">
+                <AvatarFallback className="text-xs text-gray-400">{avatarFallback}</AvatarFallback>
+              </Avatar>
+
+              <div className="flex flex-col text-sm">
+                <span className="text-foreground">{user.name ?? user.email}</span>
+                <span className="text-muted-foreground text-xs">Personal account</span>
+              </div>
+
+              {!pathname?.startsWith(`/t/`) && (
+                <CheckCircle2 className="ml-auto fill-black text-white dark:fill-white dark:text-black" />
+              )}
+            </div>
           </Link>
         </DropdownMenuItem>
 
-        <DropdownMenuItem asChild>
-          <Link href="/settings/password" className="cursor-pointer">
-            <Key className="mr-2 h-4 w-4" />
-            Password
-          </Link>
-        </DropdownMenuItem>
+        <DropdownMenuSeparator className="mt-2" />
 
-        {isBillingEnabled && (
+        <DropdownMenuLabel>
+          <div className="flex flex-row items-center justify-between">
+            <p>Teams</p>
+
+            <div className="flex flex-row space-x-2">
+              <Button
+                title="Manage teams"
+                variant="ghost"
+                className="text-muted-foreground flex h-5 w-5 items-center justify-center p-0"
+                asChild
+              >
+                <Link href="/settings/teams">
+                  <Settings2 className="h-4 w-4" />
+                </Link>
+              </Button>
+
+              <Button
+                title="Manage teams"
+                variant="ghost"
+                className="text-muted-foreground flex h-5 w-5 items-center justify-center p-0"
+                asChild
+              >
+                <Link href="/settings/teams?action=add-team">
+                  <Plus className="h-4 w-4" />
+                </Link>
+              </Button>
+            </div>
+          </div>
+        </DropdownMenuLabel>
+
+        {!teams || teams.length === 0 ? (
           <DropdownMenuItem asChild>
-            <Link href="/settings/billing" className="cursor-pointer">
-              <CreditCard className="mr-2 h-4 w-4" />
-              Billing
-            </Link>
-          </DropdownMenuItem>
-        )}
-
-        <DropdownMenuSeparator />
-
-        {!teams || teams.length === 0 || isTeamsLoading ? (
-          <DropdownMenuItem asChild>
-            <Link href="/settings/teams" className="cursor-pointer">
-              <Monitor className="mr-2 h-4 w-4" />
-              Manage Teams
+            <Link href="/settings/teams?action=add-team" className="h-12 text-center">
+              Create team
             </Link>
           </DropdownMenuItem>
         ) : (
-          <DropdownMenuSub>
-            <DropdownMenuSubTrigger>
-              <Users className="mr-2 h-4 w-4" />
-              Teams
-            </DropdownMenuSubTrigger>
-            <DropdownMenuPortal>
-              <DropdownMenuSubContent>
-                {/* Todo: Teams */}
-                {/* Selected team will be highlighted */}
-                <DropdownMenuRadioGroup>
-                  {teams.map((team) => (
-                    <DropdownMenuItem asChild key={team.id}>
-                      <Link href={`/settings/teams/${team.url}`} className="cursor-pointer">
-                        {/* Todo: Teams avatar */}
-                        <Sun className="mr-2 h-4 w-4" /> {team.name}
-                      </Link>
-                    </DropdownMenuItem>
-                  ))}
-                  <DropdownMenuSeparator />
-                </DropdownMenuRadioGroup>
+          teams.map((team) => (
+            <DropdownMenuItem asChild key={team.id}>
+              <Link href={`/t/${team.url}`}>
+                {/* Todo: Extract */}
+                <div className="flex w-full max-w-xs items-center gap-2">
+                  <Avatar className="dark:border-border h-10 w-10 border-2 border-solid border-white">
+                    <AvatarFallback className="text-xs text-gray-400">
+                      {/* Todo: Teams */}
+                      {team.name.slice(0, 1).toUpperCase()}
+                    </AvatarFallback>
+                  </Avatar>
 
-                <DropdownMenuItem asChild>
-                  <Link href="/settings/teams" className="cursor-pointer">
-                    <Settings className="mr-2 h-4 w-4" />
-                    Manage teams
-                  </Link>
-                </DropdownMenuItem>
-              </DropdownMenuSubContent>
-            </DropdownMenuPortal>
-          </DropdownMenuSub>
+                  <div className="flex flex-col text-sm">
+                    <span className="text-foreground">{team.name}</span>
+                    <span className="text-muted-foreground text-xs">
+                      {TEAM_MEMBER_ROLE_MAP[team.currentTeamMember.role]}
+                    </span>
+                  </div>
+
+                  {pathname?.startsWith(`/t/${team.url}`) && (
+                    <CheckCircle2 className="ml-auto fill-black text-white dark:fill-white dark:text-black" />
+                  )}
+                </div>
+              </Link>
+            </DropdownMenuItem>
+          ))
         )}
 
         <DropdownMenuSeparator />
 
-        <DropdownMenuSub>
-          <DropdownMenuSubTrigger>
-            <Palette className="mr-2 h-4 w-4" />
-            Themes
-          </DropdownMenuSubTrigger>
-          <DropdownMenuPortal>
-            <DropdownMenuSubContent>
-              <DropdownMenuRadioGroup value={theme} onValueChange={setTheme}>
-                <DropdownMenuRadioItem value="light">
-                  <Sun className="mr-2 h-4 w-4" /> Light
-                </DropdownMenuRadioItem>
-                <DropdownMenuRadioItem value="dark">
-                  <Moon className="mr-2 h-4 w-4" />
-                  Dark
-                </DropdownMenuRadioItem>
-                <DropdownMenuRadioItem value="system">
-                  <Monitor className="mr-2 h-4 w-4" />
-                  System
-                </DropdownMenuRadioItem>
-              </DropdownMenuRadioGroup>
-            </DropdownMenuSubContent>
-          </DropdownMenuPortal>
-        </DropdownMenuSub>
+        {isUserAdmin && (
+          <DropdownMenuItem className="text-muted-foreground px-4 py-2" asChild>
+            <Link href="/admin">Admin panel</Link>
+          </DropdownMenuItem>
+        )}
 
-        <DropdownMenuSeparator />
-        <DropdownMenuItem asChild>
-          <Link href="https://github.com/documenso/documenso" className="cursor-pointer">
-            <LuGithub className="mr-2 h-4 w-4" />
-            Star on Github
-          </Link>
+        <DropdownMenuItem className="text-muted-foreground px-4 py-2" asChild>
+          <Link href="/settings/profile">User settings</Link>
         </DropdownMenuItem>
 
-        <DropdownMenuSeparator />
+        <DropdownMenuItem className="text-muted-foreground px-4 py-2" asChild>
+          <Link href="/settings/teams">Teams settings</Link>
+        </DropdownMenuItem>
 
         <DropdownMenuItem
-          onSelect={() =>
-            void signOut({
+          className="text-destructive/90 hover:!text-destructive px-4 py-2"
+          onSelect={async () =>
+            signOut({
               callbackUrl: '/',
             })
           }
         >
-          <LogOut className="mr-2 h-4 w-4" />
           Sign Out
         </DropdownMenuItem>
       </DropdownMenuContent>

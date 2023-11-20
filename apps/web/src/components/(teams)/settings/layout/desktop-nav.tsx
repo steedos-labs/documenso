@@ -25,12 +25,12 @@ export const DesktopNav = ({ className, ...props }: DesktopNavProps) => {
 
   return (
     <div className={cn('flex flex-col gap-y-2', className)} {...props}>
-      <Link href={`/settings/teams/${teamId}/general`}>
+      <Link href={`/settings/teams/${teamId}`}>
         <Button
           variant="ghost"
           className={cn(
             'w-full justify-start',
-            pathname?.startsWith(`/settings/teams/${teamId}/general`) && 'bg-secondary',
+            pathname === `/settings/teams/${teamId}` && 'bg-secondary',
           )}
         >
           <User className="mr-2 h-5 w-5" />

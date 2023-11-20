@@ -6,7 +6,7 @@ export type GetTeamsOptions = {
 };
 
 export const getTeams = async ({ userId }: GetTeamsOptions) => {
-  return await prisma.team.findMany({
+  const teams = await prisma.team.findMany({
     where: {
       members: {
         some: {
@@ -14,9 +14,22 @@ export const getTeams = async ({ userId }: GetTeamsOptions) => {
         },
       },
     },
-
-    // Todo: Teams - Only return the fields we need.
+    include: {
+      members: {
+        where: {
+          userId,
+        },
+        select: {
+          role: true,
+        },
+      },
+    },
   });
+
+  return teams.map(({ members, ...team }) => ({
+    ...team,
+    currentTeamMember: members[0],
+  }));
 };
 
 export type GetTeamByIdOptions = {

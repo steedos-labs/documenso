@@ -131,7 +131,7 @@ export default function TeamsDataTable() {
                 <div className="flex justify-end space-x-2">
                   {canExecuteTeamAction('MANAGE_TEAM', row.original.currentTeamMember.role) && (
                     <Button variant="outline" asChild>
-                      <Link href={`/settings/teams/${row.original.url}/general`}>Manage</Link>
+                      <Link href={`/settings/teams/${row.original.url}`}>Manage</Link>
                     </Button>
                   )}
 

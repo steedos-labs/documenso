@@ -72,7 +72,7 @@ export default function UpdateTeamForm({ teamId, teamName, teamUrl }: UpdateTeam
       });
 
       if (url !== teamUrl) {
-        router.push(`${WEBAPP_BASE_URL}/settings/teams/${url}/general`);
+        router.push(`${WEBAPP_BASE_URL}/settings/teams/${url}`);
       }
     } catch (err) {
       const error = AppError.parseError(err);
