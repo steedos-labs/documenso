@@ -14,6 +14,7 @@ import {
 } from '@documenso/lib/server-only/team/invite-team-members';
 import { transferTeamOwnership } from '@documenso/lib/server-only/team/transfer-team-ownership';
 import { updateTeam } from '@documenso/lib/server-only/team/update-team';
+import { updateTeamMember } from '@documenso/lib/server-only/team/update-team-member';
 
 import { authenticatedProcedure, router } from '../trpc';
 import {
@@ -29,6 +30,7 @@ import {
   ZInviteTeamMembersMutationSchema,
   ZResendTeamMemberInvitationMutationSchema,
   ZTransferTeamOwnershipMutationSchema,
+  ZUpdateTeamMemberMutationSchema,
   ZUpdateTeamMutationSchema,
 } from './schema';
 
@@ -87,15 +89,24 @@ export const teamRouter = router({
     .input(ZUpdateTeamMutationSchema)
     .mutation(async ({ input, ctx }) => {
       try {
-        const { teamId } = input;
-
-        // 1. Validate the user can update the team.
-        // 2. Update the team.
-        // 3. Return the team.
-        // const { password, currentPassword } = input;
         return await updateTeam({
           userId: ctx.user.id,
-          teamId,
+          ...input,
+        });
+      } catch (err) {
+        console.error(err);
+
+        throw AppError.parseErrorToTRPCError(err);
+      }
+    }),
+
+  updateTeamMember: authenticatedProcedure
+    .input(ZUpdateTeamMemberMutationSchema)
+    .mutation(async ({ input, ctx }) => {
+      try {
+        return await updateTeamMember({
+          userId: ctx.user.id,
+          ...input,
         });
       } catch (err) {
         console.error(err);

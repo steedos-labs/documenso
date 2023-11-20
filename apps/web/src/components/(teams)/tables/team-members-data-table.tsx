@@ -25,6 +25,7 @@ import { TableCell } from '@documenso/ui/primitives/table';
 import { LocaleDate } from '~/components/formatter/locale-date';
 
 import DeleteTeamMemberDialog from '../dialogs/delete-team-member-dialog';
+import UpdateTeamMemberDialog from '../dialogs/update-team-member-dialog';
 
 export type TeamMembersDataTableProps = {
   teamOwnerUserId: number;
@@ -117,10 +118,26 @@ export default function TeamMembersDataTable({
               <DropdownMenuContent className="w-52" align="start" forceMount>
                 <DropdownMenuLabel>Actions</DropdownMenuLabel>
 
-                <DropdownMenuItem>
-                  <Edit className="mr-2 h-4 w-4" />
-                  Edit
-                </DropdownMenuItem>
+                <UpdateTeamMemberDialog
+                  teamId={row.original.teamId}
+                  teamMemberId={row.original.id}
+                  teamMemberName={row.original.user.name ?? ''}
+                  teamMemberRole={row.original.role}
+                  trigger={
+                    <DropdownMenuItem
+                      disabled={teamOwnerUserId === row.original.userId}
+                      onSelect={(e) => e.preventDefault()}
+                      title={
+                        teamOwnerUserId === row.original.userId
+                          ? 'You cannot update the team owner role'
+                          : 'Update team member role'
+                      }
+                    >
+                      <Edit className="mr-2 h-4 w-4" />
+                      Update role
+                    </DropdownMenuItem>
+                  }
+                />
 
                 <DeleteTeamMemberDialog
                   teamId={teamId}

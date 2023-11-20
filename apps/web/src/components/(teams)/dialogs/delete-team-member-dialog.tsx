@@ -93,7 +93,7 @@ export default function DeleteTeamMemberDialog({
           </div>
         </div>
 
-        <fieldset className="flex h-full flex-col space-y-4" disabled={isDeletingTeamMember}>
+        <fieldset disabled={isDeletingTeamMember}>
           <DialogFooter className="space-x-4">
             <Button
               type="button"

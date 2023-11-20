@@ -70,6 +70,14 @@ export const ZUpdateTeamMutationSchema = z.object({
   }),
 });
 
+export const ZUpdateTeamMemberMutationSchema = z.object({
+  teamId: z.number(),
+  teamMemberId: z.number(),
+  data: z.object({
+    role: z.nativeEnum(TeamMemberRole),
+  }),
+});
+
 export const ZResendTeamMemberInvitationMutationSchema = z.object({
   teamId: z.number(),
   invitationId: z.number(),

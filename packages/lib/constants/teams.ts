@@ -10,6 +10,7 @@ export const TEAM_MEMBER_ROLE_PERMISSIONS_MAP = {
   MANAGE_TEAM: [TeamMemberRole.ADMIN, TeamMemberRole.MANAGER],
   DELETE_INVITATIONS: [TeamMemberRole.ADMIN, TeamMemberRole.MANAGER],
   DELETE_TEAM_MEMBERS: [TeamMemberRole.ADMIN, TeamMemberRole.MANAGER],
+  UPDATE_TEAM_MEMBERS: [TeamMemberRole.ADMIN, TeamMemberRole.MANAGER],
 } satisfies Record<string, TeamMemberRole[]>;
 
 /**

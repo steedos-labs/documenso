@@ -1,6 +1,9 @@
 'use client';
 
+import { useRouter } from 'next/navigation';
+
 import { zodResolver } from '@hookform/resolvers/zod';
+import { AnimatePresence, motion } from 'framer-motion';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 
@@ -33,6 +36,8 @@ export const ZUpdateTeamFormSchema = z.object({
 export type TUpdateTeamFormSchema = z.infer<typeof ZUpdateTeamFormSchema>;
 
 export default function UpdateTeamForm({ teamId, teamName, teamUrl }: UpdateTeamDialogProps) {
+  const router = useRouter();
+
   const { toast } = useToast();
 
   const form = useForm({
@@ -60,6 +65,15 @@ export default function UpdateTeamForm({ teamId, teamName, teamUrl }: UpdateTeam
         description: 'Your team has been successfully updated.',
         duration: 5000,
       });
+
+      form.reset({
+        name,
+        url,
+      });
+
+      if (url !== teamUrl) {
+        router.push(`${WEBAPP_BASE_URL}/settings/teams/${url}/general`);
+      }
     } catch (err) {
       const error = AppError.parseError(err);
 
@@ -81,10 +95,6 @@ export default function UpdateTeamForm({ teamId, teamName, teamUrl }: UpdateTeam
     }
   };
 
-  const mapTextToUrl = (text: string) => {
-    return text.toLowerCase().replace(/\s+/g, '-');
-  };
-
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onFormSubmit)}>
@@ -97,21 +107,7 @@ export default function UpdateTeamForm({ teamId, teamName, teamUrl }: UpdateTeam
                 <FormItem>
                   <FormLabel required>Team Name</FormLabel>
                   <FormControl>
-                    <Input
-                      className="bg-background"
-                      {...field}
-                      onChange={(event) => {
-                        const oldGenericUrl = mapTextToUrl(field.value);
-                        const newGenericUrl = mapTextToUrl(event.target.value);
-
-                        const urlField = form.getValues('url');
-                        if (urlField === oldGenericUrl) {
-                          form.setValue('url', newGenericUrl);
-                        }
-
-                        field.onChange(event);
-                      }}
-                    />
+                    <Input className="bg-background" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -141,14 +137,25 @@ export default function UpdateTeamForm({ teamId, teamName, teamUrl }: UpdateTeam
             />
 
             <div className="flex flex-row justify-end space-x-4">
-              <Button
-                type="button"
-                variant="secondary"
-                // Todo: Teams
-                // onClick={() => setOpen(false)}
-              >
-                Reset
-              </Button>
+              <AnimatePresence>
+                {form.formState.isDirty && (
+                  <motion.div
+                    initial={{
+                      opacity: 0,
+                    }}
+                    animate={{
+                      opacity: 1,
+                    }}
+                    exit={{
+                      opacity: 0,
+                    }}
+                  >
+                    <Button type="button" variant="secondary" onClick={() => form.reset()}>
+                      Reset
+                    </Button>
+                  </motion.div>
+                )}
+              </AnimatePresence>
 
               <Button type="submit" loading={form.formState.isSubmitting}>
                 Update team

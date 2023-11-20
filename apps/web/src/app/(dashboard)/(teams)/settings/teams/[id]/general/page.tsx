@@ -1,8 +1,5 @@
-import { Plus } from 'lucide-react';
-
 import { getRequiredServerComponentSession } from '@documenso/lib/next-auth/get-server-session';
 import { getTeamByUrl } from '@documenso/lib/server-only/team/get-teams';
-import { Button } from '@documenso/ui/primitives/button';
 
 import SettingsHeader from '~/components/(dashboard)/settings/layout/header';
 import DeleteTeamDialog from '~/components/(teams)/dialogs/delete-team-dialog';
@@ -40,9 +37,10 @@ export default async function TeamsSettingsGeneralPage({ params }: TeamsSettings
 
       <UpdateTeamForm teamId={team.id} teamName={team.name} teamUrl={team.url} />
 
-      <hr className="my-6" />
+      {/* <hr className="my-6" /> */}
 
-      <div>
+      {/* Todo: Teams section. */}
+      {/* <div>
         <div className="flex flex-row items-center justify-between">
           <div>
             <h3 className="text font-medium">Email addresses</h3>
@@ -58,24 +56,45 @@ export default async function TeamsSettingsGeneralPage({ params }: TeamsSettings
           </Button>
         </div>
 
-        <div className="text-muted-foreground mt-4 flex h-60 w-full items-center justify-center rounded-lg bg-gray-50/50 text-sm">
-          No emails configured
+        <div className="text-muted-foreground mt-4 flex h-32 w-full items-center justify-center rounded-lg bg-gray-50/50 text-sm">
+          Set a custom email address to send all emails from this team.
         </div>
       </div>
 
-      <hr className="my-6" />
+      <hr className="my-6" /> */}
 
-      <div className="flex justify-end space-x-4 rounded-lg bg-gray-50/50 p-4">
-        {team.ownerUserId === session.user.id && (
-          <TransferTeamDialog
-            ownerUserId={team.ownerUserId}
-            teamId={team.id}
-            teamName={team.name}
-          />
-        )}
+      {team.ownerUserId === session.user.id && (
+        <section className="mt-6 space-y-6">
+          <div className="flex flex-row items-center justify-between rounded-lg bg-gray-50/70 p-6">
+            <div>
+              <h3 className="text font-medium">Transfer team</h3>
 
-        <DeleteTeamDialog teamId={team.id} teamName={team.name} />
-      </div>
+              <p className="text-muted-foreground text-sm">
+                Transfer the ownership of the team to another team member.
+              </p>
+            </div>
+
+            <TransferTeamDialog
+              ownerUserId={team.ownerUserId}
+              teamId={team.id}
+              teamName={team.name}
+            />
+          </div>
+
+          <div className="flex flex-row items-center justify-between rounded-lg bg-gray-50/70 p-6">
+            <div>
+              <h3 className="text font-medium">Delete team</h3>
+
+              <p className="text-muted-foreground text-sm">
+                This team, and any associated data excluding billing invoices will be permanently
+                deleted.
+              </p>
+            </div>
+
+            <DeleteTeamDialog teamId={team.id} teamName={team.name} />
+          </div>
+        </section>
+      )}
     </div>
   );
 }
