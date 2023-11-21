@@ -137,7 +137,7 @@ export default function TeamsDataTable() {
 
                   <Button
                     variant="destructive"
-                    disabled={row.original.ownerUserId !== row.original.currentTeamMember.userId}
+                    disabled={row.original.ownerUserId === row.original.currentTeamMember.userId}
                     onSelect={(e) => e.preventDefault()}
                   >
                     Leave
