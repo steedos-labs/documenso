@@ -85,7 +85,7 @@ export default async function AcceptInvitationPage({ searchParams }: AcceptInvit
     });
   }
 
-  const isSessionUserTheInvitedUser = user && user.id === session.user.id;
+  const isSessionUserTheInvitedUser = user && user.id === session.user?.id;
 
   return (
     <div>

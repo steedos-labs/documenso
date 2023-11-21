@@ -286,7 +286,7 @@ model TeamMember {
   role      TeamMemberRole
   userId    Int
   user      User           @relation(fields: [userId], references: [id])
-  team      Team           @relation(fields: [teamId], references: [id])
+  team      Team           @relation(fields: [teamId], references: [id], onDelete: Cascade)
 
   @@unique([userId, teamId])
 }
@@ -299,7 +299,7 @@ model TeamMemberInvite {
   status    TeamMemberInviteStatus @default(PENDING)
   role      TeamMemberRole
   token     String                 @unique
-  team      Team                   @relation(fields: [teamId], references: [id])
+  team      Team                   @relation(fields: [teamId], references: [id], onDelete: Cascade)
 
   @@unique([teamId, email])
 }

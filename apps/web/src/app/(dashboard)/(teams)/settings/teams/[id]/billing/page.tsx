@@ -1,9 +1,5 @@
-import { getRequiredServerComponentSession } from '@documenso/lib/next-auth/get-server-session';
-
 // import { ProfileForm } from '~/components/forms/profile';
 
-export default async function TeamsSettingBillingPage() {
-  const { user } = await getRequiredServerComponentSession();
-
+export default function TeamsSettingBillingPage() {
   return <div>todo</div>;
 }

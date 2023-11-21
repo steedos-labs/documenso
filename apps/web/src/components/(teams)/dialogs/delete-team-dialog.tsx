@@ -2,6 +2,8 @@
 
 import { useEffect, useState } from 'react';
 
+import { useRouter } from 'next/navigation';
+
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
@@ -35,6 +37,7 @@ export type DeleteTeamDialogProps = {
 };
 
 export default function DeleteTeamDialog({ trigger, teamId, teamName }: DeleteTeamDialogProps) {
+  const router = useRouter();
   const [open, setOpen] = useState(false);
 
   const { toast } = useToast();
@@ -67,6 +70,8 @@ export default function DeleteTeamDialog({ trigger, teamId, teamName }: DeleteTe
       });
 
       setOpen(false);
+
+      router.push('/settings/teams');
     } catch (err) {
       toast({
         title: 'An unknown error occurred',

@@ -2,24 +2,17 @@
 
 import { HTMLAttributes } from 'react';
 
-import Link from 'next/link';
-import { usePathname } from 'next/navigation';
-
-import { CreditCard, Key, User } from 'lucide-react';
-
-import { useFeatureFlags } from '@documenso/lib/client-only/providers/feature-flag';
 import { cn } from '@documenso/ui/lib/utils';
-import { Button } from '@documenso/ui/primitives/button';
 
 export type MobileNavProps = HTMLAttributes<HTMLDivElement>;
 
 // Todo: Teams
 export const MobileNav = ({ className, ...props }: MobileNavProps) => {
-  const pathname = usePathname();
+  // const pathname = usePathname();
 
-  const { getFlag } = useFeatureFlags();
+  // const { getFlag } = useFeatureFlags();
 
-  const isBillingEnabled = getFlag('app_billing');
+  // const isBillingEnabled = getFlag('app_billing');
 
   return (
     <div
