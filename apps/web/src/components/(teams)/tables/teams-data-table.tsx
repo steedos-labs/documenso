@@ -21,6 +21,8 @@ import { TableCell } from '@documenso/ui/primitives/table';
 
 import { LocaleDate } from '~/components/formatter/locale-date';
 
+import LeaveTeamDialog from '../dialogs/leave-team-dialog';
+
 export default function TeamsDataTable() {
   const router = useRouter();
   const searchParams = useSearchParams()!;
@@ -135,28 +137,22 @@ export default function TeamsDataTable() {
                     </Button>
                   )}
 
-                  <Button
-                    variant="destructive"
-                    disabled={row.original.ownerUserId === row.original.currentTeamMember.userId}
-                    onSelect={(e) => e.preventDefault()}
-                  >
-                    Leave
-                  </Button>
-
-                  {
-                    // <DeleteTeamMemberDialog
-                    //   teamId={team.id}
-                    //   teamName={team.name}
-                    //   teamMemberId={row.original.id}
-                    //   teamMemberName={row.original.user.name ?? row.original.user.email}
-                    //   trigger={
-                    //     <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
-                    //       <DoorOpen className="mr-2 h-4 w-4" />
-                    //       Leave
-                    //     </DropdownMenuItem>
-                    //   }
-                    // />
-                  }
+                  <LeaveTeamDialog
+                    teamId={row.original.id}
+                    teamName={row.original.name}
+                    role={row.original.currentTeamMember.role}
+                    trigger={
+                      <Button
+                        variant="destructive"
+                        disabled={
+                          row.original.ownerUserId === row.original.currentTeamMember.userId
+                        }
+                        onSelect={(e) => e.preventDefault()}
+                      >
+                        Leave
+                      </Button>
+                    }
+                  />
                 </div>
               ),
             },

@@ -12,6 +12,7 @@ import {
   inviteTeamMembers,
   resendTeamMemberInvitation,
 } from '@documenso/lib/server-only/team/invite-team-members';
+import { leaveTeam } from '@documenso/lib/server-only/team/leave-team';
 import { transferTeamOwnership } from '@documenso/lib/server-only/team/transfer-team-ownership';
 import { updateTeam } from '@documenso/lib/server-only/team/update-team';
 import { updateTeamMember } from '@documenso/lib/server-only/team/update-team-member';
@@ -28,6 +29,7 @@ import {
   ZGetTeamMembersQuerySchema,
   ZGetTeamQuerySchema,
   ZInviteTeamMembersMutationSchema,
+  ZLeaveTeamMutationSchema,
   ZResendTeamMemberInvitationMutationSchema,
   ZTransferTeamOwnershipMutationSchema,
   ZUpdateTeamMemberMutationSchema,
@@ -180,6 +182,21 @@ export const teamRouter = router({
     .query(async ({ input, ctx }) => {
       try {
         return await findTeamMembers({
+          userId: ctx.user.id,
+          ...input,
+        });
+      } catch (err) {
+        console.error(err);
+
+        throw AppError.parseErrorToTRPCError(err);
+      }
+    }),
+
+  leaveTeam: authenticatedProcedure
+    .input(ZLeaveTeamMutationSchema)
+    .mutation(async ({ input, ctx }) => {
+      try {
+        return await leaveTeam({
           userId: ctx.user.id,
           ...input,
         });
