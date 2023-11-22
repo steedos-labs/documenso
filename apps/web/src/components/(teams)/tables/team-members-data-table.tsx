@@ -9,7 +9,7 @@ import { TEAM_MEMBER_ROLE_MAP } from '@documenso/lib/constants/teams';
 import { ZBaseTableSearchParamsSchema } from '@documenso/lib/types/search-params';
 import { recipientInitials } from '@documenso/lib/utils/recipient-formatter';
 import { trpc } from '@documenso/trpc/react';
-import { Avatar, AvatarFallback } from '@documenso/ui/primitives/avatar';
+import { AvatarWithText } from '@documenso/ui/primitives/avatar';
 import { DataTable } from '@documenso/ui/primitives/data-table';
 import { DataTablePagination } from '@documenso/ui/primitives/data-table-pagination';
 import {
@@ -82,18 +82,14 @@ export default function TeamMembersDataTable({
               : row.original.user.email.slice(0, 1).toUpperCase();
 
             return (
-              <div className="flex max-w-xs items-center gap-2">
-                <Avatar className="dark:border-border h-12 w-12 border-2 border-solid border-white">
-                  <AvatarFallback className="text-xs text-gray-400">
-                    {avatarFallbackText}
-                  </AvatarFallback>
-                </Avatar>
-
-                <div className="flex flex-col text-sm">
+              <AvatarWithText
+                avatarClass="h-12 w-12"
+                avatarFallback={avatarFallbackText}
+                primaryText={
                   <span className="text-foreground/80 font-semibold">{row.original.user.name}</span>
-                  <span className="text-muted-foreground">{row.original.user.email}</span>
-                </div>
-              </div>
+                }
+                secondaryText={row.original.user.email}
+              />
             );
           },
         },

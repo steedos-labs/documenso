@@ -8,7 +8,7 @@ import { useUpdateSearchParams } from '@documenso/lib/client-only/hooks/use-upda
 import { TEAM_MEMBER_ROLE_MAP } from '@documenso/lib/constants/teams';
 import { ZBaseTableSearchParamsSchema } from '@documenso/lib/types/search-params';
 import { trpc } from '@documenso/trpc/react';
-import { Avatar, AvatarFallback } from '@documenso/ui/primitives/avatar';
+import { AvatarWithText } from '@documenso/ui/primitives/avatar';
 import { DataTable } from '@documenso/ui/primitives/data-table';
 import { DataTablePagination } from '@documenso/ui/primitives/data-table-pagination';
 import {
@@ -106,18 +106,13 @@ export default function TeamMemberInvitesDataTable({ teamId }: TeamMemberInvites
           header: 'Team Member',
           cell: ({ row }) => {
             return (
-              <div className="flex max-w-xs items-center gap-2">
-                <Avatar className="dark:border-border h-12 w-12 border-2 border-solid border-white">
-                  <AvatarFallback className="text-xs text-gray-400">
-                    {row.original.email.slice(0, 1).toUpperCase()}
-                  </AvatarFallback>
-                </Avatar>
-
-                <div className="flex flex-col text-sm">
+              <AvatarWithText
+                avatarClass="h-12 w-12"
+                avatarFallback={row.original.email.slice(0, 1).toUpperCase()}
+                primaryText={
                   <span className="text-foreground/80 font-semibold">{row.original.email}</span>
-                  {/* <span className="text-muted-foreground">{row.original.user.email}</span> */}
-                </div>
-              </div>
+                }
+              />
             );
           },
         },
@@ -151,7 +146,7 @@ export default function TeamMemberInvitesDataTable({ teamId }: TeamMemberInvites
                   }
                 >
                   <History className="mr-2 h-4 w-4" />
-                  Resend invitation
+                  Resend
                 </DropdownMenuItem>
 
                 <DropdownMenuItem
@@ -163,7 +158,7 @@ export default function TeamMemberInvitesDataTable({ teamId }: TeamMemberInvites
                   }
                 >
                   <Trash2 className="mr-2 h-4 w-4" />
-                  Remove invitation
+                  Remove
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>

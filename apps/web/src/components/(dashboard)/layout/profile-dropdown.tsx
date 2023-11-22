@@ -11,7 +11,8 @@ import { isAdmin } from '@documenso/lib/next-auth/guards/is-admin';
 import { recipientInitials } from '@documenso/lib/utils/recipient-formatter';
 import { User } from '@documenso/prisma/client';
 import { trpc } from '@documenso/trpc/react';
-import { Avatar, AvatarFallback } from '@documenso/ui/primitives/avatar';
+import { cn } from '@documenso/ui/lib/utils';
+import { AvatarWithText } from '@documenso/ui/primitives/avatar';
 import { Button } from '@documenso/ui/primitives/button';
 import {
   DropdownMenu,
@@ -35,59 +36,66 @@ export const ProfileDropdown = ({ user }: ProfileDropdownProps) => {
     ? recipientInitials(user.name)
     : user.email.slice(0, 1).toUpperCase();
 
-  const { data: teams } = trpc.team.getTeams.useQuery();
+  const { data: teamsQueryResult } = trpc.team.getTeams.useQuery();
+
+  const teams = teamsQueryResult && teamsQueryResult.length > 0 ? teamsQueryResult : null;
 
   const selectedTeam = teams?.find((team) => pathname?.startsWith(`/t/${team.url}`));
+
+  const formatSecondaryAvatarTeamText = (team?: typeof selectedTeam) => {
+    if (!team) {
+      return 'Personal Account';
+    }
+
+    if (team.ownerUserId === user.id) {
+      return 'Owner';
+    }
+
+    return TEAM_MEMBER_ROLE_MAP[team.currentTeamMember.role];
+  };
 
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="ghost" className="relative flex h-12 flex-row items-center px-2 py-2">
-          <Avatar className="dark:border-border h-10 w-10 border-2 border-solid border-white">
-            <AvatarFallback>
-              {selectedTeam ? selectedTeam.name.slice(0, 1) : avatarFallback}
-            </AvatarFallback>
-          </Avatar>
-
-          <div className="ml-2 flex min-w-[10rem] flex-col text-left font-normal">
-            <span className="text-foreground">{selectedTeam ? selectedTeam.name : user.name}</span>
-            <span className="text-muted-foreground text-xs">
-              {selectedTeam
-                ? TEAM_MEMBER_ROLE_MAP[selectedTeam.currentTeamMember.role]
-                : 'Personal Account'}
-            </span>
-          </div>
-
-          <ChevronsUpDown className="ml-2 h-4 w-4" />
+        <Button
+          variant="ghost"
+          className="relative flex h-12 flex-row items-center px-2 py-2 focus-visible:ring-0"
+        >
+          <AvatarWithText
+            avatarFallback={avatarFallback}
+            primaryText={selectedTeam ? selectedTeam.name : user.name}
+            secondaryText={formatSecondaryAvatarTeamText(selectedTeam)}
+            rightSideComponent={
+              <ChevronsUpDown className="text-muted-foreground ml-auto h-4 w-4" />
+            }
+          />
         </Button>
       </DropdownMenuTrigger>
 
-      {/* Todo: Teams - className="w-56" */}
-      <DropdownMenuContent className="w-full min-w-[20rem]" align="end" forceMount>
-        <DropdownMenuLabel>Personal</DropdownMenuLabel>
-
-        <DropdownMenuItem asChild>
-          <Link href="/">
-            {/* Todo: Extract */}
-            <div className="flex w-full max-w-xs items-center gap-2">
-              <Avatar className="dark:border-border h-10 w-10 border-2 border-solid border-white">
-                <AvatarFallback className="text-xs text-gray-400">{avatarFallback}</AvatarFallback>
-              </Avatar>
-
-              <div className="flex flex-col text-sm">
-                <span className="text-foreground">{user.name ?? user.email}</span>
-                <span className="text-muted-foreground text-xs">Personal account</span>
-              </div>
-
-              {!pathname?.startsWith(`/t/`) && (
-                <CheckCircle2 className="ml-auto fill-black text-white dark:fill-white dark:text-black" />
-              )}
-            </div>
-          </Link>
-        </DropdownMenuItem>
-
-        {teams && teams?.length > 0 && (
+      <DropdownMenuContent
+        className={cn('w-full', teams ? 'min-w-[20rem]' : 'min-w-[12rem]')}
+        align="end"
+        forceMount
+      >
+        {teams ? (
           <>
+            <DropdownMenuLabel>Personal</DropdownMenuLabel>
+
+            <DropdownMenuItem asChild>
+              <Link href="/">
+                <AvatarWithText
+                  avatarFallback={avatarFallback}
+                  primaryText={selectedTeam ? selectedTeam.name : user.name}
+                  secondaryText={formatSecondaryAvatarTeamText()}
+                  rightSideComponent={
+                    !pathname?.startsWith(`/t/`) && (
+                      <CheckCircle2 className="ml-auto fill-black text-white dark:fill-white dark:text-black" />
+                    )
+                  }
+                />
+              </Link>
+            </DropdownMenuItem>
+
             <DropdownMenuSeparator className="mt-2" />
 
             <DropdownMenuLabel>
@@ -95,27 +103,31 @@ export const ProfileDropdown = ({ user }: ProfileDropdownProps) => {
                 <p>Teams</p>
 
                 <div className="flex flex-row space-x-2">
-                  <Button
-                    title="Manage teams"
-                    variant="ghost"
-                    className="text-muted-foreground flex h-5 w-5 items-center justify-center p-0"
-                    asChild
-                  >
-                    <Link href="/settings/teams">
-                      <Settings2 className="h-4 w-4" />
-                    </Link>
-                  </Button>
+                  <DropdownMenuItem asChild>
+                    <Button
+                      title="Manage teams"
+                      variant="ghost"
+                      className="text-muted-foreground flex h-5 w-5 items-center justify-center p-0"
+                      asChild
+                    >
+                      <Link href="/settings/teams">
+                        <Settings2 className="h-4 w-4" />
+                      </Link>
+                    </Button>
+                  </DropdownMenuItem>
 
-                  <Button
-                    title="Manage teams"
-                    variant="ghost"
-                    className="text-muted-foreground flex h-5 w-5 items-center justify-center p-0"
-                    asChild
-                  >
-                    <Link href="/settings/teams?action=add-team">
-                      <Plus className="h-4 w-4" />
-                    </Link>
-                  </Button>
+                  <DropdownMenuItem asChild>
+                    <Button
+                      title="Manage teams"
+                      variant="ghost"
+                      className="text-muted-foreground flex h-5 w-5 items-center justify-center p-0"
+                      asChild
+                    >
+                      <Link href="/settings/teams?action=add-team">
+                        <Plus className="h-4 w-4" />
+                      </Link>
+                    </Button>
+                  </DropdownMenuItem>
                 </div>
               </div>
             </DropdownMenuLabel>
@@ -123,30 +135,30 @@ export const ProfileDropdown = ({ user }: ProfileDropdownProps) => {
             {teams.map((team) => (
               <DropdownMenuItem asChild key={team.id}>
                 <Link href={`/t/${team.url}`}>
-                  {/* Todo: Extract */}
-                  <div className="flex w-full max-w-xs items-center gap-2">
-                    <Avatar className="dark:border-border h-10 w-10 border-2 border-solid border-white">
-                      <AvatarFallback className="text-xs text-gray-400">
-                        {/* Todo: Teams */}
-                        {team.name.slice(0, 1).toUpperCase()}
-                      </AvatarFallback>
-                    </Avatar>
-
-                    <div className="flex flex-col text-sm">
-                      <span className="text-foreground">{team.name}</span>
-                      <span className="text-muted-foreground text-xs">
-                        {TEAM_MEMBER_ROLE_MAP[team.currentTeamMember.role]}
-                      </span>
-                    </div>
-
-                    {pathname?.startsWith(`/t/${team.url}`) && (
-                      <CheckCircle2 className="ml-auto fill-black text-white dark:fill-white dark:text-black" />
-                    )}
-                  </div>
+                  <AvatarWithText
+                    avatarFallback={team.name.slice(0, 1).toUpperCase()}
+                    primaryText={team.name}
+                    secondaryText={formatSecondaryAvatarTeamText(team)}
+                    rightSideComponent={
+                      pathname?.startsWith(`/t/${team.url}`) && (
+                        <CheckCircle2 className="ml-auto fill-black text-white dark:fill-white dark:text-black" />
+                      )
+                    }
+                  />
                 </Link>
               </DropdownMenuItem>
             ))}
           </>
+        ) : (
+          <DropdownMenuItem className="text-muted-foreground px-4 py-2" asChild>
+            <Link
+              href="/settings/teams?action=add-team"
+              className="flex items-center justify-between"
+            >
+              Create team
+              <Plus className="ml-2 h-4 w-4" />
+            </Link>
+          </DropdownMenuItem>
         )}
 
         <DropdownMenuSeparator />
@@ -161,10 +173,11 @@ export const ProfileDropdown = ({ user }: ProfileDropdownProps) => {
           <Link href="/settings/profile">User settings</Link>
         </DropdownMenuItem>
 
-        {/* Todo: Teams - Only display if the user is not on the free plan?  */}
-        <DropdownMenuItem className="text-muted-foreground px-4 py-2" asChild>
-          <Link href="/settings/teams">Teams settings</Link>
-        </DropdownMenuItem>
+        {teams && (
+          <DropdownMenuItem className="text-muted-foreground px-4 py-2" asChild>
+            <Link href="/settings/teams">Teams settings</Link>
+          </DropdownMenuItem>
+        )}
 
         <DropdownMenuItem
           className="text-destructive/90 hover:!text-destructive px-4 py-2"

@@ -11,7 +11,7 @@ import { WEBAPP_BASE_URL } from '@documenso/lib/constants/app';
 import { TEAM_MEMBER_ROLE_MAP, canExecuteTeamAction } from '@documenso/lib/constants/teams';
 import { ZBaseTableSearchParamsSchema } from '@documenso/lib/types/search-params';
 import { trpc } from '@documenso/trpc/react';
-import { Avatar, AvatarFallback } from '@documenso/ui/primitives/avatar';
+import { AvatarWithText } from '@documenso/ui/primitives/avatar';
 import { Button } from '@documenso/ui/primitives/button';
 import { DataTable } from '@documenso/ui/primitives/data-table';
 import { DataTablePagination } from '@documenso/ui/primitives/data-table-pagination';
@@ -100,20 +100,14 @@ export default function TeamsDataTable() {
               accessorKey: 'name',
               cell: ({ row }) => (
                 <Link href={`/t/${row.original.url}`} scroll={false}>
-                  <div className="flex max-w-xs items-center gap-2">
-                    <Avatar className="dark:border-border h-12 w-12 border-2 border-solid border-white">
-                      <AvatarFallback className="text-xs text-gray-400">
-                        {row.original.name.slice(0, 1).toUpperCase()}
-                      </AvatarFallback>
-                    </Avatar>
-
-                    <div className="flex flex-col text-sm">
+                  <AvatarWithText
+                    avatarClass="h-12 w-12"
+                    avatarFallback={row.original.name.slice(0, 1).toUpperCase()}
+                    primaryText={
                       <span className="text-foreground/80 font-semibold">{row.original.name}</span>
-                      <span className="text-muted-foreground">
-                        {WEBAPP_BASE_URL}/t/{row.original.url}
-                      </span>
-                    </div>
-                  </div>
+                    }
+                    secondaryText={`${WEBAPP_BASE_URL}/t/${row.original.url}`}
+                  />
                 </Link>
               ),
             },
