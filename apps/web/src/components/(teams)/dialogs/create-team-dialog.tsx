@@ -1,12 +1,15 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+
+import { useSearchParams } from 'next/navigation';
 
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as DialogPrimitive from '@radix-ui/react-dialog';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 
+import { useUpdateSearchParams } from '@documenso/lib/client-only/hooks/use-update-search-params';
 import { WEBAPP_BASE_URL } from '@documenso/lib/constants/app';
 import { AppError, AppErrorCode } from '@documenso/lib/errors/app-error';
 import { trpc } from '@documenso/trpc/react';
@@ -43,9 +46,13 @@ export const ZCreateTeamFormSchema = z.object({
 export type TCreateTeamFormSchema = z.infer<typeof ZCreateTeamFormSchema>;
 
 export default function CreateTeamDialog({ trigger, ...props }: CreateTeamDialogProps) {
+  const searchParams = useSearchParams();
+  const updateSearchParams = useUpdateSearchParams();
   const [open, setOpen] = useState(false);
 
   const { toast } = useToast();
+
+  const actionSearchParam = searchParams?.get('action');
 
   const form = useForm({
     resolver: zodResolver(ZCreateTeamFormSchema),
@@ -95,6 +102,13 @@ export default function CreateTeamDialog({ trigger, ...props }: CreateTeamDialog
   const mapTextToUrl = (text: string) => {
     return text.toLowerCase().replace(/\s+/g, '-');
   };
+
+  useEffect(() => {
+    if (actionSearchParam === 'add-team') {
+      setOpen(true);
+      updateSearchParams({ action: null });
+    }
+  }, [actionSearchParam, setOpen, updateSearchParams]);
 
   return (
     <Dialog

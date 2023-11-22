@@ -74,7 +74,7 @@ export default async function AcceptInvitationPage({ searchParams }: AcceptInvit
 
   // Set the team invite status to accepted, which is checked during user creation
   // to determine if we should add the user to the team at that time.
-  if (!user) {
+  if (!user && teamMemberInvite.status !== TeamMemberInviteStatus.ACCEPTED) {
     await prisma.teamMemberInvite.update({
       where: {
         id: teamMemberInvite.id,
@@ -87,6 +87,28 @@ export default async function AcceptInvitationPage({ searchParams }: AcceptInvit
 
   const isSessionUserTheInvitedUser = user && user.id === session.user?.id;
 
+  if (!user) {
+    return (
+      <div>
+        <h1 className="text-4xl font-semibold">Team invitation</h1>
+
+        <p className="text-muted-foreground mt-2 text-sm">
+          You have been invited by <strong>{team.name}</strong> to join their team.
+        </p>
+
+        <p className="text-muted-foreground mb-4 mt-1 text-sm">
+          To accept this invitation you must create an account.
+        </p>
+
+        <Button asChild>
+          <Link href={`/signup?email=${encodeURIComponent(teamMemberInvite.email)}`}>
+            Create account
+          </Link>
+        </Button>
+      </div>
+    );
+  }
+
   return (
     <div>
       <h1 className="text-4xl font-semibold">Invitation accepted!</h1>
@@ -95,14 +117,6 @@ export default async function AcceptInvitationPage({ searchParams }: AcceptInvit
         You have accepted an invitation from <strong>{team.name}</strong> to join their team on
         Documenso.
       </p>
-
-      {!user && (
-        <Button asChild>
-          <Link href={`/signup?email=${encodeURIComponent(teamMemberInvite.email)}`}>
-            Continue to create an account
-          </Link>
-        </Button>
-      )}
 
       {user && !isSessionUserTheInvitedUser && (
         <Button asChild>
