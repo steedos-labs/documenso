@@ -114,7 +114,10 @@ export default function TeamsDataTable() {
             {
               header: 'Role',
               accessorKey: 'role',
-              cell: ({ row }) => TEAM_MEMBER_ROLE_MAP[row.original.currentTeamMember.role],
+              cell: ({ row }) =>
+                row.original.ownerUserId === row.original.currentTeamMember.userId
+                  ? 'Owner'
+                  : TEAM_MEMBER_ROLE_MAP[row.original.currentTeamMember.role],
             },
             {
               header: 'Member Since',

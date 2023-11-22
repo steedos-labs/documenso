@@ -96,7 +96,10 @@ export default function TeamMembersDataTable({
         {
           header: 'Role',
           accessorKey: 'role',
-          cell: ({ row }) => TEAM_MEMBER_ROLE_MAP[row.original.role] ?? row.original.role,
+          cell: ({ row }) =>
+            teamOwnerUserId === row.original.userId
+              ? 'Owner'
+              : TEAM_MEMBER_ROLE_MAP[row.original.role],
         },
         {
           header: 'Member Since',
