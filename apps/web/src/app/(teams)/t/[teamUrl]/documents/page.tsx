@@ -1,7 +1,7 @@
 import Link from 'next/link';
 
 import { getRequiredServerComponentSession } from '@documenso/lib/next-auth/get-server-session';
-import { findDocuments } from '@documenso/lib/server-only/admin/get-all-documents';
+import { findDocuments } from '@documenso/lib/server-only/document/find-documents';
 import { getStats } from '@documenso/lib/server-only/document/get-stats';
 import { isExtendedDocumentStatus } from '@documenso/prisma/guards/is-extended-document-status';
 import { ExtendedDocumentStatus } from '@documenso/prisma/types/extended-document-status';
@@ -30,10 +30,10 @@ export type TeamsDocumentPageProps = {
 };
 
 export default async function TeamsDocumentPage({
-  params,
+  // params,
   searchParams = {},
 }: TeamsDocumentPageProps) {
-  const { teamUrl } = params;
+  // const { teamUrl } = params;
 
   const { user } = await getRequiredServerComponentSession();
 
