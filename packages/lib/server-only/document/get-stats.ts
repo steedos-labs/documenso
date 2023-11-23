@@ -5,9 +5,13 @@ import { ExtendedDocumentStatus } from '@documenso/prisma/types/extended-documen
 
 export type GetStatsInput = {
   user: User;
+  teamId?: number;
 };
 
-export const getStats = async ({ user }: GetStatsInput) => {
+export const getStats = async ({ user, ...options }: GetStatsInput) => {
+  // Todo: Teams - Validate team ID belongs to user.
+  const teamId = options.teamId !== undefined ? options.teamId : null;
+
   const [ownerCounts, notSignedCounts, hasSignedCounts] = await Promise.all([
     prisma.document.groupBy({
       by: ['status'],
@@ -16,6 +20,7 @@ export const getStats = async ({ user }: GetStatsInput) => {
       },
       where: {
         userId: user.id,
+        teamId,
       },
     }),
     prisma.document.groupBy({
@@ -24,6 +29,7 @@ export const getStats = async ({ user }: GetStatsInput) => {
         _all: true,
       },
       where: {
+        teamId,
         status: ExtendedDocumentStatus.PENDING,
         Recipient: {
           some: {
@@ -39,6 +45,7 @@ export const getStats = async ({ user }: GetStatsInput) => {
         _all: true,
       },
       where: {
+        teamId,
         status: {
           not: ExtendedDocumentStatus.DRAFT,
         },

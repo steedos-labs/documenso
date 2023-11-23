@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { getRequiredServerComponentSession } from '@documenso/lib/next-auth/get-server-session';
 import { findDocuments } from '@documenso/lib/server-only/document/find-documents';
 import { getStats } from '@documenso/lib/server-only/document/get-stats';
+import { getTeamByUrl } from '@documenso/lib/server-only/team/get-teams';
 import { isExtendedDocumentStatus } from '@documenso/prisma/guards/is-extended-document-status';
 import { ExtendedDocumentStatus } from '@documenso/prisma/types/extended-document-status';
 import { Tabs, TabsList, TabsTrigger } from '@documenso/ui/primitives/tabs';
@@ -30,15 +31,17 @@ export type TeamsDocumentPageProps = {
 };
 
 export default async function TeamsDocumentPage({
-  // params,
+  params,
   searchParams = {},
 }: TeamsDocumentPageProps) {
-  // const { teamUrl } = params;
+  const { teamUrl } = params;
 
   const { user } = await getRequiredServerComponentSession();
+  const team = await getTeamByUrl({ userId: user.id, teamUrl });
 
   const stats = await getStats({
     user,
+    teamId: team.id,
   });
 
   const status = isExtendedDocumentStatus(searchParams.status) ? searchParams.status : 'ALL';
@@ -48,6 +51,7 @@ export default async function TeamsDocumentPage({
 
   const results = await findDocuments({
     userId: user.id,
+    teamId: team.id,
     status,
     orderBy: {
       column: 'createdAt',
@@ -67,12 +71,12 @@ export default async function TeamsDocumentPage({
       params.delete('page');
     }
 
-    return `/documents?${params.toString()}`;
+    return `/t/${team.url}/documents?${params.toString()}`;
   };
 
   return (
     <div className="mx-auto w-full max-w-screen-xl px-4 md:px-8">
-      <UploadDocument />
+      <UploadDocument team={{ id: team.id, url: team.url }} />
 
       <div className="mt-12 flex flex-wrap items-center justify-between gap-x-4 gap-y-8">
         <h1 className="text-4xl font-semibold">Documents</h1>

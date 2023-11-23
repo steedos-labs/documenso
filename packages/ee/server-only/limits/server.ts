@@ -65,6 +65,7 @@ export const getServerLimits = async ({ email }: GetServerLimitsOptions) => {
   const documents = await prisma.document.count({
     where: {
       userId: user.id,
+      teamId: null,
       createdAt: {
         gte: DateTime.utc().startOf('month').toJSDate(),
       },

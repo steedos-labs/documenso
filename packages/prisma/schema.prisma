@@ -135,6 +135,8 @@ model Document {
   createdAt      DateTime            @default(now())
   updatedAt      DateTime            @default(now()) @updatedAt
   completedAt    DateTime?
+  teamId         Int?
+  Team           Team?               @relation(fields: [teamId], references: [id])
 
   @@unique([documentDataId])
   @@index([userId])
@@ -254,6 +256,12 @@ model DocumentShareLink {
   @@unique([documentId, email])
 }
 
+// Todo: Teams
+enum TeamStatus {
+  ACTIVE
+  INACTIVE
+}
+
 enum TeamMemberRole {
   ADMIN
   MANAGER
@@ -276,7 +284,8 @@ model Team {
   members     TeamMember[]
   invites     TeamMemberInvite[]
 
-  Owner User @relation(fields: [ownerUserId], references: [id])
+  Owner    User       @relation(fields: [ownerUserId], references: [id])
+  Document Document[]
 }
 
 model TeamMember {

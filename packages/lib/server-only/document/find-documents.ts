@@ -10,6 +10,7 @@ import type { FindResultSet } from '../../types/find-result-set';
 
 export interface FindDocumentsOptions {
   userId: number;
+  teamId?: number;
   term?: string;
   status?: ExtendedDocumentStatus;
   page?: number;
@@ -23,6 +24,7 @@ export interface FindDocumentsOptions {
 
 export const findDocuments = async ({
   userId,
+  teamId,
   term,
   status = ExtendedDocumentStatus.ALL,
   page = 1,
@@ -30,10 +32,20 @@ export const findDocuments = async ({
   orderBy,
   period,
 }: FindDocumentsOptions) => {
+  const userWhereClause: Prisma.UserWhereInput = {
+    id: userId,
+  };
+
+  if (teamId !== undefined) {
+    userWhereClause.TeamMembers = {
+      some: {
+        teamId,
+      },
+    };
+  }
+
   const user = await prisma.user.findFirstOrThrow({
-    where: {
-      id: userId,
-    },
+    where: userWhereClause,
   });
 
   const orderByColumn = orderBy?.column ?? 'createdAt';
@@ -91,7 +103,6 @@ export const findDocuments = async ({
         },
         {
           status: ExtendedDocumentStatus.PENDING,
-
           Recipient: {
             some: {
               email: user.email,
@@ -119,7 +130,9 @@ export const findDocuments = async ({
     }))
     .exhaustive();
 
-  const whereClause = {
+  filters.teamId = teamId !== undefined ? teamId : null;
+
+  const whereClause: Prisma.DocumentWhereInput = {
     ...termFilters,
     ...filters,
   };
