@@ -21,16 +21,16 @@ export const DesktopNav = ({ className, ...props }: DesktopNavProps) => {
 
   const isBillingEnabled = getFlag('app_billing');
 
-  const teamId = typeof params?.id === 'string' ? params?.id : '';
+  const teamUrl = typeof params?.teamUrl === 'string' ? params?.teamUrl : '';
 
   return (
     <div className={cn('flex flex-col gap-y-2', className)} {...props}>
-      <Link href={`/settings/teams/${teamId}`}>
+      <Link href={`/t/${teamUrl}/settings`}>
         <Button
           variant="ghost"
           className={cn(
             'w-full justify-start',
-            pathname === `/settings/teams/${teamId}` && 'bg-secondary',
+            pathname === `/t/${teamUrl}/settings` && 'bg-secondary',
           )}
         >
           <User className="mr-2 h-5 w-5" />
@@ -38,12 +38,12 @@ export const DesktopNav = ({ className, ...props }: DesktopNavProps) => {
         </Button>
       </Link>
 
-      <Link href={`/settings/teams/${teamId}/members`}>
+      <Link href={`/t/${teamUrl}/settings/members`}>
         <Button
           variant="ghost"
           className={cn(
             'w-full justify-start',
-            pathname?.startsWith(`/settings/teams/${teamId}/members`) && 'bg-secondary',
+            pathname?.startsWith(`/t/${teamUrl}/settings/members`) && 'bg-secondary',
           )}
         >
           <CreditCard className="mr-2 h-5 w-5" />
@@ -52,12 +52,12 @@ export const DesktopNav = ({ className, ...props }: DesktopNavProps) => {
       </Link>
 
       {isBillingEnabled && (
-        <Link href={`/settings/teams/${teamId}/billing`}>
+        <Link href={`/t/${teamUrl}/settings/billing`}>
           <Button
             variant="ghost"
             className={cn(
               'w-full justify-start',
-              pathname?.startsWith(`/settings/teams/${teamId}/billing`) && 'bg-secondary',
+              pathname?.startsWith(`/t/${teamUrl}/settings/billing`) && 'bg-secondary',
             )}
           >
             <Key className="mr-2 h-5 w-5" />

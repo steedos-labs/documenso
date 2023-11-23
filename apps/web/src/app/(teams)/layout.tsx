@@ -6,11 +6,10 @@ import { getServerSession } from 'next-auth';
 
 import { LimitsProvider } from '@documenso/ee/server-only/limits/provider/server';
 import { NEXT_AUTH_OPTIONS } from '@documenso/lib/next-auth/auth-options';
-import { getRequiredServerComponentSession } from '@documenso/lib/next-auth/get-server-component-session';
+import { getRequiredServerComponentSession } from '@documenso/lib/next-auth/get-server-session';
 import { getTeams } from '@documenso/lib/server-only/team/get-teams';
 
 import { Header } from '~/components/(dashboard)/layout/header';
-import { VerifyEmailBanner } from '~/components/(dashboard)/layout/verify-email-banner';
 import { RefreshOnFocus } from '~/components/(dashboard)/refresh-on-focus/refresh-on-focus';
 import { NextAuthProvider } from '~/providers/next-auth';
 
@@ -18,7 +17,7 @@ export type AuthenticatedDashboardLayoutProps = {
   children: React.ReactNode;
 };
 
-export default async function AuthenticatedDashboardLayout({
+export default async function AuthenticatedTeamsDashboardLayout({
   children,
 }: AuthenticatedDashboardLayoutProps) {
   const session = await getServerSession(NEXT_AUTH_OPTIONS);
@@ -35,8 +34,6 @@ export default async function AuthenticatedDashboardLayout({
   return (
     <NextAuthProvider session={session}>
       <LimitsProvider>
-        {!user.emailVerified && <VerifyEmailBanner email={user.email} />}
-
         <Header user={user} teams={teams} />
 
         <main className="mt-8 pb-8 md:mt-12 md:pb-12">{children}</main>

@@ -7,12 +7,12 @@ import TeamsMemberPageDataTable from '~/components/(teams)/tables/teams-member-p
 
 export type TeamsSettingsMembersPageProps = {
   params: {
-    id: string;
+    teamUrl: string;
   };
 };
 
 export default async function TeamsSettingsMembersPage({ params }: TeamsSettingsMembersPageProps) {
-  const { id: teamUrl } = params;
+  const { teamUrl } = params;
 
   const session = await getRequiredServerComponentSession();
 

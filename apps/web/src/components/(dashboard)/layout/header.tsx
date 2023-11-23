@@ -4,6 +4,7 @@ import { HTMLAttributes, useEffect, useState } from 'react';
 
 import Link from 'next/link';
 
+import { GetTeamsResponse } from '@documenso/lib/server-only/team/get-teams';
 import { User } from '@documenso/prisma/client';
 import { cn } from '@documenso/ui/lib/utils';
 
@@ -14,9 +15,10 @@ import { ProfileDropdown } from './profile-dropdown';
 
 export type HeaderProps = HTMLAttributes<HTMLDivElement> & {
   user: User;
+  teams: GetTeamsResponse;
 };
 
-export const Header = ({ className, user, ...props }: HeaderProps) => {
+export const Header = ({ className, user, teams, ...props }: HeaderProps) => {
   const [scrollY, setScrollY] = useState(0);
 
   useEffect(() => {
@@ -49,7 +51,7 @@ export const Header = ({ className, user, ...props }: HeaderProps) => {
         <DesktopNav />
 
         <div className="flex gap-x-4">
-          <ProfileDropdown user={user} />
+          <ProfileDropdown user={user} teams={teams} />
 
           {/* <Button variant="outline" size="sm" className="h-10 w-10 p-0.5 md:hidden">
             <Menu className="h-6 w-6" />

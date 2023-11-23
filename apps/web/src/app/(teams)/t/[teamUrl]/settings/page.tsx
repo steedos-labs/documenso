@@ -8,12 +8,12 @@ import UpdateTeamForm from '~/components/(teams)/forms/update-team-form';
 
 export type TeamsSettingsPageProps = {
   params: {
-    id: string;
+    teamUrl: string;
   };
 };
 
 export default async function TeamsSettingsPage({ params }: TeamsSettingsPageProps) {
-  const { id: teamUrl } = params;
+  const { teamUrl } = params;
 
   const session = await getRequiredServerComponentSession();
 

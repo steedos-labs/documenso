@@ -8,6 +8,8 @@ export type DashboardSettingsLayoutProps = {
 };
 
 export default function DashboardSettingsLayout({ children }: DashboardSettingsLayoutProps) {
+  // Todo: Teams - Set their preference here.
+
   return (
     <div className="mx-auto w-full max-w-screen-xl px-4 md:px-8">
       <h1 className="text-4xl font-semibold">Team Settings</h1>

@@ -8,6 +8,7 @@ import { signOut } from 'next-auth/react';
 
 import { TEAM_MEMBER_ROLE_MAP } from '@documenso/lib/constants/teams';
 import { isAdmin } from '@documenso/lib/next-auth/guards/is-admin';
+import { GetTeamsResponse } from '@documenso/lib/server-only/team/get-teams';
 import { recipientInitials } from '@documenso/lib/utils/recipient-formatter';
 import { User } from '@documenso/prisma/client';
 import { trpc } from '@documenso/trpc/react';
@@ -25,9 +26,10 @@ import {
 
 export type ProfileDropdownProps = {
   user: User;
+  teams: GetTeamsResponse;
 };
 
-export const ProfileDropdown = ({ user }: ProfileDropdownProps) => {
+export const ProfileDropdown = ({ user, teams: initialTeamsData }: ProfileDropdownProps) => {
   const pathname = usePathname();
 
   const isUserAdmin = isAdmin(user);
@@ -36,7 +38,9 @@ export const ProfileDropdown = ({ user }: ProfileDropdownProps) => {
     ? recipientInitials(user.name)
     : user.email.slice(0, 1).toUpperCase();
 
-  const { data: teamsQueryResult } = trpc.team.getTeams.useQuery();
+  const { data: teamsQueryResult } = trpc.team.getTeams.useQuery(undefined, {
+    initialData: initialTeamsData,
+  });
 
   const teams = teamsQueryResult && teamsQueryResult.length > 0 ? teamsQueryResult : null;
 
@@ -173,9 +177,9 @@ export const ProfileDropdown = ({ user }: ProfileDropdownProps) => {
           <Link href="/settings/profile">User settings</Link>
         </DropdownMenuItem>
 
-        {teams && (
+        {selectedTeam && (
           <DropdownMenuItem className="text-muted-foreground px-4 py-2" asChild>
-            <Link href="/settings/teams">Teams settings</Link>
+            <Link href={`/t/${selectedTeam.url}/settings/`}>Team settings</Link>
           </DropdownMenuItem>
         )}
 

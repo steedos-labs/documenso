@@ -8,12 +8,12 @@ import TeamBillingInvoicesDataTable from '~/components/(teams)/tables/team-billi
 
 export type TeamsSettingsBillingPageProps = {
   params: {
-    id: string;
+    teamUrl: string;
   };
 };
 
 export default async function TeamsSettingBillingPage({ params }: TeamsSettingsBillingPageProps) {
-  const { id: teamUrl } = params;
+  const { teamUrl } = params;
 
   const session = await getRequiredServerComponentSession();
 

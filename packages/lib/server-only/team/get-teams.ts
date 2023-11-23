@@ -4,6 +4,7 @@ import { Prisma } from '@documenso/prisma/client';
 export type GetTeamsOptions = {
   userId: number;
 };
+export type GetTeamsResponse = Awaited<ReturnType<typeof getTeams>>;
 
 export const getTeams = async ({ userId }: GetTeamsOptions) => {
   const teams = await prisma.team.findMany({
