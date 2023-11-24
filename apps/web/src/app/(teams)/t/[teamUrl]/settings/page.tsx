@@ -1,4 +1,4 @@
-import { getRequiredServerComponentSession } from '@documenso/lib/next-auth/get-server-session';
+import { getRequiredServerComponentSession } from '@documenso/lib/next-auth/get-server-component-session';
 import { getTeamByUrl } from '@documenso/lib/server-only/team/get-teams';
 
 import SettingsHeader from '~/components/(dashboard)/settings/layout/header';

@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
 
-import { getServerComponentSession } from '@documenso/lib/next-auth/get-server-session';
+import { getServerComponentSession } from '@documenso/lib/next-auth/get-server-component-session';
 import { getTeamById } from '@documenso/lib/server-only/team/get-teams';
 import { prisma } from '@documenso/prisma';
 import { TeamMemberInviteStatus } from '@documenso/prisma/client';
