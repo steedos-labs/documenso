@@ -114,8 +114,7 @@ export default function UpdateTeamMemberDialog({
           <DialogTitle>Update team member</DialogTitle>
 
           <DialogDescription className="mt-4">
-            You are currently modifying team member{' '}
-            <span className="font-bold">{teamMemberName}</span>
+            You are currently updating <span className="font-bold">{teamMemberName}.</span>
           </DialogDescription>
         </DialogHeader>
 
@@ -149,16 +148,11 @@ export default function UpdateTeamMemberDialog({
               />
 
               <DialogFooter className="mt-4 space-x-4">
-                <Button
-                  type="button"
-                  variant="secondary"
-                  onClick={() => setOpen(false)}
-                  className="w-full"
-                >
+                <Button type="button" variant="secondary" onClick={() => setOpen(false)}>
                   Cancel
                 </Button>
 
-                <Button type="submit" className="w-full" loading={form.formState.isSubmitting}>
+                <Button type="submit" loading={form.formState.isSubmitting}>
                   Update
                 </Button>
               </DialogFooter>

@@ -192,21 +192,11 @@ export default function TransferTeamDialog({
                 />
 
                 <DialogFooter className="space-x-4">
-                  <Button
-                    type="button"
-                    variant="secondary"
-                    onClick={() => setOpen(false)}
-                    className="w-full"
-                  >
+                  <Button type="button" variant="secondary" onClick={() => setOpen(false)}>
                     Cancel
                   </Button>
 
-                  <Button
-                    type="submit"
-                    variant="destructive"
-                    loading={form.formState.isSubmitting}
-                    className="w-full"
-                  >
+                  <Button type="submit" variant="destructive" loading={form.formState.isSubmitting}>
                     Transfer
                   </Button>
                 </DialogFooter>

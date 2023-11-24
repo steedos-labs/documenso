@@ -35,7 +35,6 @@ export const DesktopNav = ({ className, ...props }: DesktopNavProps) => {
         </Button>
       </Link>
 
-      {/* Todo: Teams */}
       <Link href="/settings/teams">
         <Button
           variant="ghost"

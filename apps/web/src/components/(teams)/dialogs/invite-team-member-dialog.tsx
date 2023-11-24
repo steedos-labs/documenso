@@ -222,16 +222,11 @@ export default function InviteTeamMembersDialog({
                 </Button>
 
                 <DialogFooter className="space-x-4">
-                  <Button
-                    type="button"
-                    variant="secondary"
-                    onClick={() => setOpen(false)}
-                    className="w-full"
-                  >
+                  <Button type="button" variant="secondary" onClick={() => setOpen(false)}>
                     Cancel
                   </Button>
 
-                  <Button type="submit" className="w-full" loading={form.formState.isSubmitting}>
+                  <Button type="submit" loading={form.formState.isSubmitting}>
                     <Mail className="mr-2 h-4 w-4" />
                     Invite
                   </Button>

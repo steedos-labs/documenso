@@ -184,16 +184,11 @@ export default function CreateTeamDialog({ trigger, ...props }: CreateTeamDialog
                 {/* Todo: Teams avatar */}
 
                 <DialogFooter className="space-x-4">
-                  <Button
-                    type="button"
-                    variant="secondary"
-                    onClick={() => setOpen(false)}
-                    className="w-full"
-                  >
+                  <Button type="button" variant="secondary" onClick={() => setOpen(false)}>
                     Cancel
                   </Button>
 
-                  <Button type="submit" className="w-full" loading={form.formState.isSubmitting}>
+                  <Button type="submit" loading={form.formState.isSubmitting}>
                     Create Team
                   </Button>
                 </DialogFooter>

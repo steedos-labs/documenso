@@ -75,7 +75,7 @@ export default function DeleteTeamMemberDialog({
           </DialogDescription>
         </DialogHeader>
 
-        <div className="rounded-lg border-2 px-4 py-2">
+        <div className="bg-accent/50 rounded-lg px-4 py-2">
           <div className="flex max-w-xs items-center gap-2">
             <Avatar className="dark:border-border h-12 w-12 border-2 border-solid border-white">
               <AvatarFallback className="text-xs text-gray-400">
@@ -92,12 +92,7 @@ export default function DeleteTeamMemberDialog({
 
         <fieldset disabled={isDeletingTeamMember}>
           <DialogFooter className="space-x-4">
-            <Button
-              type="button"
-              variant="secondary"
-              onClick={() => setOpen(false)}
-              className="w-full"
-            >
+            <Button type="button" variant="secondary" onClick={() => setOpen(false)}>
               Cancel
             </Button>
 
@@ -106,7 +101,6 @@ export default function DeleteTeamMemberDialog({
               variant="destructive"
               loading={isDeletingTeamMember}
               onClick={async () => deleteTeamMembers({ teamId, teamMemberIds: [teamMemberId] })}
-              className="w-full"
             >
               Delete
             </Button>
