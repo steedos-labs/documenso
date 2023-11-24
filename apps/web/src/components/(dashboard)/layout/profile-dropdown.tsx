@@ -8,9 +8,9 @@ import { signOut } from 'next-auth/react';
 
 import { TEAM_MEMBER_ROLE_MAP } from '@documenso/lib/constants/teams';
 import { isAdmin } from '@documenso/lib/next-auth/guards/is-admin';
-import { GetTeamsResponse } from '@documenso/lib/server-only/team/get-teams';
+import type { GetTeamsResponse } from '@documenso/lib/server-only/team/get-teams';
 import { recipientInitials } from '@documenso/lib/utils/recipient-formatter';
-import { User } from '@documenso/prisma/client';
+import type { User } from '@documenso/prisma/client';
 import { trpc } from '@documenso/trpc/react';
 import { cn } from '@documenso/ui/lib/utils';
 import { AvatarWithText } from '@documenso/ui/primitives/avatar';
@@ -34,10 +34,6 @@ export const ProfileDropdown = ({ user, teams: initialTeamsData }: ProfileDropdo
 
   const isUserAdmin = isAdmin(user);
 
-  const avatarFallback = user.name
-    ? recipientInitials(user.name)
-    : user.email.slice(0, 1).toUpperCase();
-
   const { data: teamsQueryResult } = trpc.team.getTeams.useQuery(undefined, {
     initialData: initialTeamsData,
   });
@@ -46,7 +42,15 @@ export const ProfileDropdown = ({ user, teams: initialTeamsData }: ProfileDropdo
 
   const selectedTeam = teams?.find((team) => pathname?.startsWith(`/t/${team.url}`));
 
-  const formatSecondaryAvatarTeamText = (team?: typeof selectedTeam) => {
+  const formatAvatarFallback = (teamName?: string) => {
+    if (teamName !== undefined) {
+      return teamName.slice(0, 1).toUpperCase();
+    }
+
+    return user.name ? recipientInitials(user.name) : user.email.slice(0, 1).toUpperCase();
+  };
+
+  const formatSecondaryAvatarText = (team?: typeof selectedTeam) => {
     if (!team) {
       return 'Personal Account';
     }
@@ -65,10 +69,11 @@ export const ProfileDropdown = ({ user, teams: initialTeamsData }: ProfileDropdo
           variant="ghost"
           className="relative flex h-12 flex-row items-center px-2 py-2 focus-visible:ring-0"
         >
+          {/* Todo */}
           <AvatarWithText
-            avatarFallback={avatarFallback}
+            avatarFallback={formatAvatarFallback(selectedTeam?.name)}
             primaryText={selectedTeam ? selectedTeam.name : user.name}
-            secondaryText={formatSecondaryAvatarTeamText(selectedTeam)}
+            secondaryText={formatSecondaryAvatarText(selectedTeam)}
             rightSideComponent={
               <ChevronsUpDown className="text-muted-foreground ml-auto h-4 w-4" />
             }
@@ -88,9 +93,9 @@ export const ProfileDropdown = ({ user, teams: initialTeamsData }: ProfileDropdo
             <DropdownMenuItem asChild>
               <Link href="/">
                 <AvatarWithText
-                  avatarFallback={avatarFallback}
+                  avatarFallback={formatAvatarFallback()}
                   primaryText={selectedTeam ? selectedTeam.name : user.name}
-                  secondaryText={formatSecondaryAvatarTeamText()}
+                  secondaryText={formatSecondaryAvatarText()}
                   rightSideComponent={
                     !pathname?.startsWith(`/t/`) && (
                       <CheckCircle2 className="ml-auto fill-black text-white dark:fill-white dark:text-black" />
@@ -140,9 +145,9 @@ export const ProfileDropdown = ({ user, teams: initialTeamsData }: ProfileDropdo
               <DropdownMenuItem asChild key={team.id}>
                 <Link href={`/t/${team.url}`}>
                   <AvatarWithText
-                    avatarFallback={team.name.slice(0, 1).toUpperCase()}
+                    avatarFallback={formatAvatarFallback(team.name)}
                     primaryText={team.name}
-                    secondaryText={formatSecondaryAvatarTeamText(team)}
+                    secondaryText={formatSecondaryAvatarText(team)}
                     rightSideComponent={
                       pathname?.startsWith(`/t/${team.url}`) && (
                         <CheckCircle2 className="ml-auto fill-black text-white dark:fill-white dark:text-black" />
