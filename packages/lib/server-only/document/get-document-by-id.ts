@@ -10,6 +10,24 @@ export const getDocumentById = async ({ id, userId }: GetDocumentByIdOptions) =>
     where: {
       id,
       userId,
+      OR: [
+        {
+          Team: {
+            is: null,
+          },
+        },
+        {
+          Team: {
+            is: {
+              members: {
+                some: {
+                  userId,
+                },
+              },
+            },
+          },
+        },
+      ],
     },
     include: {
       documentData: true,

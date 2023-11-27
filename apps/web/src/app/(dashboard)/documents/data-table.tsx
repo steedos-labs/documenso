@@ -26,9 +26,15 @@ export type DocumentsDataTableProps = {
       User: Pick<User, 'id' | 'name' | 'email'>;
     }
   >;
+  showSenderColumn?: boolean;
+  teamUrl?: string;
 };
 
-export const DocumentsDataTable = ({ results }: DocumentsDataTableProps) => {
+export const DocumentsDataTable = ({
+  results,
+  showSenderColumn,
+  teamUrl,
+}: DocumentsDataTableProps) => {
   const { data: session } = useSession();
   const [isPending, startTransition] = useTransition();
 
@@ -61,6 +67,11 @@ export const DocumentsDataTable = ({ results }: DocumentsDataTableProps) => {
             cell: ({ row }) => <DataTableTitle row={row.original} />,
           },
           {
+            id: 'sender',
+            header: 'Sender',
+            cell: ({ row }) => row.original.User.name ?? row.original.User.email,
+          },
+          {
             header: 'Recipient',
             accessorKey: 'recipient',
             cell: ({ row }) => {
@@ -76,8 +87,8 @@ export const DocumentsDataTable = ({ results }: DocumentsDataTableProps) => {
             header: 'Actions',
             cell: ({ row }) => (
               <div className="flex items-center gap-x-4">
-                <DataTableActionButton row={row.original} />
-                <DataTableActionDropdown row={row.original} />
+                <DataTableActionButton teamUrl={teamUrl} row={row.original} />
+                <DataTableActionDropdown teamUrl={teamUrl} row={row.original} />
               </div>
             ),
           },
@@ -87,6 +98,9 @@ export const DocumentsDataTable = ({ results }: DocumentsDataTableProps) => {
         currentPage={results.currentPage}
         totalPages={results.totalPages}
         onPaginationChange={onPaginationChange}
+        columnVisibility={{
+          sender: Boolean(showSenderColumn),
+        }}
       >
         {(table) => <DataTablePagination additionalInformation="VisibleCount" table={table} />}
       </DataTable>

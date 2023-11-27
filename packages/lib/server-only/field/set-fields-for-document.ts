@@ -1,5 +1,6 @@
 import { prisma } from '@documenso/prisma';
-import { FieldType, SendStatus, SigningStatus } from '@documenso/prisma/client';
+import type { FieldType } from '@documenso/prisma/client';
+import { SendStatus, SigningStatus } from '@documenso/prisma/client';
 
 export interface SetFieldsForDocumentOptions {
   userId: number;
@@ -25,6 +26,24 @@ export const setFieldsForDocument = async ({
     where: {
       id: documentId,
       userId,
+      OR: [
+        {
+          Team: {
+            is: null,
+          },
+        },
+        {
+          Team: {
+            is: {
+              members: {
+                some: {
+                  userId,
+                },
+              },
+            },
+          },
+        },
+      ],
     },
   });
 

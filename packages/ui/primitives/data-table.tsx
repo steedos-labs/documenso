@@ -2,15 +2,14 @@
 
 import React, { useMemo } from 'react';
 
-import {
+import type {
   ColumnDef,
   PaginationState,
   Table as TTable,
   Updater,
-  flexRender,
-  getCoreRowModel,
-  useReactTable,
+  VisibilityState,
 } from '@tanstack/react-table';
+import { flexRender, getCoreRowModel, useReactTable } from '@tanstack/react-table';
 
 import { Skeleton } from './skeleton';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from './table';
@@ -19,6 +18,7 @@ export type DataTableChildren<TData> = (_table: TTable<TData>) => React.ReactNod
 
 export interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
+  columnVisibility?: VisibilityState;
   data: TData[];
   perPage?: number;
   currentPage?: number;
@@ -38,6 +38,7 @@ export interface DataTableProps<TData, TValue> {
 
 export function DataTable<TData, TValue>({
   columns,
+  columnVisibility,
   data,
   error,
   perPage,
@@ -79,6 +80,7 @@ export function DataTable<TData, TValue>({
     getCoreRowModel: getCoreRowModel(),
     state: {
       pagination: manualPagination ? pagination : undefined,
+      columnVisibility,
     },
     manualPagination,
     pageCount: totalPages,
