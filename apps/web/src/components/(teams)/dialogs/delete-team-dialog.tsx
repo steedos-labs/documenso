@@ -42,7 +42,7 @@ export default function DeleteTeamDialog({ trigger, teamId, teamName }: DeleteTe
 
   const { toast } = useToast();
 
-  const deleteMessage = `DELETE ${teamName}`;
+  const deleteMessage = `delete ${teamName}`;
 
   const ZDeleteTeamFormSchema = z.object({
     teamName: z.literal(deleteMessage, {
@@ -127,21 +127,11 @@ export default function DeleteTeamDialog({ trigger, teamId, teamName }: DeleteTe
               />
 
               <DialogFooter className="space-x-4">
-                <Button
-                  type="button"
-                  variant="secondary"
-                  onClick={() => setOpen(false)}
-                  className="w-full"
-                >
+                <Button type="button" variant="secondary" onClick={() => setOpen(false)}>
                   Cancel
                 </Button>
 
-                <Button
-                  type="submit"
-                  variant="destructive"
-                  loading={form.formState.isSubmitting}
-                  className="w-full"
-                >
+                <Button type="submit" variant="destructive" loading={form.formState.isSubmitting}>
                   Delete
                 </Button>
               </DialogFooter>

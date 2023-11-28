@@ -67,7 +67,7 @@ export default function TransferTeamDialog({
     teamId,
   });
 
-  const confirmTransferMessage = `TRANSFER ${teamName}`;
+  const confirmTransferMessage = `transfer ${teamName}`;
 
   const ZDeleteTeamFormSchema = z.object({
     teamName: z.literal(confirmTransferMessage, {
@@ -126,7 +126,11 @@ export default function TransferTeamDialog({
   return (
     <Dialog open={open} onOpenChange={(value) => !form.formState.isSubmitting && setOpen(value)}>
       <DialogTrigger asChild={true}>
-        {trigger ?? <Button variant="secondary">Transfer team</Button>}
+        {trigger ?? (
+          <Button variant="outline" className="bg-background">
+            Transfer team
+          </Button>
+        )}
       </DialogTrigger>
 
       {teamMembers && teamMembers.length > 0 ? (
