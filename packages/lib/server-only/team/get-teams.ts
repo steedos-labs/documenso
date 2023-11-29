@@ -59,6 +59,9 @@ export const getTeamById = async ({ userId, teamId }: GetTeamByIdOptions) => {
   // Todo: Teams - Only return the fields we need.
   return await prisma.team.findUniqueOrThrow({
     where: whereFilter,
+    include: {
+      email: true,
+    },
   });
 };
 
@@ -88,5 +91,9 @@ export const getTeamByUrl = async ({ userId, teamUrl }: GetTeamByUrlOptions) => 
   // Todo: Teams - Only return the fields we need.
   return await prisma.team.findUniqueOrThrow({
     where: whereFilter,
+    include: {
+      email: true,
+      emailVerification: true,
+    },
   });
 };

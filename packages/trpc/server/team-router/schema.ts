@@ -2,10 +2,25 @@ import { z } from 'zod';
 
 import { TeamMemberRole } from '@documenso/prisma/client';
 
+export const ZAddTeamEmailVerificationMutationSchema = z.object({
+  teamId: z.number(),
+  // Todo: Teams - Share with form?
+  name: z.string().trim().min(1, { message: 'Please enter a valid name.' }),
+  email: z.string().trim().email().min(1, 'Please enter a valid email.'),
+});
+
 export const ZCreateTeamMutationSchema = z.object({
   name: z.string().min(1),
   url: z.string().min(1), // Todo: Apply regex. Todo: lowercase, etc
   // avatar: z.string().min(1), Todo: Teams
+});
+
+export const ZDeleteTeamEmailMutationSchema = z.object({
+  teamId: z.number(),
+});
+
+export const ZDeleteTeamEmailVerificationMutationSchema = z.object({
+  teamId: z.number(),
 });
 
 export const ZDeleteTeamMembersMutationSchema = z.object({
@@ -74,12 +89,23 @@ export const ZUpdateTeamMutationSchema = z.object({
   }),
 });
 
+export const ZUpdateTeamEmailMutationSchema = z.object({
+  teamId: z.number(),
+  data: z.object({
+    name: z.string().min(1),
+  }),
+});
+
 export const ZUpdateTeamMemberMutationSchema = z.object({
   teamId: z.number(),
   teamMemberId: z.number(),
   data: z.object({
     role: z.nativeEnum(TeamMemberRole),
   }),
+});
+
+export const ZResendTeamEmailVerificationMutationSchema = z.object({
+  teamId: z.number(),
 });
 
 export const ZResendTeamMemberInvitationMutationSchema = z.object({
@@ -92,7 +118,11 @@ export const ZTransferTeamOwnershipMutationSchema = z.object({
   newOwnerUserId: z.number(),
 });
 
+export type TAddTeamEmailVerificationMutationSchema = z.infer<
+  typeof ZAddTeamEmailVerificationMutationSchema
+>;
 export type TCreateTeamMutationSchema = z.infer<typeof ZCreateTeamMutationSchema>;
+export type TDeleteTeamEmailMutationSchema = z.infer<typeof ZDeleteTeamEmailMutationSchema>;
 export type TDeleteTeamMembersMutationSchema = z.infer<typeof ZDeleteTeamMembersMutationSchema>;
 export type TDeleteTeamMutationSchema = z.infer<typeof ZDeleteTeamMutationSchema>;
 export type TGetTeamQuerySchema = z.infer<typeof ZGetTeamQuerySchema>;
@@ -100,6 +130,10 @@ export type TGetTeamMembersQuerySchema = z.infer<typeof ZGetTeamMembersQuerySche
 export type TLeaveTeamMutationSchema = z.infer<typeof ZLeaveTeamMutationSchema>;
 export type TInviteTeamMembersMutationSchema = z.infer<typeof ZInviteTeamMembersMutationSchema>;
 export type TUpdateTeamMutationSchema = z.infer<typeof ZUpdateTeamMutationSchema>;
+export type TUpdateTeamEmailMutationSchema = z.infer<typeof ZUpdateTeamEmailMutationSchema>;
+export type TResendTeamEmailVerificationMutationSchema = z.infer<
+  typeof ZResendTeamEmailVerificationMutationSchema
+>;
 export type TResendTeamMemberInvitationMutationSchema = z.infer<
   typeof ZResendTeamMemberInvitationMutationSchema
 >;

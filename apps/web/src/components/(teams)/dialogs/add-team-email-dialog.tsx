@@ -2,15 +2,14 @@
 
 import { useEffect, useState } from 'react';
 
-import { useSearchParams } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 
 import { zodResolver } from '@hookform/resolvers/zod';
 import type * as DialogPrimitive from '@radix-ui/react-dialog';
+import { Plus } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 
-import { useUpdateSearchParams } from '@documenso/lib/client-only/hooks/use-update-search-params';
-import { WEBAPP_BASE_URL } from '@documenso/lib/constants/app';
 import { AppError, AppErrorCode } from '@documenso/lib/errors/app-error';
 import { trpc } from '@documenso/trpc/react';
 import { Button } from '@documenso/ui/primitives/button';
@@ -34,57 +33,60 @@ import {
 import { Input } from '@documenso/ui/primitives/input';
 import { useToast } from '@documenso/ui/primitives/use-toast';
 
-export type CreateTeamDialogProps = {
+export type AddTeamEmailDialogProps = {
+  teamId: number;
   trigger?: React.ReactNode;
 } & Omit<DialogPrimitive.DialogProps, 'children'>;
 
-export const ZCreateTeamFormSchema = z.object({
+export const ZAddTeamEmailFormSchema = z.object({
   name: z.string().trim().min(1, { message: 'Please enter a valid name.' }),
-  url: z.string().min(1, 'Please enter a value.'), // Todo: Teams - Restrict certain symbols.
+  email: z.string().trim().email().min(1, 'Please enter a valid email.'),
 });
 
-export type TCreateTeamFormSchema = z.infer<typeof ZCreateTeamFormSchema>;
+export type TAddTeamEmailFormSchema = z.infer<typeof ZAddTeamEmailFormSchema>;
 
-export default function CreateTeamDialog({ trigger, ...props }: CreateTeamDialogProps) {
-  const searchParams = useSearchParams();
-  const updateSearchParams = useUpdateSearchParams();
+export default function AddTeamEmailDialog({ teamId, trigger, ...props }: AddTeamEmailDialogProps) {
+  const router = useRouter();
+
   const [open, setOpen] = useState(false);
 
   const { toast } = useToast();
 
-  const actionSearchParam = searchParams?.get('action');
-
-  const form = useForm({
-    resolver: zodResolver(ZCreateTeamFormSchema),
+  const form = useForm<TAddTeamEmailFormSchema>({
+    resolver: zodResolver(ZAddTeamEmailFormSchema),
     defaultValues: {
       name: '',
-      url: '',
+      email: '',
     },
   });
 
-  const { mutateAsync: createTeam } = trpc.team.createTeam.useMutation();
+  const { mutateAsync: addTeamEmailVerification, isLoading } =
+    trpc.team.addTeamEmailVerification.useMutation();
 
-  const onFormSubmit = async ({ name, url }: TCreateTeamFormSchema) => {
+  const onFormSubmit = async ({ name, email }: TAddTeamEmailFormSchema) => {
     try {
-      await createTeam({
+      await addTeamEmailVerification({
+        teamId,
         name,
-        url,
+        email,
       });
 
       toast({
         title: 'Success',
-        description: 'Your team has been successfully created.',
+        description: 'We have sent a confirmation email for verification.',
         duration: 5000,
       });
+
+      router.refresh();
 
       setOpen(false);
     } catch (err) {
       const error = AppError.parseError(err);
 
       if (error.code === AppErrorCode.ALREADY_EXISTS) {
-        form.setError('url', {
+        form.setError('email', {
           type: 'manual',
-          message: 'This URL is already in use.',
+          message: 'This email is already being used by another team.',
         });
 
         return;
@@ -94,21 +96,16 @@ export default function CreateTeamDialog({ trigger, ...props }: CreateTeamDialog
         title: 'An unknown error occurred',
         variant: 'destructive',
         description:
-          'We encountered an unknown error while attempting to create a team. Please try again later.',
+          'We encountered an unknown error while attempting to add this email. Please try again later.',
       });
     }
   };
 
-  const mapTextToUrl = (text: string) => {
-    return text.toLowerCase().replace(/\s+/g, '-');
-  };
-
   useEffect(() => {
-    if (actionSearchParam === 'add-team') {
-      setOpen(true);
-      updateSearchParams({ action: null });
+    if (!open) {
+      form.reset();
     }
-  }, [actionSearchParam, setOpen, updateSearchParams]);
+  }, [open, form]);
 
   return (
     <Dialog
@@ -117,12 +114,17 @@ export default function CreateTeamDialog({ trigger, ...props }: CreateTeamDialog
       onOpenChange={(value) => !form.formState.isSubmitting && setOpen(value)}
     >
       <DialogTrigger onClick={(e) => e.stopPropagation()} asChild={true}>
-        {trigger ?? <Button variant="secondary">Create team</Button>}
+        {trigger ?? (
+          <Button variant="outline" loading={isLoading} className="bg-background">
+            <Plus className="-ml-1 mr-1 h-5 w-5" />
+            Add email
+          </Button>
+        )}
       </DialogTrigger>
 
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Create team</DialogTitle>
+          <DialogTitle>Add team email</DialogTitle>
 
           <DialogDescription className="mt-4">Todo: Teams</DialogDescription>
         </DialogHeader>
@@ -138,23 +140,9 @@ export default function CreateTeamDialog({ trigger, ...props }: CreateTeamDialog
                 name="name"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel required>Team Name</FormLabel>
+                    <FormLabel required>Name</FormLabel>
                     <FormControl>
-                      <Input
-                        className="bg-background"
-                        {...field}
-                        onChange={(event) => {
-                          const oldGenericUrl = mapTextToUrl(field.value);
-                          const newGenericUrl = mapTextToUrl(event.target.value);
-
-                          const urlField = form.getValues('url');
-                          if (urlField === oldGenericUrl) {
-                            form.setValue('url', newGenericUrl);
-                          }
-
-                          field.onChange(event);
-                        }}
-                      />
+                      <Input className="bg-background" placeholder="eg. Legal" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -163,27 +151,21 @@ export default function CreateTeamDialog({ trigger, ...props }: CreateTeamDialog
 
               <FormField
                 control={form.control}
-                name="url"
+                name="email"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel required>Team URL</FormLabel>
+                    <FormLabel required>Email</FormLabel>
                     <FormControl>
-                      <Input className="bg-background" {...field} />
+                      <Input
+                        className="bg-background"
+                        placeholder="example@example.com"
+                        {...field}
+                      />
                     </FormControl>
-                    {!form.formState.errors.url && (
-                      <span className="text-foreground/50 text-xs font-normal">
-                        {field.value
-                          ? `${WEBAPP_BASE_URL}/t/${field.value}`
-                          : 'A unique URL to identify your team'}
-                      </span>
-                    )}
-
                     <FormMessage />
                   </FormItem>
                 )}
               />
-
-              {/* Todo: Teams avatar */}
 
               <DialogFooter className="space-x-4">
                 <Button type="button" variant="secondary" onClick={() => setOpen(false)}>
@@ -191,7 +173,7 @@ export default function CreateTeamDialog({ trigger, ...props }: CreateTeamDialog
                 </Button>
 
                 <Button type="submit" loading={form.formState.isSubmitting}>
-                  Create Team
+                  Add
                 </Button>
               </DialogFooter>
             </fieldset>

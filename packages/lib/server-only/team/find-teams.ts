@@ -1,9 +1,10 @@
 import { P, match } from 'ts-pattern';
 
 import { prisma } from '@documenso/prisma';
-import { Prisma, Team } from '@documenso/prisma/client';
+import type { Team } from '@documenso/prisma/client';
+import { Prisma } from '@documenso/prisma/client';
 
-import { FindResultSet } from '../../types/find-result-set';
+import type { FindResultSet } from '../../types/find-result-set';
 
 export interface FindTeamsOptions {
   userId: number;

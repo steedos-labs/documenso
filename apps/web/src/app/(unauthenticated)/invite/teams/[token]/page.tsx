@@ -1,5 +1,4 @@
 import Link from 'next/link';
-import { redirect } from 'next/navigation';
 
 import { getServerComponentSession } from '@documenso/lib/next-auth/get-server-component-session';
 import { getTeamById } from '@documenso/lib/server-only/team/get-teams';
@@ -8,17 +7,14 @@ import { TeamMemberInviteStatus } from '@documenso/prisma/client';
 import { Button } from '@documenso/ui/primitives/button';
 
 type AcceptInvitationPageProps = {
-  searchParams: {
-    token?: string;
+  params: {
+    token: string;
   };
 };
 
-export default async function AcceptInvitationPage({ searchParams }: AcceptInvitationPageProps) {
-  const token = typeof searchParams.token === 'string' ? searchParams.token : null;
-  if (!token) {
-    redirect('/');
-  }
-
+export default async function AcceptInvitationPage({
+  params: { token },
+}: AcceptInvitationPageProps) {
   const session = await getServerComponentSession();
 
   const teamMemberInvite = await prisma.teamMemberInvite.findUnique({
@@ -114,8 +110,7 @@ export default async function AcceptInvitationPage({ searchParams }: AcceptInvit
       <h1 className="text-4xl font-semibold">Invitation accepted!</h1>
 
       <p className="text-muted-foreground mb-4 mt-2 text-sm">
-        You have accepted an invitation from <strong>{team.name}</strong> to join their team on
-        Documenso.
+        You have accepted an invitation from <strong>{team.name}</strong> to join their team.
       </p>
 
       {user && !isSessionUserTheInvitedUser && (

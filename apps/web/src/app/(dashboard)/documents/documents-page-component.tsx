@@ -6,6 +6,7 @@ import { getStats } from '@documenso/lib/server-only/document/get-stats';
 import type { Team } from '@documenso/prisma/client';
 import { isExtendedDocumentStatus } from '@documenso/prisma/guards/is-extended-document-status';
 import { ExtendedDocumentStatus } from '@documenso/prisma/types/extended-document-status';
+import { Avatar, AvatarFallback } from '@documenso/ui/primitives/avatar';
 import { Tabs, TabsList, TabsTrigger } from '@documenso/ui/primitives/tabs';
 
 import { PeriodSelector } from '~/components/(dashboard)/period-selector/period-selector';
@@ -76,7 +77,17 @@ export default async function DocumentsPageComponent({
       <UploadDocument team={team ? { id: team.id, url: team.url } : undefined} />
 
       <div className="mt-12 flex flex-wrap items-center justify-between gap-x-4 gap-y-8">
-        <h1 className="text-2xl font-semibold">{team ? `${team.name} documents` : 'Documents'}</h1>
+        <div className="flex flex-row items-center">
+          {team && (
+            <Avatar className="dark:border-border mr-3 h-12 w-12 border-2 border-solid border-white">
+              <AvatarFallback className="text-xs text-gray-400">
+                {team.name.slice(0, 1)}
+              </AvatarFallback>
+            </Avatar>
+          )}
+
+          <h1 className="text-4xl font-semibold">Documents</h1>
+        </div>
 
         <div className="-m-1 flex flex-wrap gap-x-4 gap-y-6 overflow-hidden p-1">
           <Tabs defaultValue={status} className="overflow-x-auto">

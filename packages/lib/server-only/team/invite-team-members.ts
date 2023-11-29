@@ -7,8 +7,8 @@ import { render } from '@documenso/email/render';
 import { TeamInviteEmailTemplate } from '@documenso/email/templates/team-invite';
 import { FROM_ADDRESS, FROM_NAME } from '@documenso/lib/constants/email';
 import { prisma } from '@documenso/prisma';
-import { TeamMemberInviteStatus, TeamMemberRole } from '@documenso/prisma/client';
-import { TInviteTeamMembersMutationSchema } from '@documenso/trpc/server/team-router/schema';
+import { TeamMemberInviteStatus } from '@documenso/prisma/client';
+import type { TInviteTeamMembersMutationSchema } from '@documenso/trpc/server/team-router/schema';
 
 import { WEBAPP_BASE_URL } from '../../constants/app';
 import { AppError } from '../../errors/app-error';
@@ -81,77 +81,18 @@ export const inviteTeamMembers = async ({
   }
 };
 
-export type ResendTeamMemberInvitationOptions = {
-  /**
-   * The ID of the user who is initiating this action.
-   */
-  userId: number;
-
-  /**
-   * The ID of the team.
-   */
-  teamId: number;
-
-  /**
-   * The IDs of the invitations to resend.
-   */
-  invitationId: number;
-};
-
-/**
- * Resend an email for a given team member invite.
- */
-export const resendTeamMemberInvitation = async ({
-  userId,
-  teamId,
-  invitationId,
-}: ResendTeamMemberInvitationOptions) => {
-  await prisma.$transaction(async (tx) => {
-    const team = await tx.team.findUniqueOrThrow({
-      where: {
-        id: teamId,
-        members: {
-          some: {
-            userId,
-            role: {
-              in: [TeamMemberRole.ADMIN, TeamMemberRole.MANAGER],
-            },
-          },
-        },
-      },
-    });
-
-    if (!team) {
-      throw new AppError('TeamNotFound', 'User is not a member of the team.');
-    }
-
-    const teamMemberInvite = await tx.teamMemberInvite.findUniqueOrThrow({
-      where: {
-        id: invitationId,
-        teamId,
-      },
-    });
-
-    if (!teamMemberInvite) {
-      throw new AppError('InviteNotFound', 'No invite exists for this user.');
-    }
-
-    await sendTeamMemberInviteEmail(teamMemberInvite.email, teamMemberInvite.token, team.name);
-  });
-};
-
 /**
  * Send an email to a user inviting them to join a team.
  *
  * @param email The email address of the user to invite.
- * @param inviteToken The invite token used to authenticate the user to join the team.
+ * @param token The invite token used to authenticate the user to join the team.
  * @param teamName The name of the team the user is being invited to.
  */
-const sendTeamMemberInviteEmail = async (email: string, inviteToken: string, teamName: string) => {
+export const sendTeamMemberInviteEmail = async (email: string, token: string, teamName: string) => {
   const template = createElement(TeamInviteEmailTemplate, {
     baseUrl: WEBAPP_BASE_URL,
     teamName,
-    inviteToken,
+    token,
   });
 
   await mailer.sendMail({

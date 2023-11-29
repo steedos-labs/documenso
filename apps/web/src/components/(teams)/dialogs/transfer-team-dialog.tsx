@@ -216,7 +216,7 @@ export default function TransferTeamDialog({
             <p className="text-center text-sm">
               {loadingTeamMembersError
                 ? 'An error occurred while loading team members. Please try again later.'
-                : 'You must have at least one other team member to transfer ownership of this team.'}
+                : 'You must have at least one other team member to transfer ownership.'}
             </p>
           )}
         </DialogContent>

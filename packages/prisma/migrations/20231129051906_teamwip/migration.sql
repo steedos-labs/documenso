@@ -16,7 +16,6 @@ CREATE TABLE "Team" (
     "name" TEXT NOT NULL,
     "url" TEXT NOT NULL,
     "avatar" TEXT,
-    "emails" TEXT[],
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "ownerUserId" INTEGER NOT NULL,
 
@@ -32,6 +31,28 @@ CREATE TABLE "TeamMember" (
     "userId" INTEGER NOT NULL,
 
     CONSTRAINT "TeamMember_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "TeamEmail" (
+    "teamId" INTEGER NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "name" TEXT NOT NULL,
+    "email" TEXT NOT NULL,
+
+    CONSTRAINT "TeamEmail_pkey" PRIMARY KEY ("teamId")
+);
+
+-- CreateTable
+CREATE TABLE "TeamEmailVerification" (
+    "teamId" INTEGER NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "expiresAt" TIMESTAMP(3) NOT NULL,
+    "name" TEXT NOT NULL,
+    "email" TEXT NOT NULL,
+    "token" TEXT NOT NULL,
+
+    CONSTRAINT "TeamEmailVerification_pkey" PRIMARY KEY ("teamId")
 );
 
 -- CreateTable
@@ -54,6 +75,21 @@ CREATE UNIQUE INDEX "Team_url_key" ON "Team"("url");
 CREATE UNIQUE INDEX "TeamMember_userId_teamId_key" ON "TeamMember"("userId", "teamId");
 
 -- CreateIndex
+CREATE UNIQUE INDEX "TeamEmail_teamId_key" ON "TeamEmail"("teamId");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "TeamEmail_email_key" ON "TeamEmail"("email");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "TeamEmailVerification_teamId_key" ON "TeamEmailVerification"("teamId");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "TeamEmailVerification_email_key" ON "TeamEmailVerification"("email");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "TeamEmailVerification_token_key" ON "TeamEmailVerification"("token");
+
+-- CreateIndex
 CREATE UNIQUE INDEX "TeamMemberInvite_token_key" ON "TeamMemberInvite"("token");
 
 -- CreateIndex
@@ -70,6 +106,12 @@ ALTER TABLE "TeamMember" ADD CONSTRAINT "TeamMember_userId_fkey" FOREIGN KEY ("u
 
 -- AddForeignKey
 ALTER TABLE "TeamMember" ADD CONSTRAINT "TeamMember_teamId_fkey" FOREIGN KEY ("teamId") REFERENCES "Team"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "TeamEmail" ADD CONSTRAINT "TeamEmail_teamId_fkey" FOREIGN KEY ("teamId") REFERENCES "Team"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "TeamEmailVerification" ADD CONSTRAINT "TeamEmailVerification_teamId_fkey" FOREIGN KEY ("teamId") REFERENCES "Team"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "TeamMemberInvite" ADD CONSTRAINT "TeamMemberInvite_teamId_fkey" FOREIGN KEY ("teamId") REFERENCES "Team"("id") ON DELETE CASCADE ON UPDATE CASCADE;

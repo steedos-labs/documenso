@@ -99,68 +99,66 @@ export default function UpdateTeamForm({ teamId, teamName, teamUrl }: UpdateTeam
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onFormSubmit)}>
         <fieldset className="flex h-full flex-col" disabled={form.formState.isSubmitting}>
-          <div className="space-y-4">
-            <FormField
-              control={form.control}
-              name="name"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel required>Team Name</FormLabel>
-                  <FormControl>
-                    <Input className="bg-background" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+          <FormField
+            control={form.control}
+            name="name"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel required>Team Name</FormLabel>
+                <FormControl>
+                  <Input className="bg-background" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
 
-            <FormField
-              control={form.control}
-              name="url"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel required>Team URL</FormLabel>
-                  <FormControl>
-                    <Input className="bg-background" {...field} />
-                  </FormControl>
-                  {!form.formState.errors.url && (
-                    <span className="text-foreground/50 text-xs font-normal">
-                      {field.value
-                        ? `${WEBAPP_BASE_URL}/t/${field.value}`
-                        : 'A unique URL to identify your team'}
-                    </span>
-                  )}
-
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <div className="flex flex-row justify-end space-x-4">
-              <AnimatePresence>
-                {form.formState.isDirty && (
-                  <motion.div
-                    initial={{
-                      opacity: 0,
-                    }}
-                    animate={{
-                      opacity: 1,
-                    }}
-                    exit={{
-                      opacity: 0,
-                    }}
-                  >
-                    <Button type="button" variant="secondary" onClick={() => form.reset()}>
-                      Reset
-                    </Button>
-                  </motion.div>
+          <FormField
+            control={form.control}
+            name="url"
+            render={({ field }) => (
+              <FormItem className="mt-4">
+                <FormLabel required>Team URL</FormLabel>
+                <FormControl>
+                  <Input className="bg-background" {...field} />
+                </FormControl>
+                {!form.formState.errors.url && (
+                  <span className="text-foreground/50 text-xs font-normal">
+                    {field.value
+                      ? `${WEBAPP_BASE_URL}/t/${field.value}`
+                      : 'A unique URL to identify your team'}
+                  </span>
                 )}
-              </AnimatePresence>
 
-              <Button type="submit" loading={form.formState.isSubmitting}>
-                Update team
-              </Button>
-            </div>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <div className="flex flex-row justify-end space-x-4">
+            <AnimatePresence>
+              {form.formState.isDirty && (
+                <motion.div
+                  initial={{
+                    opacity: 0,
+                  }}
+                  animate={{
+                    opacity: 1,
+                  }}
+                  exit={{
+                    opacity: 0,
+                  }}
+                >
+                  <Button type="button" variant="secondary" onClick={() => form.reset()}>
+                    Reset
+                  </Button>
+                </motion.div>
+              )}
+            </AnimatePresence>
+
+            <Button type="submit" loading={form.formState.isSubmitting}>
+              Update team
+            </Button>
           </div>
         </fieldset>
       </form>

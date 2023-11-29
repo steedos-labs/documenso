@@ -1,10 +1,14 @@
 import { getRequiredServerComponentSession } from '@documenso/lib/next-auth/get-server-component-session';
 import { getTeamByUrl } from '@documenso/lib/server-only/team/get-teams';
+import { Badge } from '@documenso/ui/primitives/badge';
 
 import SettingsHeader from '~/components/(dashboard)/settings/layout/header';
+import AddTeamEmailDialog from '~/components/(teams)/dialogs/add-team-email-dialog';
 import DeleteTeamDialog from '~/components/(teams)/dialogs/delete-team-dialog';
 import TransferTeamDialog from '~/components/(teams)/dialogs/transfer-team-dialog';
 import UpdateTeamForm from '~/components/(teams)/forms/update-team-form';
+
+import TeamEmailDropdown from './team-email-dropdown';
 
 export type TeamsSettingsPageProps = {
   params: {
@@ -37,64 +41,80 @@ export default async function TeamsSettingsPage({ params }: TeamsSettingsPagePro
 
       <UpdateTeamForm teamId={team.id} teamName={team.name} teamUrl={team.url} />
 
-      {/* <hr className="my-6" /> */}
+      <hr className="my-6" />
 
-      {/* Todo: Teams section. */}
-      {/* <div>
-        <div className="flex flex-row items-center justify-between">
+      <section className="space-y-6">
+        <div className="flex flex-row items-center justify-between rounded-lg bg-gray-50/70 p-6">
           <div>
-            <h3 className="text font-medium">Email addresses</h3>
+            <h3 className="font-medium">
+              Team email
+              {team.email && (
+                <span className="text-muted-foreground">
+                  {' '}
+                  - {team.email.name} ({team.email.email})
+                </span>
+              )}
+            </h3>
 
-            <p className="text-muted-foreground text-sm">
-              Manage commonly used email addresses for this team.
-            </p>
+            <ul className="text-muted-foreground mt-0.5 list-inside list-disc text-sm">
+              <li>Display this name and email when sending documents</li>
+              <li>View documents sent to this email</li>
+            </ul>
           </div>
 
-          <Button variant="outline">
-            <Plus className="mr-2 h-5 w-5" />
-            Add email
-          </Button>
+          <div className="flex flex-row items-center">
+            {/* Todo: Teams - Create variants for proper badge design. */}
+            {/* Todo: Teams - Add animation. */}
+
+            {team.email ? (
+              <Badge>Active</Badge>
+            ) : team.emailVerification && team.emailVerification.expiresAt < new Date() ? (
+              <Badge>Expired</Badge>
+            ) : (
+              team.emailVerification && <Badge>Awaiting email confirmation</Badge>
+            )}
+
+            {!team.email && !team.emailVerification ? (
+              <AddTeamEmailDialog teamId={team.id} />
+            ) : (
+              <TeamEmailDropdown team={team} />
+            )}
+          </div>
         </div>
 
-        <div className="text-muted-foreground mt-4 flex h-32 w-full items-center justify-center rounded-lg bg-gray-50/50 text-sm">
-          Set a custom email address to send all emails from this team.
-        </div>
-      </div>
+        {team.ownerUserId === session.user.id && (
+          <>
+            <div className="flex flex-row items-center justify-between rounded-lg bg-gray-50/70 p-6">
+              <div>
+                <h3 className="font-medium">Transfer team</h3>
 
-      <hr className="my-6" /> */}
+                <p className="text-muted-foreground text-sm">
+                  Transfer the ownership of the team to another team member.
+                </p>
+              </div>
 
-      {team.ownerUserId === session.user.id && (
-        <section className="mt-6 space-y-6">
-          <div className="flex flex-row items-center justify-between rounded-lg bg-gray-50/70 p-6">
-            <div>
-              <h3 className="text font-medium">Transfer team</h3>
-
-              <p className="text-muted-foreground text-sm">
-                Transfer the ownership of the team to another team member.
-              </p>
+              <TransferTeamDialog
+                ownerUserId={team.ownerUserId}
+                teamId={team.id}
+                teamName={team.name}
+              />
             </div>
 
-            <TransferTeamDialog
-              ownerUserId={team.ownerUserId}
-              teamId={team.id}
-              teamName={team.name}
-            />
-          </div>
+            <div className="flex flex-row items-center justify-between rounded-lg bg-gray-50/70 p-6">
+              <div>
+                <h3 className="font-medium">Delete team</h3>
 
-          <div className="flex flex-row items-center justify-between rounded-lg bg-gray-50/70 p-6">
-            <div>
-              <h3 className="text font-medium">Delete team</h3>
+                <p className="text-muted-foreground text-sm">
+                  This team, and any associated data excluding billing invoices will be permanently
+                  deleted.
+                </p>
+              </div>
 
-              <p className="text-muted-foreground text-sm">
-                This team, and any associated data excluding billing invoices will be permanently
-                deleted.
-              </p>
+              <DeleteTeamDialog teamId={team.id} teamName={team.name} />
             </div>
-
-            <DeleteTeamDialog teamId={team.id} teamName={team.name} />
-          </div>
-        </section>
-      )}
+          </>
+        )}
+      </section>
     </div>
   );
 }
