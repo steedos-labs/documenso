@@ -1,6 +1,9 @@
+import { CheckCircle2, Clock } from 'lucide-react';
+
 import { getRequiredServerComponentSession } from '@documenso/lib/next-auth/get-server-component-session';
 import { getTeamByUrl } from '@documenso/lib/server-only/team/get-teams';
-import { Badge } from '@documenso/ui/primitives/badge';
+import { recipientInitials } from '@documenso/lib/utils/recipient-formatter';
+import { AvatarWithText } from '@documenso/ui/primitives/avatar';
 
 import SettingsHeader from '~/components/(dashboard)/settings/layout/header';
 import AddTeamEmailDialog from '~/components/(teams)/dialogs/add-team-email-dialog';
@@ -41,46 +44,80 @@ export default async function TeamsSettingsPage({ params }: TeamsSettingsPagePro
 
       <UpdateTeamForm teamId={team.id} teamName={team.name} teamUrl={team.url} />
 
-      <hr className="my-6" />
+      <hr className="border-border/50 my-6" />
 
       <section className="space-y-6">
-        <div className="flex flex-row items-center justify-between rounded-lg bg-gray-50/70 p-6">
-          <div>
-            <h3 className="font-medium">
-              Team email
-              {team.email && (
-                <span className="text-muted-foreground">
-                  {' '}
-                  - {team.email.name} ({team.email.email})
-                </span>
-              )}
-            </h3>
+        {(team.email || team.emailVerification) && (
+          <section className="mt-6 rounded-lg bg-gray-50/70 p-6 pb-2">
+            <h3 className="font-medium">Team email</h3>
 
-            <ul className="text-muted-foreground mt-0.5 list-inside list-disc text-sm">
-              <li>Display this name and email when sending documents</li>
-              <li>View documents sent to this email</li>
-            </ul>
+            <p className="text-muted-foreground text-sm">
+              You can view documents associated with this email and use this identity when sending
+              documents.
+            </p>
+
+            <hr className="border-border/50 mt-2" />
+
+            <div className="flex flex-row items-center justify-between py-4">
+              <AvatarWithText
+                avatarClass="h-12 w-12"
+                avatarFallback={recipientInitials(
+                  (team.email?.name || team.emailVerification?.name) ?? '',
+                )}
+                primaryText={
+                  <span className="text-foreground/80 text-sm font-semibold">
+                    {team.email?.name || team.emailVerification?.name}
+                  </span>
+                }
+                secondaryText={
+                  <span className="text-sm">
+                    {team.email?.email || team.emailVerification?.email}
+                  </span>
+                }
+              />
+
+              <div className="flex flex-row items-center pr-2">
+                <div className="text-muted-foreground mr-4 flex flex-row items-center text-sm xl:mr-8">
+                  {team.email ? (
+                    <>
+                      <CheckCircle2 className="mr-1.5 text-green-500 dark:text-green-300" />
+                      Active
+                    </>
+                  ) : team.emailVerification && team.emailVerification.expiresAt < new Date() ? (
+                    <>
+                      <Clock className="mr-1.5 text-yellow-500 dark:text-yellow-200" />
+                      Expired
+                    </>
+                  ) : (
+                    team.emailVerification && (
+                      <>
+                        <Clock className="mr-1.5 text-blue-600 dark:text-blue-300" />
+                        Awaiting email confirmation
+                      </>
+                    )
+                  )}
+                </div>
+
+                <TeamEmailDropdown team={team} />
+              </div>
+            </div>
+          </section>
+        )}
+
+        {!team.email && !team.emailVerification && (
+          <div className="flex flex-row items-center justify-between rounded-lg bg-gray-50/70 p-6">
+            <div>
+              <h3 className="font-medium">Team email</h3>
+
+              <ul className="text-muted-foreground mt-0.5 list-inside list-disc text-sm">
+                <li>Display this name and email when sending documents</li>
+                <li>View documents associated with this email</li>
+              </ul>
+            </div>
+
+            <AddTeamEmailDialog teamId={team.id} />
           </div>
-
-          <div className="flex flex-row items-center">
-            {/* Todo: Teams - Create variants for proper badge design. */}
-            {/* Todo: Teams - Add animation. */}
-
-            {team.email ? (
-              <Badge>Active</Badge>
-            ) : team.emailVerification && team.emailVerification.expiresAt < new Date() ? (
-              <Badge>Expired</Badge>
-            ) : (
-              team.emailVerification && <Badge>Awaiting email confirmation</Badge>
-            )}
-
-            {!team.email && !team.emailVerification ? (
-              <AddTeamEmailDialog teamId={team.id} />
-            ) : (
-              <TeamEmailDropdown team={team} />
-            )}
-          </div>
-        </div>
+        )}
 
         {team.ownerUserId === session.user.id && (
           <>

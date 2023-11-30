@@ -126,7 +126,9 @@ export default function AddTeamEmailDialog({ teamId, trigger, ...props }: AddTea
         <DialogHeader>
           <DialogTitle>Add team email</DialogTitle>
 
-          <DialogDescription className="mt-4">Todo: Teams</DialogDescription>
+          <DialogDescription className="mt-4">
+            A verification email will be sent to the provided email.
+          </DialogDescription>
         </DialogHeader>
 
         <Form {...form}>

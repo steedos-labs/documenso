@@ -18,6 +18,7 @@ import { resendTeamEmailVerification } from '@documenso/lib/server-only/team/res
 import { resendTeamMemberInvitation } from '@documenso/lib/server-only/team/resend-team-member-invitation';
 import { transferTeamOwnership } from '@documenso/lib/server-only/team/transfer-team-ownership';
 import { updateTeam } from '@documenso/lib/server-only/team/update-team';
+import { updateTeamEmail } from '@documenso/lib/server-only/team/update-team-email';
 import { updateTeamMember } from '@documenso/lib/server-only/team/update-team-member';
 
 import { authenticatedProcedure, router } from '../trpc';
@@ -297,10 +298,10 @@ export const teamRouter = router({
     .input(ZUpdateTeamEmailMutationSchema)
     .mutation(async ({ input, ctx }) => {
       try {
-        // return await updateTeam({
-        //   userId: ctx.user.id,
-        //   ...input,
-        // });
+        return await updateTeamEmail({
+          userId: ctx.user.id,
+          ...input,
+        });
       } catch (err) {
         console.error(err);
 

@@ -49,7 +49,7 @@ export default function TeamEmailDropdown({ team }: TeamsSettingsPageProps) {
       onSuccess: () => {
         toast({
           title: 'Success',
-          description: 'Team email has been deleted',
+          description: 'Team email has been removed',
           duration: 5000,
         });
       },
@@ -58,7 +58,7 @@ export default function TeamEmailDropdown({ team }: TeamsSettingsPageProps) {
           title: 'Something went wrong',
           variant: 'destructive',
           duration: 10000,
-          description: 'Unable to delete team email at this time. Please try again.',
+          description: 'Unable to remove team email at this time. Please try again.',
         });
       },
     });
@@ -68,7 +68,7 @@ export default function TeamEmailDropdown({ team }: TeamsSettingsPageProps) {
       onSuccess: () => {
         toast({
           title: 'Success',
-          description: 'Email verification has been deleted',
+          description: 'Email verification has been removed',
           duration: 5000,
         });
       },
@@ -77,7 +77,7 @@ export default function TeamEmailDropdown({ team }: TeamsSettingsPageProps) {
           title: 'Something went wrong',
           variant: 'destructive',
           duration: 10000,
-          description: 'Unable to delete email verification at this time. Please try again.',
+          description: 'Unable to remove email verification at this time. Please try again.',
         });
       },
     });
