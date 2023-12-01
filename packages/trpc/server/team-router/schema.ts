@@ -32,15 +32,13 @@ export const ZDeleteTeamMutationSchema = z.object({
   teamId: z.number(),
 });
 
+export const ZDeleteTeamPendingMutationSchema = z.object({
+  teamPendingId: z.number(),
+});
+
 export const ZDeleteTeamMemberInvitationsMutationSchema = z.object({
   teamId: z.number(),
   invitationIds: z.array(z.number()),
-});
-
-export const ZFindTeamsQuerySchema = z.object({
-  term: z.string().optional(),
-  page: z.number().optional(),
-  perPage: z.number().optional(),
 });
 
 export const ZFindTeamMemberInvitesQuerySchema = z.object({
@@ -52,6 +50,18 @@ export const ZFindTeamMemberInvitesQuerySchema = z.object({
 
 export const ZFindTeamMembersQuerySchema = z.object({
   teamId: z.number(),
+  term: z.string().optional(),
+  page: z.number().optional(),
+  perPage: z.number().optional(),
+});
+
+export const ZFindTeamsQuerySchema = z.object({
+  term: z.string().optional(),
+  page: z.number().optional(),
+  perPage: z.number().optional(),
+});
+
+export const ZFindTeamsPendingQuerySchema = z.object({
   term: z.string().optional(),
   page: z.number().optional(),
   perPage: z.number().optional(),
@@ -125,10 +135,15 @@ export type TCreateTeamMutationSchema = z.infer<typeof ZCreateTeamMutationSchema
 export type TDeleteTeamEmailMutationSchema = z.infer<typeof ZDeleteTeamEmailMutationSchema>;
 export type TDeleteTeamMembersMutationSchema = z.infer<typeof ZDeleteTeamMembersMutationSchema>;
 export type TDeleteTeamMutationSchema = z.infer<typeof ZDeleteTeamMutationSchema>;
+export type TDeleteTeamPendingMutationSchema = z.infer<typeof ZDeleteTeamPendingMutationSchema>;
+export type TFindTeamMemberInvitesQuerySchema = z.infer<typeof ZFindTeamMembersQuerySchema>;
+export type TFindTeamMembersQuerySchema = z.infer<typeof ZFindTeamMembersQuerySchema>;
+export type TFindTeamsQuerySchema = z.infer<typeof ZFindTeamsQuerySchema>;
+export type TFindTeamsPendingQuerySchema = z.infer<typeof ZFindTeamsPendingQuerySchema>;
 export type TGetTeamQuerySchema = z.infer<typeof ZGetTeamQuerySchema>;
 export type TGetTeamMembersQuerySchema = z.infer<typeof ZGetTeamMembersQuerySchema>;
-export type TLeaveTeamMutationSchema = z.infer<typeof ZLeaveTeamMutationSchema>;
 export type TInviteTeamMembersMutationSchema = z.infer<typeof ZInviteTeamMembersMutationSchema>;
+export type TLeaveTeamMutationSchema = z.infer<typeof ZLeaveTeamMutationSchema>;
 export type TUpdateTeamMutationSchema = z.infer<typeof ZUpdateTeamMutationSchema>;
 export type TUpdateTeamEmailMutationSchema = z.infer<typeof ZUpdateTeamEmailMutationSchema>;
 export type TResendTeamEmailVerificationMutationSchema = z.infer<
@@ -137,9 +152,6 @@ export type TResendTeamEmailVerificationMutationSchema = z.infer<
 export type TResendTeamMemberInvitationMutationSchema = z.infer<
   typeof ZResendTeamMemberInvitationMutationSchema
 >;
-export type TFindTeamsQuerySchema = z.infer<typeof ZFindTeamsQuerySchema>;
-export type TFindTeamMemberInvitesQuerySchema = z.infer<typeof ZFindTeamMembersQuerySchema>;
-export type TFindTeamMembersQuerySchema = z.infer<typeof ZFindTeamMembersQuerySchema>;
 export type TTransferTeamOwnershipMutationSchema = z.infer<
   typeof ZTransferTeamOwnershipMutationSchema
 >;

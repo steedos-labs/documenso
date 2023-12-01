@@ -38,8 +38,10 @@ model User {
   PasswordResetToken PasswordResetToken[]
   VerificationToken  VerificationToken[]
 
-  TeamMembers TeamMember[]
-  Teams       Team[]
+  // Todo: Teams - camelcase these?
+  TeamMembers  TeamMember[]
+  Teams        Team[]
+  TeamsPending TeamPending[]
 
   @@index([email])
 }
@@ -287,6 +289,16 @@ model Team {
 
   Owner    User       @relation(fields: [ownerUserId], references: [id])
   Document Document[]
+}
+
+model TeamPending {
+  id          Int      @id @default(autoincrement())
+  name        String
+  url         String   @unique
+  createdAt   DateTime @default(now())
+  ownerUserId Int
+
+  Owner User @relation(fields: [ownerUserId], references: [id])
 }
 
 model TeamMember {

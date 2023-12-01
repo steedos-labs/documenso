@@ -1,14 +1,17 @@
 import { AppError } from '@documenso/lib/errors/app-error';
 import { addTeamEmailVerification } from '@documenso/lib/server-only/team/add-team-email-verification';
 import { createTeam } from '@documenso/lib/server-only/team/create-team';
+import { createTeamPendingCheckoutSession } from '@documenso/lib/server-only/team/create-team-checkout-session';
 import { deleteTeam } from '@documenso/lib/server-only/team/delete-team';
 import { deleteTeamEmail } from '@documenso/lib/server-only/team/delete-team-email';
 import { deleteTeamEmailVerification } from '@documenso/lib/server-only/team/delete-team-email-verification';
 import { deleteTeamMemberInvitations } from '@documenso/lib/server-only/team/delete-team-invitations';
 import { deleteTeamMembers } from '@documenso/lib/server-only/team/delete-team-members';
+import { deleteTeamPending } from '@documenso/lib/server-only/team/delete-team-pending';
 import { findTeamMemberInvites } from '@documenso/lib/server-only/team/find-team-member-invites';
 import { findTeamMembers } from '@documenso/lib/server-only/team/find-team-members';
 import { findTeams } from '@documenso/lib/server-only/team/find-teams';
+import { findTeamsPending } from '@documenso/lib/server-only/team/find-teams-pending';
 import { getTeamEmailByEmail } from '@documenso/lib/server-only/team/get-team-email-by-email';
 import { getTeamMembers } from '@documenso/lib/server-only/team/get-team-members';
 import { getTeamById, getTeams } from '@documenso/lib/server-only/team/get-teams';
@@ -30,8 +33,10 @@ import {
   ZDeleteTeamMemberInvitationsMutationSchema,
   ZDeleteTeamMembersMutationSchema,
   ZDeleteTeamMutationSchema,
+  ZDeleteTeamPendingMutationSchema,
   ZFindTeamMemberInvitesQuerySchema,
   ZFindTeamMembersQuerySchema,
+  ZFindTeamsPendingQuerySchema,
   ZFindTeamsQuerySchema,
   ZGetTeamMembersQuerySchema,
   ZGetTeamQuerySchema,
@@ -153,6 +158,21 @@ export const teamRouter = router({
       }
     }),
 
+  createTeamPendingCheckout: authenticatedProcedure
+    .input(ZDeleteTeamPendingMutationSchema)
+    .mutation(async ({ input, ctx }) => {
+      try {
+        return await createTeamPendingCheckoutSession({
+          userId: ctx.user.id,
+          ...input,
+        });
+      } catch (err) {
+        console.error(err);
+
+        throw AppError.parseErrorToTRPCError(err);
+      }
+    }),
+
   deleteTeam: authenticatedProcedure
     .input(ZDeleteTeamMutationSchema)
     .mutation(async ({ input, ctx }) => {
@@ -203,18 +223,20 @@ export const teamRouter = router({
       }
     }),
 
-  findTeams: authenticatedProcedure.input(ZFindTeamsQuerySchema).query(async ({ input, ctx }) => {
-    try {
-      return await findTeams({
-        userId: ctx.user.id,
-        ...input,
-      });
-    } catch (err) {
-      console.error(err);
+  deleteTeamPending: authenticatedProcedure
+    .input(ZDeleteTeamPendingMutationSchema)
+    .mutation(async ({ input, ctx }) => {
+      try {
+        return await deleteTeamPending({
+          userId: ctx.user.id,
+          ...input,
+        });
+      } catch (err) {
+        console.error(err);
 
-      throw AppError.parseErrorToTRPCError(err);
-    }
-  }),
+        throw AppError.parseErrorToTRPCError(err);
+      }
+    }),
 
   findTeamMemberInvites: authenticatedProcedure
     .input(ZFindTeamMemberInvitesQuerySchema)
@@ -236,6 +258,34 @@ export const teamRouter = router({
     .query(async ({ input, ctx }) => {
       try {
         return await findTeamMembers({
+          userId: ctx.user.id,
+          ...input,
+        });
+      } catch (err) {
+        console.error(err);
+
+        throw AppError.parseErrorToTRPCError(err);
+      }
+    }),
+
+  findTeams: authenticatedProcedure.input(ZFindTeamsQuerySchema).query(async ({ input, ctx }) => {
+    try {
+      return await findTeams({
+        userId: ctx.user.id,
+        ...input,
+      });
+    } catch (err) {
+      console.error(err);
+
+      throw AppError.parseErrorToTRPCError(err);
+    }
+  }),
+
+  findTeamsPending: authenticatedProcedure
+    .input(ZFindTeamsPendingQuerySchema)
+    .query(async ({ input, ctx }) => {
+      try {
+        return await findTeamsPending({
           userId: ctx.user.id,
           ...input,
         });

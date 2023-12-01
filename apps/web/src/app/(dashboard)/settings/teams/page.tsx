@@ -8,7 +8,7 @@ import { useToast } from '@documenso/ui/primitives/use-toast';
 
 import SettingsHeader from '~/components/(dashboard)/settings/layout/header';
 import CreateTeamDialog from '~/components/(teams)/dialogs/create-team-dialog';
-import TeamsDataTable from '~/components/(teams)/tables/teams-data-table';
+import UserTeamsPageDataTable from '~/components/(teams)/tables/user-teams-page-data-table';
 
 export default function TeamsSettingsPage() {
   const { toast } = useToast();
@@ -41,7 +41,7 @@ export default function TeamsSettingsPage() {
         <CreateTeamDialog />
       </SettingsHeader>
 
-      <TeamsDataTable />
+      <UserTeamsPageDataTable />
 
       <AnimatePresence>
         {teamEmail && (

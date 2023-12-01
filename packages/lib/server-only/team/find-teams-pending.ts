@@ -2,9 +2,7 @@ import { prisma } from '@documenso/prisma';
 import type { Team } from '@documenso/prisma/client';
 import { Prisma } from '@documenso/prisma/client';
 
-import type { FindResultSet } from '../../types/find-result-set';
-
-export interface FindTeamsOptions {
+export interface FindTeamsPendingOptions {
   userId: number;
   term?: string;
   page?: number;
@@ -15,22 +13,18 @@ export interface FindTeamsOptions {
   };
 }
 
-export const findTeams = async ({
+export const findTeamsPending = async ({
   userId,
   term,
   page = 1,
   perPage = 10,
   orderBy,
-}: FindTeamsOptions) => {
+}: FindTeamsPendingOptions) => {
   const orderByColumn = orderBy?.column ?? 'name';
   const orderByDirection = orderBy?.direction ?? 'desc';
 
-  const whereClause: Prisma.TeamWhereInput = {
-    members: {
-      some: {
-        userId,
-      },
-    },
+  const whereClause: Prisma.TeamPendingWhereInput = {
+    ownerUserId: userId,
   };
 
   if (term && term.length > 0) {
@@ -41,37 +35,24 @@ export const findTeams = async ({
   }
 
   const [data, count] = await Promise.all([
-    prisma.team.findMany({
+    prisma.teamPending.findMany({
       where: whereClause,
       skip: Math.max(page - 1, 0) * perPage,
       take: perPage,
       orderBy: {
         [orderByColumn]: orderByDirection,
       },
-      include: {
-        members: {
-          where: {
-            userId,
-          },
-        },
-      },
     }),
-    prisma.team.count({
+    prisma.teamPending.count({
       where: whereClause,
     }),
   ]);
 
-  const maskedData = data.map((team) => ({
-    ...team,
-    currentTeamMember: team.members[0],
-    members: undefined,
-  }));
-
   return {
-    data: maskedData,
+    data,
     count,
     currentPage: Math.max(page, 1),
     perPage,
     totalPages: Math.ceil(count / perPage),
-  } satisfies FindResultSet<typeof maskedData>;
+  };
 };

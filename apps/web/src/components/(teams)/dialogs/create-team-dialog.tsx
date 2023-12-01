@@ -2,10 +2,12 @@
 
 import { useEffect, useState } from 'react';
 
-import { useSearchParams } from 'next/navigation';
+import Link from 'next/link';
+import { useRouter, useSearchParams } from 'next/navigation';
 
 import { zodResolver } from '@hookform/resolvers/zod';
 import type * as DialogPrimitive from '@radix-ui/react-dialog';
+import { CreditCard } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 
@@ -46,9 +48,12 @@ export const ZCreateTeamFormSchema = z.object({
 export type TCreateTeamFormSchema = z.infer<typeof ZCreateTeamFormSchema>;
 
 export default function CreateTeamDialog({ trigger, ...props }: CreateTeamDialogProps) {
+  const router = useRouter();
   const searchParams = useSearchParams();
   const updateSearchParams = useUpdateSearchParams();
+
   const [open, setOpen] = useState(false);
+  const [checkoutUrl, setCheckoutUrl] = useState<string | null>(null);
 
   const { toast } = useToast();
 
@@ -66,18 +71,25 @@ export default function CreateTeamDialog({ trigger, ...props }: CreateTeamDialog
 
   const onFormSubmit = async ({ name, url }: TCreateTeamFormSchema) => {
     try {
-      await createTeam({
+      const response = await createTeam({
         name,
         url,
       });
 
-      toast({
-        title: 'Success',
-        description: 'Your team has been successfully created.',
-        duration: 5000,
-      });
+      if (!response.paymentRequired) {
+        toast({
+          title: 'Success',
+          description: 'Your team has been successfully created.',
+          duration: 5000,
+        });
 
-      setOpen(false);
+        setOpen(false);
+
+        return;
+      }
+
+      setCheckoutUrl(response.checkoutUrl);
+      router.push(`/settings/teams?tab=pending`);
     } catch (err) {
       const error = AppError.parseError(err);
 
@@ -108,7 +120,12 @@ export default function CreateTeamDialog({ trigger, ...props }: CreateTeamDialog
       setOpen(true);
       updateSearchParams({ action: null });
     }
-  }, [actionSearchParam, setOpen, updateSearchParams]);
+  }, [actionSearchParam, open, setOpen, updateSearchParams]);
+
+  useEffect(() => {
+    setCheckoutUrl(null);
+    form.reset();
+  }, [open, form]);
 
   return (
     <Dialog
@@ -124,79 +141,102 @@ export default function CreateTeamDialog({ trigger, ...props }: CreateTeamDialog
         <DialogHeader>
           <DialogTitle>Create team</DialogTitle>
 
-          <DialogDescription className="mt-4">Todo: Teams</DialogDescription>
+          <DialogDescription className="mt-4">
+            Create a team to collaborate with your team members.
+          </DialogDescription>
         </DialogHeader>
 
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(onFormSubmit)}>
-            <fieldset
-              className="flex h-full flex-col space-y-4"
-              disabled={form.formState.isSubmitting}
-            >
-              <FormField
-                control={form.control}
-                name="name"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel required>Team Name</FormLabel>
-                    <FormControl>
-                      <Input
-                        className="bg-background"
-                        {...field}
-                        onChange={(event) => {
-                          const oldGenericUrl = mapTextToUrl(field.value);
-                          const newGenericUrl = mapTextToUrl(event.target.value);
+        {checkoutUrl ? (
+          <>
+            <div className="flex h-44 flex-col items-center justify-center rounded-lg bg-gray-50/70">
+              <CreditCard className="h-8 w-8 text-gray-600" />
+              <span className="text-muted-foreground text-sm font-medium">
+                Payment is required to finalise the creation of your team.
+              </span>
+            </div>
 
-                          const urlField = form.getValues('url');
-                          if (urlField === oldGenericUrl) {
-                            form.setValue('url', newGenericUrl);
-                          }
+            <DialogFooter className="space-x-4">
+              <Button type="button" variant="secondary" onClick={() => setOpen(false)}>
+                Close
+              </Button>
 
-                          field.onChange(event);
-                        }}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+              <Button type="submit" asChild>
+                <Link href={checkoutUrl} onClick={() => setOpen(false)} target="_blank">
+                  Checkout
+                </Link>
+              </Button>
+            </DialogFooter>
+          </>
+        ) : (
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onFormSubmit)}>
+              <fieldset
+                className="flex h-full flex-col space-y-4"
+                disabled={form.formState.isSubmitting}
+              >
+                <FormField
+                  control={form.control}
+                  name="name"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel required>Team Name</FormLabel>
+                      <FormControl>
+                        <Input
+                          className="bg-background"
+                          {...field}
+                          onChange={(event) => {
+                            const oldGenericUrl = mapTextToUrl(field.value);
+                            const newGenericUrl = mapTextToUrl(event.target.value);
 
-              <FormField
-                control={form.control}
-                name="url"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel required>Team URL</FormLabel>
-                    <FormControl>
-                      <Input className="bg-background" {...field} />
-                    </FormControl>
-                    {!form.formState.errors.url && (
-                      <span className="text-foreground/50 text-xs font-normal">
-                        {field.value
-                          ? `${WEBAPP_BASE_URL}/t/${field.value}`
-                          : 'A unique URL to identify your team'}
-                      </span>
-                    )}
+                            const urlField = form.getValues('url');
+                            if (urlField === oldGenericUrl) {
+                              form.setValue('url', newGenericUrl);
+                            }
 
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+                            field.onChange(event);
+                          }}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
 
-              {/* Todo: Teams avatar */}
+                <FormField
+                  control={form.control}
+                  name="url"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel required>Team URL</FormLabel>
+                      <FormControl>
+                        <Input className="bg-background" {...field} />
+                      </FormControl>
+                      {!form.formState.errors.url && (
+                        <span className="text-foreground/50 text-xs font-normal">
+                          {field.value
+                            ? `${WEBAPP_BASE_URL}/t/${field.value}`
+                            : 'A unique URL to identify your team'}
+                        </span>
+                      )}
 
-              <DialogFooter className="space-x-4">
-                <Button type="button" variant="secondary" onClick={() => setOpen(false)}>
-                  Cancel
-                </Button>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
 
-                <Button type="submit" loading={form.formState.isSubmitting}>
-                  Create Team
-                </Button>
-              </DialogFooter>
-            </fieldset>
-          </form>
-        </Form>
+                <DialogFooter className="space-x-4">
+                  <Button type="button" variant="secondary" onClick={() => setOpen(false)}>
+                    Cancel
+                  </Button>
+
+                  <Button type="submit" loading={form.formState.isSubmitting}>
+                    Create Team
+                  </Button>
+                </DialogFooter>
+              </fieldset>
+            </form>
+          </Form>
+        )}
       </DialogContent>
     </Dialog>
   );
