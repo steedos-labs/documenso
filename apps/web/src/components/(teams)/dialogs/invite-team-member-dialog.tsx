@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 
 import { zodResolver } from '@hookform/resolvers/zod';
-import * as DialogPrimitive from '@radix-ui/react-dialog';
+import type * as DialogPrimitive from '@radix-ui/react-dialog';
 import { Mail, PlusCircle, Trash } from 'lucide-react';
 import { useFieldArray, useForm } from 'react-hook-form';
 import { z } from 'zod';
@@ -227,7 +227,7 @@ export default function InviteTeamMembersDialog({
                   </Button>
 
                   <Button type="submit" loading={form.formState.isSubmitting}>
-                    <Mail className="mr-2 h-4 w-4" />
+                    {!form.formState.isSubmitting && <Mail className="mr-2 h-4 w-4" />}
                     Invite
                   </Button>
                 </DialogFooter>

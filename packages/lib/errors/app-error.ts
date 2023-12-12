@@ -76,11 +76,6 @@ export class AppError extends Error {
       return error;
     }
 
-    // Todo: Teams - Handle Prisma errors.
-    // - Prisma.PrismaClientKnownRequestError
-    // - Prisma.PrismaClientKnownRequestError
-    // - etc
-
     // Handle TRPC errors.
     if (error instanceof TRPCClientError) {
       const parsedJsonError = AppError.parseFromJSONString(error.message);
@@ -88,6 +83,7 @@ export class AppError extends Error {
     }
 
     // Handle completely unknown errors.
+    // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
     const { code, message, userMessage } = error as {
       code: unknown;
       message: unknown;
@@ -95,14 +91,10 @@ export class AppError extends Error {
       userMessage: unknown;
     };
 
-    let validCode: string | null = typeof code === 'string' ? code : null;
-    let validMessage: string | undefined = typeof message === 'string' ? message : undefined;
-    let validUserMessage: string | undefined =
+    const validCode: string | null = typeof code === 'string' ? code : AppErrorCode.UNKNOWN_ERROR;
+    const validMessage: string | undefined = typeof message === 'string' ? message : undefined;
+    const validUserMessage: string | undefined =
       typeof userMessage === 'string' ? userMessage : undefined;
-
-    if (!validCode) {
-      return new AppError('UnknownError', validMessage, validUserMessage);
-    }
 
     return new AppError(validCode, validMessage, validUserMessage);
   }

@@ -1,13 +1,44 @@
 import React from 'react';
 
+import { notFound } from 'next/navigation';
+
+import { canExecuteTeamAction } from '@documenso/lib/constants/teams';
+import { AppError, AppErrorCode } from '@documenso/lib/errors/app-error';
+import { getRequiredServerComponentSession } from '@documenso/lib/next-auth/get-server-component-session';
+import { getTeamByUrl } from '@documenso/lib/server-only/team/get-teams';
+
 import { DesktopNav } from '~/components/(teams)/settings/layout/desktop-nav';
 import { MobileNav } from '~/components/(teams)/settings/layout/mobile-nav';
 
 export type DashboardSettingsLayoutProps = {
   children: React.ReactNode;
+  params: {
+    teamUrl: string;
+  };
 };
 
-export default function DashboardSettingsLayout({ children }: DashboardSettingsLayoutProps) {
+export default async function TeamsSettingsLayout({
+  children,
+  params: { teamUrl },
+}: DashboardSettingsLayoutProps) {
+  const session = await getRequiredServerComponentSession();
+
+  try {
+    const team = await getTeamByUrl({ userId: session.user.id, teamUrl });
+
+    if (!canExecuteTeamAction('MANAGE_TEAM', team.currentTeamMember.role)) {
+      throw new Error(AppErrorCode.UNAUTHORIZED);
+    }
+  } catch (e) {
+    const error = AppError.parseError(e);
+
+    if (error.code === 'P2025') {
+      notFound();
+    }
+
+    throw e;
+  }
+
   return (
     <div className="mx-auto w-full max-w-screen-xl px-4 md:px-8">
       <h1 className="text-4xl font-semibold">Team Settings</h1>

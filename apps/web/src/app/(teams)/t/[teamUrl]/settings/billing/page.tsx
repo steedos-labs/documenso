@@ -17,7 +17,6 @@ export default async function TeamsSettingBillingPage({ params }: TeamsSettingsB
 
   const session = await getRequiredServerComponentSession();
 
-  // Todo: Teams - Handle 404.
   await getTeamByUrl({ userId: session.user.id, teamUrl });
 
   return (

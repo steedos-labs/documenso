@@ -24,7 +24,6 @@ export default async function TeamsSettingsPage({ params }: TeamsSettingsPagePro
 
   const session = await getRequiredServerComponentSession();
 
-  // Todo: Teams - Handle 404.
   const team = await getTeamByUrl({ userId: session.user.id, teamUrl });
 
   return (

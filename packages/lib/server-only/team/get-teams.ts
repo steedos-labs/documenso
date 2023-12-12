@@ -88,12 +88,26 @@ export const getTeamByUrl = async ({ userId, teamUrl }: GetTeamByUrlOptions) => 
     };
   }
 
-  // Todo: Teams - Only return the fields we need.
-  return await prisma.team.findUniqueOrThrow({
+  const result = await prisma.team.findUniqueOrThrow({
     where: whereFilter,
     include: {
       email: true,
       emailVerification: true,
+      members: {
+        where: {
+          userId,
+        },
+        select: {
+          role: true,
+        },
+      },
     },
   });
+
+  const { members, ...team } = result;
+
+  return {
+    ...team,
+    currentTeamMember: members[0],
+  };
 };
