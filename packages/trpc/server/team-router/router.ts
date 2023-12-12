@@ -304,6 +304,7 @@ export const teamRouter = router({
 
         return await inviteTeamMembers({
           userId: ctx.user.id,
+          userName: ctx.user.name ?? '',
           teamId,
           invitations,
         });
@@ -395,6 +396,7 @@ export const teamRouter = router({
       try {
         await resendTeamMemberInvitation({
           userId: ctx.user.id,
+          userName: ctx.user.name ?? '',
           ...input,
         });
       } catch (err) {

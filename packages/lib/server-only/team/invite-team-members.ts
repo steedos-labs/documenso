@@ -4,6 +4,7 @@ import { nanoid } from 'nanoid';
 
 import { mailer } from '@documenso/email/mailer';
 import { render } from '@documenso/email/render';
+import type { TeamInviteEmailProps } from '@documenso/email/templates/team-invite';
 import { TeamInviteEmailTemplate } from '@documenso/email/templates/team-invite';
 import { FROM_ADDRESS, FROM_NAME } from '@documenso/lib/constants/email';
 import { prisma } from '@documenso/prisma';
@@ -16,6 +17,7 @@ import { getTeamById } from './get-teams';
 
 export type InviteTeamMembersOptions = {
   userId: number;
+  userName: string;
   teamId: number;
   invitations: TInviteTeamMembersMutationSchema['invitations'];
 };
@@ -25,6 +27,7 @@ export type InviteTeamMembersOptions = {
  */
 export const inviteTeamMembers = async ({
   userId,
+  userName,
   teamId,
   invitations,
 }: InviteTeamMembersOptions) => {
@@ -62,7 +65,13 @@ export const inviteTeamMembers = async ({
 
   const sendEmailResult = await Promise.allSettled(
     teamMemberInvites.map(async ({ email, token }) =>
-      sendTeamMemberInviteEmail(email, token, team.name),
+      sendTeamMemberInviteEmail({
+        email,
+        token,
+        teamName: team.name,
+        teamUrl: team.url,
+        senderName: userName,
+      }),
     ),
   );
 
@@ -81,18 +90,23 @@ export const inviteTeamMembers = async ({
   }
 };
 
+type SendTeamMemberInviteEmailOptions = Omit<TeamInviteEmailProps, 'baseUrl' | 'assetBaseUrl'> & {
+  email: string;
+};
+
 /**
  * Send an email to a user inviting them to join a team.
- *
- * @param email The email address of the user to invite.
- * @param token The invite token used to authenticate the user to join the team.
- * @param teamName The name of the team the user is being invited to.
  */
-export const sendTeamMemberInviteEmail = async (email: string, token: string, teamName: string) => {
+export const sendTeamMemberInviteEmail = async ({
+  email,
+  ...emailTemplateOptions
+}: SendTeamMemberInviteEmailOptions) => {
+  const assetBaseUrl = process.env.NEXT_PUBLIC_WEBAPP_URL || 'http://localhost:3000';
+
   const template = createElement(TeamInviteEmailTemplate, {
+    assetBaseUrl,
     baseUrl: WEBAPP_BASE_URL,
-    teamName,
-    token,
+    ...emailTemplateOptions,
   });
 
   await mailer.sendMail({
@@ -101,7 +115,7 @@ export const sendTeamMemberInviteEmail = async (email: string, token: string, te
       name: FROM_NAME,
       address: FROM_ADDRESS,
     },
-    subject: `You have been invited to join ${teamName} on Documenso`,
+    subject: `You have been invited to join ${emailTemplateOptions.teamName} on Documenso`,
     html: render(template),
     text: render(template, { plainText: true }),
   });

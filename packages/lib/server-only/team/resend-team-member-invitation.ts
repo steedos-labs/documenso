@@ -11,6 +11,11 @@ export type ResendTeamMemberInvitationOptions = {
   userId: number;
 
   /**
+   * The name of hte user who is initiating this action.
+   */
+  userName: string;
+
+  /**
    * The ID of the team.
    */
   teamId: number;
@@ -26,6 +31,7 @@ export type ResendTeamMemberInvitationOptions = {
  */
 export const resendTeamMemberInvitation = async ({
   userId,
+  userName,
   teamId,
   invitationId,
 }: ResendTeamMemberInvitationOptions) => {
@@ -59,6 +65,12 @@ export const resendTeamMemberInvitation = async ({
       throw new AppError('InviteNotFound', 'No invite exists for this user.');
     }
 
-    await sendTeamMemberInviteEmail(teamMemberInvite.email, teamMemberInvite.token, team.name);
+    await sendTeamMemberInviteEmail({
+      email: teamMemberInvite.email,
+      token: teamMemberInvite.token,
+      teamName: team.name,
+      teamUrl: team.url,
+      senderName: userName,
+    });
   });
 };

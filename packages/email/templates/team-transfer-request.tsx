@@ -15,7 +15,7 @@ import {
 import { TemplateFooter } from '../template-components/template-footer';
 import TemplateImage from '../template-components/template-image';
 
-export type TeamInviteEmailProps = {
+export type TeamTransferRequestProps = {
   assetBaseUrl: string;
   baseUrl: string;
   senderName: string;
@@ -24,15 +24,15 @@ export type TeamInviteEmailProps = {
   token: string;
 };
 
-export const TeamInviteEmailTemplate = ({
+export const TeamTransferRequest = ({
   assetBaseUrl = 'http://localhost:3002',
   baseUrl = 'https://documenso.com',
   senderName = 'John Doe',
   teamName = 'Team Name',
   teamUrl = 'demo',
   token = '',
-}: TeamInviteEmailProps) => {
-  const previewText = `Accept invitation to join a team on Documenso`;
+}: TeamTransferRequestProps) => {
+  const previewText = 'Accept team transfer request on Documenso';
 
   return (
     <Html>
@@ -49,7 +49,7 @@ export const TeamInviteEmailTemplate = ({
       >
         <Body className="mx-auto my-auto font-sans">
           <Section className="bg-white text-slate-500">
-            <Container className="mx-auto mb-2 mt-8 max-w-xl rounded-lg border border-solid border-slate-200 p-2 backdrop-blur-sm">
+            <Container className="mx-auto mb-2 mt-8 max-w-xl rounded-lg border border-solid border-slate-200 px-2 pt-2 backdrop-blur-sm">
               <TemplateImage
                 assetBaseUrl={assetBaseUrl}
                 className="mb-4 h-6 p-2"
@@ -66,11 +66,11 @@ export const TeamInviteEmailTemplate = ({
 
               <Section className="p-2 text-slate-500">
                 <Text className="text-center text-lg font-medium text-black">
-                  Join {teamName} on Documenso
+                  {teamName} ownership transfer request
                 </Text>
 
                 <Text className="my-1 text-center text-base">
-                  You have been invited to join the following team
+                  You have been requested to take ownership of the following team
                 </Text>
 
                 <div className="mx-auto my-2 w-fit rounded-lg bg-gray-50 px-4 py-2 text-base font-medium text-slate-600">
@@ -83,13 +83,15 @@ export const TeamInviteEmailTemplate = ({
 
                 <Section className="mb-6 mt-6 text-center">
                   <Button
-                    className="bg-documenso-500 inline-flex items-center justify-center rounded-lg px-6 py-3 text-center text-sm font-medium text-black no-underline"
+                    className="bg-documenso-500 ml-2 inline-flex items-center justify-center rounded-lg px-6 py-3 text-center text-sm font-medium text-black no-underline"
                     href={`${baseUrl}/invite/teams/${token}`}
                   >
                     Accept
                   </Button>
                 </Section>
               </Section>
+
+              <Text className="text-center text-xs">Link expires in 10 minutes.</Text>
             </Container>
 
             <Hr className="mx-auto mt-12 max-w-xl" />
@@ -104,4 +106,4 @@ export const TeamInviteEmailTemplate = ({
   );
 };
 
-export default TeamInviteEmailTemplate;
+export default TeamTransferRequest;
