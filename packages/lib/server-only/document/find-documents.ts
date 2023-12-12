@@ -134,16 +134,24 @@ const findDocumentsFilter = (status: ExtendedDocumentStatus, user: User) => {
         {
           userId: user.id,
           teamId: null,
+          deletedAt: null,
         },
         {
-          status: {
-            not: ExtendedDocumentStatus.DRAFT,
-          },
+          status: ExtendedDocumentStatus.COMPLETED,
           Recipient: {
             some: {
               email: user.email,
             },
           },
+        },
+        {
+          status: ExtendedDocumentStatus.PENDING,
+          Recipient: {
+            some: {
+              email: user.email,
+            },
+          },
+          deletedAt: null,
         },
       ],
     }))
@@ -157,11 +165,13 @@ const findDocumentsFilter = (status: ExtendedDocumentStatus, user: User) => {
           signingStatus: SigningStatus.NOT_SIGNED,
         },
       },
+      deletedAt: null,
     }))
     .with(ExtendedDocumentStatus.DRAFT, () => ({
       userId: user.id,
       teamId: null,
       status: ExtendedDocumentStatus.DRAFT,
+      deletedAt: null,
     }))
     .with(ExtendedDocumentStatus.PENDING, () => ({
       OR: [
@@ -169,6 +179,7 @@ const findDocumentsFilter = (status: ExtendedDocumentStatus, user: User) => {
           userId: user.id,
           teamId: null,
           status: ExtendedDocumentStatus.PENDING,
+          deletedAt: null,
         },
         {
           status: ExtendedDocumentStatus.PENDING,
@@ -178,6 +189,7 @@ const findDocumentsFilter = (status: ExtendedDocumentStatus, user: User) => {
               signingStatus: SigningStatus.SIGNED,
             },
           },
+          deletedAt: null,
         },
       ],
     }))
@@ -187,6 +199,7 @@ const findDocumentsFilter = (status: ExtendedDocumentStatus, user: User) => {
           userId: user.id,
           teamId: null,
           status: ExtendedDocumentStatus.COMPLETED,
+          deletedAt: null,
         },
         {
           status: ExtendedDocumentStatus.COMPLETED,

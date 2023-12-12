@@ -23,6 +23,17 @@ CREATE TABLE "Team" (
 );
 
 -- CreateTable
+CREATE TABLE "TeamPending" (
+    "id" SERIAL NOT NULL,
+    "name" TEXT NOT NULL,
+    "url" TEXT NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "ownerUserId" INTEGER NOT NULL,
+
+    CONSTRAINT "TeamPending_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
 CREATE TABLE "TeamMember" (
     "id" SERIAL NOT NULL,
     "teamId" INTEGER NOT NULL,
@@ -72,6 +83,9 @@ CREATE TABLE "TeamMemberInvite" (
 CREATE UNIQUE INDEX "Team_url_key" ON "Team"("url");
 
 -- CreateIndex
+CREATE UNIQUE INDEX "TeamPending_url_key" ON "TeamPending"("url");
+
+-- CreateIndex
 CREATE UNIQUE INDEX "TeamMember_userId_teamId_key" ON "TeamMember"("userId", "teamId");
 
 -- CreateIndex
@@ -82,9 +96,6 @@ CREATE UNIQUE INDEX "TeamEmail_email_key" ON "TeamEmail"("email");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "TeamEmailVerification_teamId_key" ON "TeamEmailVerification"("teamId");
-
--- CreateIndex
-CREATE UNIQUE INDEX "TeamEmailVerification_email_key" ON "TeamEmailVerification"("email");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "TeamEmailVerification_token_key" ON "TeamEmailVerification"("token");
@@ -100,6 +111,9 @@ ALTER TABLE "Document" ADD CONSTRAINT "Document_teamId_fkey" FOREIGN KEY ("teamI
 
 -- AddForeignKey
 ALTER TABLE "Team" ADD CONSTRAINT "Team_ownerUserId_fkey" FOREIGN KEY ("ownerUserId") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "TeamPending" ADD CONSTRAINT "TeamPending_ownerUserId_fkey" FOREIGN KEY ("ownerUserId") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "TeamMember" ADD CONSTRAINT "TeamMember_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;

@@ -1,3 +1,5 @@
+import config from '@documenso/tailwind-config';
+
 import {
   Body,
   Button,
@@ -9,10 +11,7 @@ import {
   Section,
   Tailwind,
   Text,
-} from '@react-email/components';
-
-import config from '@documenso/tailwind-config';
-
+} from '../components';
 import { TemplateFooter } from '../template-components/template-footer';
 
 export type TeamInviteEmailProps = {
