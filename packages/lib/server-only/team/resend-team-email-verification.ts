@@ -2,10 +2,8 @@ import { prisma } from '@documenso/prisma';
 
 import { TEAM_MEMBER_ROLE_PERMISSIONS_MAP } from '../../constants/teams';
 import { AppError } from '../../errors/app-error';
-import {
-  generateTeamEmailVerificationToken,
-  sendTeamEmailVerificationEmail,
-} from './add-team-email-verification';
+import { createToken } from '../../utils/token-verification';
+import { sendTeamEmailVerificationEmail } from './add-team-email-verification';
 
 export type ResendTeamMemberInvitationOptions = {
   userId: number;
@@ -50,17 +48,18 @@ export const resendTeamEmailVerification = async ({
       );
     }
 
-    const token = generateTeamEmailVerificationToken();
+    const { token, expiresAt } = createToken({ hours: 1 });
 
     await tx.teamEmailVerification.update({
       where: {
         teamId,
       },
       data: {
-        ...token,
+        token,
+        expiresAt,
       },
     });
 
-    await sendTeamEmailVerificationEmail(emailVerification.email, token.token, team.name, team.url);
+    await sendTeamEmailVerificationEmail(emailVerification.email, token, team.name, team.url);
   });
 };

@@ -93,6 +93,7 @@ export const getTeamByUrl = async ({ userId, teamUrl }: GetTeamByUrlOptions) => 
     include: {
       email: true,
       emailVerification: true,
+      transferVerification: true,
       members: {
         where: {
           userId,

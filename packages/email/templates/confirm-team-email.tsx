@@ -79,8 +79,8 @@ export const ConfirmTeamEmailTemplate = ({
 
                 <Section className="mt-6">
                   <Text className="my-0 text-sm">
-                    By accepting this request, you will give access to {teamName} to do the
-                    following:
+                    By accepting this request, you will be granting <strong>{teamName}</strong>{' '}
+                    access to:
                   </Text>
 
                   <ul className="mb-0 mt-2">
@@ -99,16 +99,14 @@ export const ConfirmTeamEmailTemplate = ({
                 <Section className="mb-6 mt-8 text-center">
                   <Button
                     className="bg-documenso-500 inline-flex items-center justify-center rounded-lg px-6 py-3 text-center text-sm font-medium text-black no-underline"
-                    href={`${baseUrl}/verify/team-email/${token}`}
+                    href={`${baseUrl}/verify/team/email/${token}`}
                   >
                     Accept
                   </Button>
                 </Section>
               </Section>
 
-              <Text className="text-center text-xs text-slate-500">
-                Link expires in 10 minutes.
-              </Text>
+              <Text className="text-center text-xs text-slate-500">Link expires in 1 hour.</Text>
             </Container>
 
             <Hr className="mx-auto mt-12 max-w-xl" />

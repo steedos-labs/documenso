@@ -6,7 +6,7 @@ import { usePathname } from 'next/navigation';
 import { CheckCircle2, ChevronsUpDown, Plus, Settings2 } from 'lucide-react';
 import { signOut } from 'next-auth/react';
 
-import { TEAM_MEMBER_ROLE_MAP } from '@documenso/lib/constants/teams';
+import { TEAM_MEMBER_ROLE_MAP, canExecuteTeamAction } from '@documenso/lib/constants/teams';
 import { isAdmin } from '@documenso/lib/next-auth/guards/is-admin';
 import type { GetTeamsResponse } from '@documenso/lib/server-only/team/get-teams';
 import { recipientInitials } from '@documenso/lib/utils/recipient-formatter';
@@ -182,11 +182,12 @@ export const ProfileDropdown = ({ user, teams: initialTeamsData }: ProfileDropdo
           <Link href="/settings/profile">User settings</Link>
         </DropdownMenuItem>
 
-        {selectedTeam && (
-          <DropdownMenuItem className="text-muted-foreground px-4 py-2" asChild>
-            <Link href={`/t/${selectedTeam.url}/settings/`}>Team settings</Link>
-          </DropdownMenuItem>
-        )}
+        {selectedTeam &&
+          canExecuteTeamAction('MANAGE_TEAM', selectedTeam.currentTeamMember.role) && (
+            <DropdownMenuItem className="text-muted-foreground px-4 py-2" asChild>
+              <Link href={`/t/${selectedTeam.url}/settings/`}>Team settings</Link>
+            </DropdownMenuItem>
+          )}
 
         <DropdownMenuItem
           className="text-destructive/90 hover:!text-destructive px-4 py-2"

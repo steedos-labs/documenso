@@ -56,7 +56,8 @@ export default function TransferTeamDialog({
 
   const { toast } = useToast();
 
-  const { mutateAsync: transferTeamOwnership } = trpc.team.transferTeamOwnership.useMutation();
+  const { mutateAsync: requestTeamOwnershipTransfer } =
+    trpc.team.requestTeamOwnershipTransfer.useMutation();
 
   const {
     data,
@@ -85,13 +86,16 @@ export default function TransferTeamDialog({
 
   const onFormSubmit = async ({ newOwnerUserId }: z.infer<typeof ZDeleteTeamFormSchema>) => {
     try {
-      await transferTeamOwnership({ teamId, newOwnerUserId: Number.parseInt(newOwnerUserId) });
+      await requestTeamOwnershipTransfer({
+        teamId,
+        newOwnerUserId: Number.parseInt(newOwnerUserId),
+      });
 
       router.refresh();
 
       toast({
         title: 'Success',
-        description: 'You have successfully transfered ownership of this team.',
+        description: 'An email requesting the transfer of this team has been sent.',
         duration: 5000,
       });
 
@@ -102,7 +106,7 @@ export default function TransferTeamDialog({
         variant: 'destructive',
         duration: 10000,
         description:
-          'We encountered an unknown error while attempting to transfer this team. Please try again later.',
+          'We encountered an unknown error while attempting to request a transfer of this team. Please try again later.',
       });
     }
   };
@@ -194,6 +198,13 @@ export default function TransferTeamDialog({
                     </FormItem>
                   )}
                 />
+
+                <div className="rounded-lg bg-gray-50/70 p-4">
+                  <p className="text-muted-foreground text-sm">
+                    The selected team member will receive an email which they must accept before the
+                    team is transferred.
+                  </p>
+                </div>
 
                 <DialogFooter className="space-x-4">
                   <Button type="button" variant="secondary" onClick={() => setOpen(false)}>

@@ -15,7 +15,7 @@ import {
 import { TemplateFooter } from '../template-components/template-footer';
 import TemplateImage from '../template-components/template-image';
 
-export type TeamTransferRequestProps = {
+export type TeamTransferRequestTemplateProps = {
   assetBaseUrl: string;
   baseUrl: string;
   senderName: string;
@@ -24,14 +24,14 @@ export type TeamTransferRequestProps = {
   token: string;
 };
 
-export const TeamTransferRequest = ({
+export const TeamTransferRequestTemplate = ({
   assetBaseUrl = 'http://localhost:3002',
   baseUrl = 'https://documenso.com',
   senderName = 'John Doe',
   teamName = 'Team Name',
   teamUrl = 'demo',
   token = '',
-}: TeamTransferRequestProps) => {
+}: TeamTransferRequestTemplateProps) => {
   const previewText = 'Accept team transfer request on Documenso';
 
   return (
@@ -84,14 +84,14 @@ export const TeamTransferRequest = ({
                 <Section className="mb-6 mt-6 text-center">
                   <Button
                     className="bg-documenso-500 ml-2 inline-flex items-center justify-center rounded-lg px-6 py-3 text-center text-sm font-medium text-black no-underline"
-                    href={`${baseUrl}/invite/teams/${token}`}
+                    href={`${baseUrl}/verify/team/transfer/${token}`}
                   >
                     Accept
                   </Button>
                 </Section>
               </Section>
 
-              <Text className="text-center text-xs">Link expires in 10 minutes.</Text>
+              <Text className="text-center text-xs">Link expires in 1 hour.</Text>
             </Container>
 
             <Hr className="mx-auto mt-12 max-w-xl" />
@@ -106,4 +106,4 @@ export const TeamTransferRequest = ({
   );
 };
 
-export default TeamTransferRequest;
+export default TeamTransferRequestTemplate;

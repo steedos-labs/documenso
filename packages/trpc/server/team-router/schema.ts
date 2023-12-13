@@ -28,6 +28,11 @@ export const ZDeleteTeamMembersMutationSchema = z.object({
   teamMemberIds: z.array(z.number()),
 });
 
+export const ZDeleteTeamMemberInvitationsMutationSchema = z.object({
+  teamId: z.number(),
+  invitationIds: z.array(z.number()),
+});
+
 export const ZDeleteTeamMutationSchema = z.object({
   teamId: z.number(),
 });
@@ -36,9 +41,8 @@ export const ZDeleteTeamPendingMutationSchema = z.object({
   teamPendingId: z.number(),
 });
 
-export const ZDeleteTeamMemberInvitationsMutationSchema = z.object({
+export const ZDeleteTeamTransferInvitationMutationSchema = z.object({
   teamId: z.number(),
-  invitationIds: z.array(z.number()),
 });
 
 export const ZFindTeamMemberInvitesQuerySchema = z.object({
@@ -114,6 +118,11 @@ export const ZUpdateTeamMemberMutationSchema = z.object({
   }),
 });
 
+export const ZRequestTeamOwnerhsipTransferMutationSchema = z.object({
+  teamId: z.number(),
+  newOwnerUserId: z.number(),
+});
+
 export const ZResendTeamEmailVerificationMutationSchema = z.object({
   teamId: z.number(),
 });
@@ -121,11 +130,6 @@ export const ZResendTeamEmailVerificationMutationSchema = z.object({
 export const ZResendTeamMemberInvitationMutationSchema = z.object({
   teamId: z.number(),
   invitationId: z.number(),
-});
-
-export const ZTransferTeamOwnershipMutationSchema = z.object({
-  teamId: z.number(),
-  newOwnerUserId: z.number(),
 });
 
 export type TAddTeamEmailVerificationMutationSchema = z.infer<
@@ -146,12 +150,12 @@ export type TInviteTeamMembersMutationSchema = z.infer<typeof ZInviteTeamMembers
 export type TLeaveTeamMutationSchema = z.infer<typeof ZLeaveTeamMutationSchema>;
 export type TUpdateTeamMutationSchema = z.infer<typeof ZUpdateTeamMutationSchema>;
 export type TUpdateTeamEmailMutationSchema = z.infer<typeof ZUpdateTeamEmailMutationSchema>;
+export type TRequestTeamOwnerhsipTransferMutationSchema = z.infer<
+  typeof ZRequestTeamOwnerhsipTransferMutationSchema
+>;
 export type TResendTeamEmailVerificationMutationSchema = z.infer<
   typeof ZResendTeamEmailVerificationMutationSchema
 >;
 export type TResendTeamMemberInvitationMutationSchema = z.infer<
   typeof ZResendTeamMemberInvitationMutationSchema
->;
-export type TTransferTeamOwnershipMutationSchema = z.infer<
-  typeof ZTransferTeamOwnershipMutationSchema
 >;

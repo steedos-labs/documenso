@@ -1,7 +1,5 @@
 import { createElement } from 'react';
 
-import { DateTime } from 'luxon';
-import { nanoid } from 'nanoid';
 import { z } from 'zod';
 
 import { mailer } from '@documenso/email/mailer';
@@ -14,6 +12,7 @@ import { Prisma } from '@documenso/prisma/client';
 
 import { WEBAPP_BASE_URL } from '../../constants/app';
 import { FROM_ADDRESS, FROM_NAME } from '../../constants/email';
+import { createToken } from '../../utils/token-verification';
 
 export type AddTeamEmailVerificationOptions = {
   userId: number;
@@ -66,18 +65,19 @@ export const addTeamEmailVerification = async ({
         throw new AppError(AppErrorCode.ALREADY_EXISTS, 'Email already taken by another team.');
       }
 
-      const token = generateTeamEmailVerificationToken();
+      const { token, expiresAt } = createToken({ hours: 1 });
 
       await tx.teamEmailVerification.create({
         data: {
-          ...token,
+          token,
+          expiresAt,
           email: data.email,
           name: data.name,
           teamId,
         },
       });
 
-      await sendTeamEmailVerificationEmail(data.email, token.token, team.name, team.url);
+      await sendTeamEmailVerificationEmail(data.email, token, team.name, team.url);
     });
   } catch (err) {
     console.error(err);
@@ -131,9 +131,3 @@ export const sendTeamEmailVerificationEmail = async (
     text: render(template, { plainText: true }),
   });
 };
-
-export const generateTeamEmailVerificationToken = () => ({
-  expiresAt: DateTime.now().plus({ minute: 10 }).toJSDate(),
-  token: nanoid(32),
-  createdAt: new Date(),
-});

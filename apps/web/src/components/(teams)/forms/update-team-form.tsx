@@ -156,7 +156,12 @@ export default function UpdateTeamForm({ teamId, teamName, teamUrl }: UpdateTeam
               )}
             </AnimatePresence>
 
-            <Button type="submit" loading={form.formState.isSubmitting}>
+            <Button
+              type="submit"
+              className="transition-opacity"
+              disabled={!form.formState.isDirty}
+              loading={form.formState.isSubmitting}
+            >
               Update team
             </Button>
           </div>

@@ -1,67 +1,56 @@
 import { prisma } from '@documenso/prisma';
+import { TeamMemberRole } from '@documenso/prisma/client';
 
 export type TransferTeamOwnershipOptions = {
-  /**
-   * The ID of the user initiating the transfer.
-   */
-  userId: number;
-
-  /**
-   * The ID of the team whose ownership is being transferred.
-   */
-  teamId: number;
-
-  /**
-   * The user ID of the new owner.
-   */
-  newOwnerUserId: number;
+  token: string;
 };
 
-export const transferTeamOwnership = async ({
-  userId,
-  teamId,
-  newOwnerUserId,
-}: TransferTeamOwnershipOptions) => {
-  // Todo: Teams - Is this even required?
-  // await prisma.team.findUniqueOrThrow({
-  //   where: {
-  //     id: teamId,
-  //     ownerUserId: userId,
-  //     members: {
-  //       some: {
-  //         userId: newOwnerUserId,
-  //       },
-  //     },
-  //   },
-  // });
+export const transferTeamOwnership = async ({ token }: TransferTeamOwnershipOptions) => {
+  await prisma.$transaction(async (tx) => {
+    const teamTransferVerification = await tx.teamTransferVerification.findFirstOrThrow({
+      where: {
+        token,
+      },
+      include: {
+        team: true,
+      },
+    });
 
-  // Todo: Teams - How will billing work?
+    const { team, userId: newOwnerUserId } = teamTransferVerification;
 
-  return await prisma.team.update({
-    where: {
-      id: teamId,
-      ownerUserId: userId,
-      members: {
-        some: {
-          userId: newOwnerUserId,
+    await tx.teamTransferVerification.deleteMany({
+      where: {
+        teamId: team.id,
+      },
+    });
+
+    // Todo: Teams - Handle billing.
+
+    await tx.team.update({
+      where: {
+        id: team.id,
+        members: {
+          some: {
+            userId: newOwnerUserId,
+          },
         },
       },
-    },
-    data: {
-      ownerUserId: newOwnerUserId,
-      members: {
-        update: {
-          where: {
-            userId_teamId: {
-              teamId,
-              userId: newOwnerUserId,
+      data: {
+        ownerUserId: newOwnerUserId,
+        members: {
+          update: {
+            where: {
+              userId_teamId: {
+                teamId: team.id,
+                userId: newOwnerUserId,
+              },
+            },
+            data: {
+              role: TeamMemberRole.ADMIN,
             },
           },
-          data: {
-            role: 'ADMIN',
-          },
         },
       },
-    },
+    });
   });
 };

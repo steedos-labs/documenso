@@ -101,10 +101,8 @@ export const sendTeamMemberInviteEmail = async ({
   email,
   ...emailTemplateOptions
 }: SendTeamMemberInviteEmailOptions) => {
-  const assetBaseUrl = process.env.NEXT_PUBLIC_WEBAPP_URL || 'http://localhost:3000';
-
   const template = createElement(TeamInviteEmailTemplate, {
-    assetBaseUrl,
+    assetBaseUrl: WEBAPP_BASE_URL,
     baseUrl: WEBAPP_BASE_URL,
     ...emailTemplateOptions,
   });

@@ -280,16 +280,17 @@ enum TeamMemberInviteStatus {
 }
 
 model Team {
-  id                Int                    @id @default(autoincrement())
-  name              String
-  url               String                 @unique
-  avatar            String? // Todo: Teams - Use uri
-  createdAt         DateTime               @default(now())
-  ownerUserId       Int
-  members           TeamMember[]
-  invites           TeamMemberInvite[]
-  email             TeamEmail?
-  emailVerification TeamEmailVerification?
+  id                   Int                       @id @default(autoincrement())
+  name                 String
+  url                  String                    @unique
+  avatar               String? // Todo: Teams - Use uri
+  createdAt            DateTime                  @default(now())
+  ownerUserId          Int
+  members              TeamMember[]
+  invites              TeamMemberInvite[]
+  email                TeamEmail?
+  emailVerification    TeamEmailVerification?
+  transferVerification TeamTransferVerification?
 
   Owner    User       @relation(fields: [ownerUserId], references: [id])
   Document Document[]
@@ -327,12 +328,25 @@ model TeamEmail {
 
 model TeamEmailVerification {
   teamId    Int      @id @unique
-  createdAt DateTime @default(now())
-  expiresAt DateTime
   name      String
   email     String
-  team      Team     @relation(fields: [teamId], references: [id], onDelete: Cascade)
   token     String   @unique
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  team Team @relation(fields: [teamId], references: [id], onDelete: Cascade)
+}
+
+model TeamTransferVerification {
+  teamId    Int      @id @unique
+  userId    Int
+  name      String
+  email     String
+  token     String   @unique
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  team Team @relation(fields: [teamId], references: [id], onDelete: Cascade)
 }
 
 model TeamMemberInvite {

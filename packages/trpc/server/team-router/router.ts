@@ -8,6 +8,7 @@ import { deleteTeamEmailVerification } from '@documenso/lib/server-only/team/del
 import { deleteTeamMemberInvitations } from '@documenso/lib/server-only/team/delete-team-invitations';
 import { deleteTeamMembers } from '@documenso/lib/server-only/team/delete-team-members';
 import { deleteTeamPending } from '@documenso/lib/server-only/team/delete-team-pending';
+import { deleteTeamTransferInvitation } from '@documenso/lib/server-only/team/delete-team-transfer-invitation';
 import { findTeamMemberInvites } from '@documenso/lib/server-only/team/find-team-member-invites';
 import { findTeamMembers } from '@documenso/lib/server-only/team/find-team-members';
 import { findTeams } from '@documenso/lib/server-only/team/find-teams';
@@ -17,9 +18,9 @@ import { getTeamMembers } from '@documenso/lib/server-only/team/get-team-members
 import { getTeamById, getTeams } from '@documenso/lib/server-only/team/get-teams';
 import { inviteTeamMembers } from '@documenso/lib/server-only/team/invite-team-members';
 import { leaveTeam } from '@documenso/lib/server-only/team/leave-team';
+import { requestTeamOwnershipTransfer } from '@documenso/lib/server-only/team/request-team-ownership-transfer';
 import { resendTeamEmailVerification } from '@documenso/lib/server-only/team/resend-team-email-verification';
 import { resendTeamMemberInvitation } from '@documenso/lib/server-only/team/resend-team-member-invitation';
-import { transferTeamOwnership } from '@documenso/lib/server-only/team/transfer-team-ownership';
 import { updateTeam } from '@documenso/lib/server-only/team/update-team';
 import { updateTeamEmail } from '@documenso/lib/server-only/team/update-team-email';
 import { updateTeamMember } from '@documenso/lib/server-only/team/update-team-member';
@@ -34,6 +35,7 @@ import {
   ZDeleteTeamMembersMutationSchema,
   ZDeleteTeamMutationSchema,
   ZDeleteTeamPendingMutationSchema,
+  ZDeleteTeamTransferInvitationMutationSchema,
   ZFindTeamMemberInvitesQuerySchema,
   ZFindTeamMembersQuerySchema,
   ZFindTeamsPendingQuerySchema,
@@ -42,9 +44,9 @@ import {
   ZGetTeamQuerySchema,
   ZInviteTeamMembersMutationSchema,
   ZLeaveTeamMutationSchema,
+  ZRequestTeamOwnerhsipTransferMutationSchema,
   ZResendTeamEmailVerificationMutationSchema,
   ZResendTeamMemberInvitationMutationSchema,
-  ZTransferTeamOwnershipMutationSchema,
   ZUpdateTeamEmailMutationSchema,
   ZUpdateTeamMemberMutationSchema,
   ZUpdateTeamMutationSchema,
@@ -69,76 +71,6 @@ export const teamRouter = router({
         throw AppError.parseErrorToTRPCError(err);
       }
     }),
-
-  deleteTeamEmail: authenticatedProcedure
-    .input(ZDeleteTeamEmailMutationSchema)
-    .mutation(async ({ input, ctx }) => {
-      try {
-        return await deleteTeamEmail({
-          teamId: input.teamId,
-          userId: ctx.user.id,
-          userEmail: ctx.user.email,
-        });
-      } catch (err) {
-        console.error(err);
-
-        throw AppError.parseErrorToTRPCError(err);
-      }
-    }),
-
-  deleteTeamEmailVerification: authenticatedProcedure
-    .input(ZDeleteTeamEmailVerificationMutationSchema)
-    .mutation(async ({ input, ctx }) => {
-      try {
-        return await deleteTeamEmailVerification({ teamId: input.teamId, userId: ctx.user.id });
-      } catch (err) {
-        console.error(err);
-
-        throw AppError.parseErrorToTRPCError(err);
-      }
-    }),
-
-  getTeam: authenticatedProcedure.input(ZGetTeamQuerySchema).query(async ({ input, ctx }) => {
-    try {
-      return await getTeamById({ teamId: input.teamId, userId: ctx.user.id });
-    } catch (err) {
-      console.error(err);
-
-      throw AppError.parseErrorToTRPCError(err);
-    }
-  }),
-
-  getTeamEmailByEmail: authenticatedProcedure.query(async ({ ctx }) => {
-    try {
-      return await getTeamEmailByEmail({ email: ctx.user.email });
-    } catch (err) {
-      console.error(err);
-
-      throw AppError.parseErrorToTRPCError(err);
-    }
-  }),
-
-  getTeamMembers: authenticatedProcedure
-    .input(ZGetTeamMembersQuerySchema)
-    .query(async ({ input, ctx }) => {
-      try {
-        return await getTeamMembers({ teamId: input.teamId, userId: ctx.user.id });
-      } catch (err) {
-        console.error(err);
-
-        throw AppError.parseErrorToTRPCError(err);
-      }
-    }),
-
-  getTeams: authenticatedProcedure.query(async ({ ctx }) => {
-    try {
-      return await getTeams({ userId: ctx.user.id });
-    } catch (err) {
-      console.error(err);
-
-      throw AppError.parseErrorToTRPCError(err);
-    }
-  }),
 
   createTeam: authenticatedProcedure
     .input(ZCreateTeamMutationSchema)
@@ -190,17 +122,27 @@ export const teamRouter = router({
       }
     }),
 
-  deleteTeamMembers: authenticatedProcedure
-    .input(ZDeleteTeamMembersMutationSchema)
+  deleteTeamEmail: authenticatedProcedure
+    .input(ZDeleteTeamEmailMutationSchema)
     .mutation(async ({ input, ctx }) => {
       try {
-        const { teamId, teamMemberIds } = input;
-
-        return await deleteTeamMembers({
+        return await deleteTeamEmail({
+          teamId: input.teamId,
           userId: ctx.user.id,
-          teamId,
-          teamMemberIds,
+          userEmail: ctx.user.email,
         });
+      } catch (err) {
+        console.error(err);
+
+        throw AppError.parseErrorToTRPCError(err);
+      }
+    }),
+
+  deleteTeamEmailVerification: authenticatedProcedure
+    .input(ZDeleteTeamEmailVerificationMutationSchema)
+    .mutation(async ({ input, ctx }) => {
+      try {
+        return await deleteTeamEmailVerification({ teamId: input.teamId, userId: ctx.user.id });
       } catch (err) {
         console.error(err);
 
@@ -223,11 +165,44 @@ export const teamRouter = router({
       }
     }),
 
+  deleteTeamMembers: authenticatedProcedure
+    .input(ZDeleteTeamMembersMutationSchema)
+    .mutation(async ({ input, ctx }) => {
+      try {
+        const { teamId, teamMemberIds } = input;
+
+        return await deleteTeamMembers({
+          userId: ctx.user.id,
+          teamId,
+          teamMemberIds,
+        });
+      } catch (err) {
+        console.error(err);
+
+        throw AppError.parseErrorToTRPCError(err);
+      }
+    }),
+
   deleteTeamPending: authenticatedProcedure
     .input(ZDeleteTeamPendingMutationSchema)
     .mutation(async ({ input, ctx }) => {
       try {
         return await deleteTeamPending({
+          userId: ctx.user.id,
+          ...input,
+        });
+      } catch (err) {
+        console.error(err);
+
+        throw AppError.parseErrorToTRPCError(err);
+      }
+    }),
+
+  deleteTeamTransferInvitation: authenticatedProcedure
+    .input(ZDeleteTeamTransferInvitationMutationSchema)
+    .mutation(async ({ input, ctx }) => {
+      try {
+        return await deleteTeamTransferInvitation({
           userId: ctx.user.id,
           ...input,
         });
@@ -295,6 +270,48 @@ export const teamRouter = router({
         throw AppError.parseErrorToTRPCError(err);
       }
     }),
+
+  getTeam: authenticatedProcedure.input(ZGetTeamQuerySchema).query(async ({ input, ctx }) => {
+    try {
+      return await getTeamById({ teamId: input.teamId, userId: ctx.user.id });
+    } catch (err) {
+      console.error(err);
+
+      throw AppError.parseErrorToTRPCError(err);
+    }
+  }),
+
+  getTeamEmailByEmail: authenticatedProcedure.query(async ({ ctx }) => {
+    try {
+      return await getTeamEmailByEmail({ email: ctx.user.email });
+    } catch (err) {
+      console.error(err);
+
+      throw AppError.parseErrorToTRPCError(err);
+    }
+  }),
+
+  getTeamMembers: authenticatedProcedure
+    .input(ZGetTeamMembersQuerySchema)
+    .query(async ({ input, ctx }) => {
+      try {
+        return await getTeamMembers({ teamId: input.teamId, userId: ctx.user.id });
+      } catch (err) {
+        console.error(err);
+
+        throw AppError.parseErrorToTRPCError(err);
+      }
+    }),
+
+  getTeams: authenticatedProcedure.query(async ({ ctx }) => {
+    try {
+      return await getTeams({ userId: ctx.user.id });
+    } catch (err) {
+      console.error(err);
+
+      throw AppError.parseErrorToTRPCError(err);
+    }
+  }),
 
   inviteTeamMembers: authenticatedProcedure
     .input(ZInviteTeamMembersMutationSchema)
@@ -375,6 +392,25 @@ export const teamRouter = router({
       }
     }),
 
+  requestTeamOwnershipTransfer: authenticatedProcedure
+    .input(ZRequestTeamOwnerhsipTransferMutationSchema)
+    .mutation(async ({ input, ctx }) => {
+      try {
+        const { teamId, newOwnerUserId } = input;
+
+        return await requestTeamOwnershipTransfer({
+          userId: ctx.user.id,
+          userName: ctx.user.name ?? '',
+          teamId,
+          newOwnerUserId,
+        });
+      } catch (err) {
+        console.error(err);
+
+        throw AppError.parseErrorToTRPCError(err);
+      }
+    }),
+
   resendTeamEmailVerification: authenticatedProcedure
     .input(ZResendTeamEmailVerificationMutationSchema)
     .mutation(async ({ input, ctx }) => {
@@ -398,24 +434,6 @@ export const teamRouter = router({
           userId: ctx.user.id,
           userName: ctx.user.name ?? '',
           ...input,
-        });
-      } catch (err) {
-        console.error(err);
-
-        throw AppError.parseErrorToTRPCError(err);
-      }
-    }),
-
-  transferTeamOwnership: authenticatedProcedure
-    .input(ZTransferTeamOwnershipMutationSchema)
-    .mutation(async ({ input, ctx }) => {
-      try {
-        const { teamId, newOwnerUserId } = input;
-
-        return await transferTeamOwnership({
-          userId: ctx.user.id,
-          teamId,
-          newOwnerUserId,
         });
       } catch (err) {
         console.error(err);

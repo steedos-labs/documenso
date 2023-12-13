@@ -57,13 +57,26 @@ CREATE TABLE "TeamEmail" (
 -- CreateTable
 CREATE TABLE "TeamEmailVerification" (
     "teamId" INTEGER NOT NULL,
-    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "expiresAt" TIMESTAMP(3) NOT NULL,
     "name" TEXT NOT NULL,
     "email" TEXT NOT NULL,
     "token" TEXT NOT NULL,
+    "expiresAt" TIMESTAMP(3) NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT "TeamEmailVerification_pkey" PRIMARY KEY ("teamId")
+);
+
+-- CreateTable
+CREATE TABLE "TeamTransferVerification" (
+    "teamId" INTEGER NOT NULL,
+    "userId" INTEGER NOT NULL,
+    "name" TEXT NOT NULL,
+    "email" TEXT NOT NULL,
+    "token" TEXT NOT NULL,
+    "expiresAt" TIMESTAMP(3) NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT "TeamTransferVerification_pkey" PRIMARY KEY ("teamId")
 );
 
 -- CreateTable
@@ -101,6 +114,12 @@ CREATE UNIQUE INDEX "TeamEmailVerification_teamId_key" ON "TeamEmailVerification
 CREATE UNIQUE INDEX "TeamEmailVerification_token_key" ON "TeamEmailVerification"("token");
 
 -- CreateIndex
+CREATE UNIQUE INDEX "TeamTransferVerification_teamId_key" ON "TeamTransferVerification"("teamId");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "TeamTransferVerification_token_key" ON "TeamTransferVerification"("token");
+
+-- CreateIndex
 CREATE UNIQUE INDEX "TeamMemberInvite_token_key" ON "TeamMemberInvite"("token");
 
 -- CreateIndex
@@ -126,6 +145,9 @@ ALTER TABLE "TeamEmail" ADD CONSTRAINT "TeamEmail_teamId_fkey" FOREIGN KEY ("tea
 
 -- AddForeignKey
 ALTER TABLE "TeamEmailVerification" ADD CONSTRAINT "TeamEmailVerification_teamId_fkey" FOREIGN KEY ("teamId") REFERENCES "Team"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "TeamTransferVerification" ADD CONSTRAINT "TeamTransferVerification_teamId_fkey" FOREIGN KEY ("teamId") REFERENCES "Team"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "TeamMemberInvite" ADD CONSTRAINT "TeamMemberInvite_teamId_fkey" FOREIGN KEY ("teamId") REFERENCES "Team"("id") ON DELETE CASCADE ON UPDATE CASCADE;

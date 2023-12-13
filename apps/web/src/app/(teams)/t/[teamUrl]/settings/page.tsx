@@ -3,6 +3,7 @@ import { CheckCircle2, Clock } from 'lucide-react';
 import { getRequiredServerComponentSession } from '@documenso/lib/next-auth/get-server-component-session';
 import { getTeamByUrl } from '@documenso/lib/server-only/team/get-teams';
 import { recipientInitials } from '@documenso/lib/utils/recipient-formatter';
+import { isTokenExpired } from '@documenso/lib/utils/token-verification';
 import { AvatarWithText } from '@documenso/ui/primitives/avatar';
 
 import SettingsHeader from '~/components/(dashboard)/settings/layout/header';
@@ -12,6 +13,7 @@ import TransferTeamDialog from '~/components/(teams)/dialogs/transfer-team-dialo
 import UpdateTeamForm from '~/components/(teams)/forms/update-team-form';
 
 import TeamEmailDropdown from './team-email-dropdown';
+import { TeamTransferStatus } from './team-transfer-status';
 
 export type TeamsSettingsPageProps = {
   params: {
@@ -26,24 +28,22 @@ export default async function TeamsSettingsPage({ params }: TeamsSettingsPagePro
 
   const team = await getTeamByUrl({ userId: session.user.id, teamUrl });
 
+  const isTransferVerificationExpired =
+    !team.transferVerification || isTokenExpired(team.transferVerification.expiresAt);
+
   return (
     <div>
       <SettingsHeader title="Team Profile" subtitle="Here you can edit your team's details." />
 
-      {/* Todo: Teams avatar */}
-      {/* <div className="mb-4 flex flex-row items-center space-x-4">
-        <div className="flex h-10 w-10 items-center justify-center rounded-lg border">D</div>
-
-        <Button variant="outline">
-          Change team icon
-        </Button>
-
-        <Button variant="ghost">Remove</Button>
-      </div> */}
+      <TeamTransferStatus
+        teamId={team.id}
+        transferVerification={team.transferVerification}
+        className="mb-4"
+      />
 
       <UpdateTeamForm teamId={team.id} teamName={team.name} teamUrl={team.url} />
 
-      <hr className="border-border/50 my-6" />
+      <hr className="border-border/30 my-6" />
 
       <section className="space-y-6">
         {(team.email || team.emailVerification) && (
@@ -120,21 +120,23 @@ export default async function TeamsSettingsPage({ params }: TeamsSettingsPagePro
 
         {team.ownerUserId === session.user.id && (
           <>
-            <div className="flex flex-row items-center justify-between rounded-lg bg-gray-50/70 p-6">
-              <div>
-                <h3 className="font-medium">Transfer team</h3>
+            {isTransferVerificationExpired && (
+              <div className="flex flex-row items-center justify-between rounded-lg bg-gray-50/70 p-6">
+                <div>
+                  <h3 className="font-medium">Transfer team</h3>
 
-                <p className="text-muted-foreground text-sm">
-                  Transfer the ownership of the team to another team member.
-                </p>
+                  <p className="text-muted-foreground text-sm">
+                    Transfer the ownership of the team to another team member.
+                  </p>
+                </div>
+
+                <TransferTeamDialog
+                  ownerUserId={team.ownerUserId}
+                  teamId={team.id}
+                  teamName={team.name}
+                />
               </div>
-
-              <TransferTeamDialog
-                ownerUserId={team.ownerUserId}
-                teamId={team.id}
-                teamName={team.name}
-              />
-            </div>
+            )}
 
             <div className="flex flex-row items-center justify-between rounded-lg bg-gray-50/70 p-6">
               <div>
