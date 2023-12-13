@@ -36,15 +36,13 @@ model User {
   Document             Document[]
   Subscription         Subscription?
   PasswordResetToken   PasswordResetToken[]
+  teamMembers  TeamMember[]
+  teams        Team[]
+  teamsPending TeamPending[]
   twoFactorSecret      String?
   twoFactorEnabled     Boolean              @default(false)
   twoFactorBackupCodes String?
   VerificationToken    VerificationToken[]
-
-  // Todo: Teams - camelcase these?
-  TeamMembers  TeamMember[]
-  Teams        Team[]
-  TeamsPending TeamPending[]
 
   @@index([email])
 }
@@ -142,7 +140,7 @@ model Document {
   completedAt    DateTime?
   deletedAt      DateTime?
   teamId         Int?
-  Team           Team?               @relation(fields: [teamId], references: [id])
+  team           Team?               @relation(fields: [teamId], references: [id])
 
   @@unique([documentDataId])
   @@index([userId])
@@ -262,12 +260,6 @@ model DocumentShareLink {
   @@unique([documentId, email])
 }
 
-// Todo: Teams
-enum TeamStatus {
-  ACTIVE
-  INACTIVE
-}
-
 enum TeamMemberRole {
   ADMIN
   MANAGER
@@ -283,7 +275,6 @@ model Team {
   id                   Int                       @id @default(autoincrement())
   name                 String
   url                  String                    @unique
-  avatar               String? // Todo: Teams - Use uri
   createdAt            DateTime                  @default(now())
   ownerUserId          Int
   members              TeamMember[]
@@ -292,8 +283,8 @@ model Team {
   emailVerification    TeamEmailVerification?
   transferVerification TeamTransferVerification?
 
-  Owner    User       @relation(fields: [ownerUserId], references: [id])
-  Document Document[]
+  owner    User       @relation(fields: [ownerUserId], references: [id])
+  document Document[]
 }
 
 model TeamPending {
@@ -303,7 +294,7 @@ model TeamPending {
   createdAt   DateTime @default(now())
   ownerUserId Int
 
-  Owner User @relation(fields: [ownerUserId], references: [id])
+  owner User @relation(fields: [ownerUserId], references: [id])
 }
 
 model TeamMember {

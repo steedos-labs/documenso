@@ -1,7 +1,4 @@
 -- CreateEnum
-CREATE TYPE "TeamStatus" AS ENUM ('ACTIVE', 'INACTIVE');
-
--- CreateEnum
 CREATE TYPE "TeamMemberRole" AS ENUM ('ADMIN', 'MANAGER', 'MEMBER');
 
 -- CreateEnum
@@ -15,7 +12,6 @@ CREATE TABLE "Team" (
     "id" SERIAL NOT NULL,
     "name" TEXT NOT NULL,
     "url" TEXT NOT NULL,
-    "avatar" TEXT,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "ownerUserId" INTEGER NOT NULL,
 

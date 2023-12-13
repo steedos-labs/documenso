@@ -41,7 +41,7 @@ export const ZDeleteTeamPendingMutationSchema = z.object({
   teamPendingId: z.number(),
 });
 
-export const ZDeleteTeamTransferInvitationMutationSchema = z.object({
+export const ZDeleteTeamTransferRequestMutationSchema = z.object({
   teamId: z.number(),
 });
 
@@ -140,6 +140,9 @@ export type TDeleteTeamEmailMutationSchema = z.infer<typeof ZDeleteTeamEmailMuta
 export type TDeleteTeamMembersMutationSchema = z.infer<typeof ZDeleteTeamMembersMutationSchema>;
 export type TDeleteTeamMutationSchema = z.infer<typeof ZDeleteTeamMutationSchema>;
 export type TDeleteTeamPendingMutationSchema = z.infer<typeof ZDeleteTeamPendingMutationSchema>;
+export type TDeleteTeamTransferRequestMutationSchema = z.infer<
+  typeof ZDeleteTeamTransferRequestMutationSchema
+>;
 export type TFindTeamMemberInvitesQuerySchema = z.infer<typeof ZFindTeamMembersQuerySchema>;
 export type TFindTeamMembersQuerySchema = z.infer<typeof ZFindTeamMembersQuerySchema>;
 export type TFindTeamsQuerySchema = z.infer<typeof ZFindTeamsQuerySchema>;

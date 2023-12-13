@@ -7,7 +7,7 @@ import { nanoid } from 'nanoid';
  *
  * @param expiry The date the token expires, or the duration until the token expires.
  */
-export const createToken = (expiry: Date | DurationLike) => {
+export const createTokenVerification = (expiry: Date | DurationLike) => {
   const expiresAt = expiry instanceof Date ? expiry : DateTime.now().plus(expiry).toJSDate();
 
   return {

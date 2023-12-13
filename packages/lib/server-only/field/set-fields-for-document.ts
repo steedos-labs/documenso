@@ -28,12 +28,12 @@ export const setFieldsForDocument = async ({
       userId,
       OR: [
         {
-          Team: {
+          team: {
             is: null,
           },
         },
         {
-          Team: {
+          team: {
             is: {
               members: {
                 some: {

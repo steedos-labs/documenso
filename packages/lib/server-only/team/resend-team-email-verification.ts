@@ -2,7 +2,7 @@ import { prisma } from '@documenso/prisma';
 
 import { TEAM_MEMBER_ROLE_PERMISSIONS_MAP } from '../../constants/teams';
 import { AppError } from '../../errors/app-error';
-import { createToken } from '../../utils/token-verification';
+import { createTokenVerification } from '../../utils/token-verification';
 import { sendTeamEmailVerificationEmail } from './add-team-email-verification';
 
 export type ResendTeamMemberInvitationOptions = {
@@ -48,7 +48,7 @@ export const resendTeamEmailVerification = async ({
       );
     }
 
-    const { token, expiresAt } = createToken({ hours: 1 });
+    const { token, expiresAt } = createTokenVerification({ hours: 1 });
 
     await tx.teamEmailVerification.update({
       where: {

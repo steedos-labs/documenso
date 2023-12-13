@@ -5,7 +5,7 @@ import { render } from '@documenso/email/render';
 import { TeamTransferRequestTemplate } from '@documenso/email/templates/team-transfer-request';
 import { WEBAPP_BASE_URL } from '@documenso/lib/constants/app';
 import { FROM_ADDRESS, FROM_NAME } from '@documenso/lib/constants/email';
-import { createToken } from '@documenso/lib/utils/token-verification';
+import { createTokenVerification } from '@documenso/lib/utils/token-verification';
 import { prisma } from '@documenso/prisma';
 
 export type RequestTeamOwnershipTransferOptions = {
@@ -55,7 +55,7 @@ export const requestTeamOwnershipTransfer = async ({
       },
     });
 
-    const { token, expiresAt } = createToken({ minute: 10 });
+    const { token, expiresAt } = createTokenVerification({ minute: 10 });
 
     const teamVerificationPayload = {
       teamId,

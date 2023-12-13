@@ -8,7 +8,7 @@ import { deleteTeamEmailVerification } from '@documenso/lib/server-only/team/del
 import { deleteTeamMemberInvitations } from '@documenso/lib/server-only/team/delete-team-invitations';
 import { deleteTeamMembers } from '@documenso/lib/server-only/team/delete-team-members';
 import { deleteTeamPending } from '@documenso/lib/server-only/team/delete-team-pending';
-import { deleteTeamTransferInvitation } from '@documenso/lib/server-only/team/delete-team-transfer-invitation';
+import { deleteTeamTransferRequest } from '@documenso/lib/server-only/team/delete-team-transfer-request';
 import { findTeamMemberInvites } from '@documenso/lib/server-only/team/find-team-member-invites';
 import { findTeamMembers } from '@documenso/lib/server-only/team/find-team-members';
 import { findTeams } from '@documenso/lib/server-only/team/find-teams';
@@ -35,7 +35,7 @@ import {
   ZDeleteTeamMembersMutationSchema,
   ZDeleteTeamMutationSchema,
   ZDeleteTeamPendingMutationSchema,
-  ZDeleteTeamTransferInvitationMutationSchema,
+  ZDeleteTeamTransferRequestMutationSchema,
   ZFindTeamMemberInvitesQuerySchema,
   ZFindTeamMembersQuerySchema,
   ZFindTeamsPendingQuerySchema,
@@ -198,11 +198,11 @@ export const teamRouter = router({
       }
     }),
 
-  deleteTeamTransferInvitation: authenticatedProcedure
-    .input(ZDeleteTeamTransferInvitationMutationSchema)
+  deleteTeamTransferRequest: authenticatedProcedure
+    .input(ZDeleteTeamTransferRequestMutationSchema)
     .mutation(async ({ input, ctx }) => {
       try {
-        return await deleteTeamTransferInvitation({
+        return await deleteTeamTransferRequest({
           userId: ctx.user.id,
           ...input,
         });

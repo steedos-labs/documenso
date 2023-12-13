@@ -12,7 +12,7 @@ import { Prisma } from '@documenso/prisma/client';
 
 import { WEBAPP_BASE_URL } from '../../constants/app';
 import { FROM_ADDRESS, FROM_NAME } from '../../constants/email';
-import { createToken } from '../../utils/token-verification';
+import { createTokenVerification } from '../../utils/token-verification';
 
 export type AddTeamEmailVerificationOptions = {
   userId: number;
@@ -65,7 +65,7 @@ export const addTeamEmailVerification = async ({
         throw new AppError(AppErrorCode.ALREADY_EXISTS, 'Email already taken by another team.');
       }
 
-      const { token, expiresAt } = createToken({ hours: 1 });
+      const { token, expiresAt } = createTokenVerification({ hours: 1 });
 
       await tx.teamEmailVerification.create({
         data: {

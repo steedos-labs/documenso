@@ -24,12 +24,12 @@ export const setRecipientsForDocument = async ({
       userId,
       OR: [
         {
-          Team: {
+          team: {
             is: null,
           },
         },
         {
-          Team: {
+          team: {
             is: {
               members: {
                 some: {

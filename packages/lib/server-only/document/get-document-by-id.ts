@@ -12,12 +12,12 @@ export const getDocumentById = async ({ id, userId }: GetDocumentByIdOptions) =>
       userId,
       OR: [
         {
-          Team: {
+          team: {
             is: null,
           },
         },
         {
-          Team: {
+          team: {
             is: {
               members: {
                 some: {

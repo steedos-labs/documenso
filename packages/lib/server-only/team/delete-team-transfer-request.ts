@@ -2,7 +2,7 @@ import { prisma } from '@documenso/prisma';
 
 import { TEAM_MEMBER_ROLE_PERMISSIONS_MAP } from '../../constants/teams';
 
-export type DeleteTeamTransferInvitationOptions = {
+export type DeleteTeamTransferRequestOptions = {
   /**
    * The ID of the user deleting the transfer.
    */
@@ -14,10 +14,10 @@ export type DeleteTeamTransferInvitationOptions = {
   teamId: number;
 };
 
-export const deleteTeamTransferInvitation = async ({
+export const deleteTeamTransferRequest = async ({
   userId,
   teamId,
-}: DeleteTeamTransferInvitationOptions) => {
+}: DeleteTeamTransferRequestOptions) => {
   await prisma.$transaction(async (tx) => {
     await tx.team.findFirstOrThrow({
       where: {
@@ -26,7 +26,7 @@ export const deleteTeamTransferInvitation = async ({
           some: {
             userId,
             role: {
-              in: TEAM_MEMBER_ROLE_PERMISSIONS_MAP['DELETE_TEAM_TRANSFER_INVITATION'],
+              in: TEAM_MEMBER_ROLE_PERMISSIONS_MAP['DELETE_TEAM_TRANSFER_REQUEST'],
             },
           },
         },
