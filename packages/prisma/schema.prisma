@@ -36,9 +36,9 @@ model User {
   Document             Document[]
   Subscription         Subscription?
   PasswordResetToken   PasswordResetToken[]
-  teamMembers  TeamMember[]
-  teams        Team[]
-  teamsPending TeamPending[]
+  teamMembers          TeamMember[]
+  teams                Team[]
+  teamsPending         TeamPending[]
   twoFactorSecret      String?
   twoFactorEnabled     Boolean              @default(false)
   twoFactorBackupCodes String?
@@ -279,7 +279,7 @@ model Team {
   ownerUserId          Int
   members              TeamMember[]
   invites              TeamMemberInvite[]
-  email                TeamEmail?
+  teamEmail            TeamEmail?
   emailVerification    TeamEmailVerification?
   transferVerification TeamTransferVerification?
 
