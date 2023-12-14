@@ -43,12 +43,12 @@ export const addTeamEmailVerification = async ({
           },
         },
         include: {
-          email: true,
+          teamEmail: true,
           emailVerification: true,
         },
       });
 
-      if (team.email || team.emailVerification) {
+      if (team.teamEmail || team.emailVerification) {
         throw new AppError(
           AppErrorCode.INVALID_REQUEST,
           'Team already has an email or existing email verification.',
