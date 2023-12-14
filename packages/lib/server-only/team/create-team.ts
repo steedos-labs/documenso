@@ -54,7 +54,7 @@ export const createTeam = async ({
   });
 
   const isBillingEnabled = process.env.NEXT_PUBLIC_FEATURE_BILLING_ENABLED === 'true';
-  const isUserSubscriptionValidForTeams = isSubscriptionActiveAndCommunityPlan(user?.Subscription);
+  const isUserSubscriptionValidForTeams = isSubscriptionActiveAndCommunityPlan(user.Subscription);
 
   const isPaymentRequired = isBillingEnabled && !isUserSubscriptionValidForTeams;
 
@@ -138,13 +138,14 @@ export const createTeam = async ({
   }
 };
 
-const isSubscriptionActiveAndCommunityPlan = (subscription?: Subscription | null) => {
-  if (!subscription || subscription.status !== SubscriptionStatus.ACTIVE) {
-    return false;
-  }
-
-  return (
-    subscription.planId === process.env.NEXT_PUBLIC_STRIPE_COMMUNITY_PLAN_MONTHLY_PRICE_ID ||
-    subscription.planId === process.env.NEXT_PUBLIC_STRIPE_COMMUNITY_PLAN_YEARLY_PRICE_ID
+/**
+ * Returns true if there is a subscription that is active and is a community plan.
+ */
+const isSubscriptionActiveAndCommunityPlan = (subscriptions: Subscription[]) => {
+  return subscriptions.some(
+    (subscription) =>
+      subscription.status === SubscriptionStatus.ACTIVE &&
+      (subscription.planId === process.env.NEXT_PUBLIC_STRIPE_COMMUNITY_PLAN_MONTHLY_PRICE_ID ||
+        subscription.planId === process.env.NEXT_PUBLIC_STRIPE_COMMUNITY_PLAN_YEARLY_PRICE_ID),
   );
 };

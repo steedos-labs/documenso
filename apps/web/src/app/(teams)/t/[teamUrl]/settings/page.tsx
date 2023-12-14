@@ -46,7 +46,7 @@ export default async function TeamsSettingsPage({ params }: TeamsSettingsPagePro
       <hr className="border-border/30 my-6" />
 
       <section className="space-y-6">
-        {(team.email || team.emailVerification) && (
+        {(team.teamEmail || team.emailVerification) && (
           <section className="mt-6 rounded-lg bg-gray-50/70 p-6 pb-2">
             <h3 className="font-medium">Team email</h3>
 
@@ -61,23 +61,23 @@ export default async function TeamsSettingsPage({ params }: TeamsSettingsPagePro
               <AvatarWithText
                 avatarClass="h-12 w-12"
                 avatarFallback={recipientInitials(
-                  (team.email?.name || team.emailVerification?.name) ?? '',
+                  (team.teamEmail?.name || team.emailVerification?.name) ?? '',
                 )}
                 primaryText={
                   <span className="text-foreground/80 text-sm font-semibold">
-                    {team.email?.name || team.emailVerification?.name}
+                    {team.teamEmail?.name || team.emailVerification?.name}
                   </span>
                 }
                 secondaryText={
                   <span className="text-sm">
-                    {team.email?.email || team.emailVerification?.email}
+                    {team.teamEmail?.email || team.emailVerification?.email}
                   </span>
                 }
               />
 
               <div className="flex flex-row items-center pr-2">
                 <div className="text-muted-foreground mr-4 flex flex-row items-center text-sm xl:mr-8">
-                  {team.email ? (
+                  {team.teamEmail ? (
                     <>
                       <CheckCircle2 className="mr-1.5 text-green-500 dark:text-green-300" />
                       Active
@@ -103,7 +103,7 @@ export default async function TeamsSettingsPage({ params }: TeamsSettingsPagePro
           </section>
         )}
 
-        {!team.email && !team.emailVerification && (
+        {!team.teamEmail && !team.emailVerification && (
           <div className="flex flex-row items-center justify-between rounded-lg bg-gray-50/70 p-6">
             <div>
               <h3 className="font-medium">Team email</h3>

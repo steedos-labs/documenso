@@ -83,7 +83,7 @@ export default function TeamEmailDropdown({ team }: TeamsSettingsPageProps) {
     });
 
   const onRemove = async () => {
-    if (team.email) {
+    if (team.teamEmail) {
       await deleteTeamEmail({ teamId: team.id });
     }
 
@@ -101,7 +101,7 @@ export default function TeamEmailDropdown({ team }: TeamsSettingsPageProps) {
       </DropdownMenuTrigger>
 
       <DropdownMenuContent className="w-52" align="start" forceMount>
-        {!team.email && team.emailVerification && (
+        {!team.teamEmail && team.emailVerification && (
           <DropdownMenuItem
             disabled={isResendingEmailVerification}
             onClick={(e) => {
@@ -118,9 +118,9 @@ export default function TeamEmailDropdown({ team }: TeamsSettingsPageProps) {
           </DropdownMenuItem>
         )}
 
-        {team.email && (
+        {team.teamEmail && (
           <UpdateTeamEmailDialog
-            teamEmail={team.email}
+            teamEmail={team.teamEmail}
             trigger={
               <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
                 <Edit className="mr-2 h-4 w-4" />

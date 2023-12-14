@@ -23,7 +23,7 @@ export const updateTeamEmail = async ({ userId, teamId, data }: UpdateTeamEmailO
             },
           },
         },
-        email: {
+        teamEmail: {
           isNot: null,
         },
       },

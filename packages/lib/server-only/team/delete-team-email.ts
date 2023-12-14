@@ -19,7 +19,7 @@ export const deleteTeamEmail = async ({ userId, userEmail, teamId }: DeleteTeamE
         id: teamId,
         OR: [
           {
-            email: {
+            teamEmail: {
               email: userEmail,
             },
           },
