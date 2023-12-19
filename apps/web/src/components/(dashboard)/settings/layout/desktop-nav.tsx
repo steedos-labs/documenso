@@ -1,11 +1,11 @@
 'use client';
 
-import { HTMLAttributes } from 'react';
+import type { HTMLAttributes } from 'react';
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 
-import { CreditCard, Lock, User } from 'lucide-react';
+import { CreditCard, User } from 'lucide-react';
 
 import { useFeatureFlags } from '@documenso/lib/client-only/providers/feature-flag';
 import { cn } from '@documenso/ui/lib/utils';
@@ -35,7 +35,7 @@ export const DesktopNav = ({ className, ...props }: DesktopNavProps) => {
         </Button>
       </Link>
 
-      <Link href="/settings/security">
+      {/* <Link href="/settings/security">
         <Button
           variant="ghost"
           className={cn(
@@ -46,7 +46,7 @@ export const DesktopNav = ({ className, ...props }: DesktopNavProps) => {
           <Lock className="mr-2 h-5 w-5" />
           Security
         </Button>
-      </Link>
+      </Link> */}
 
       {isBillingEnabled && (
         <Link href="/settings/billing">

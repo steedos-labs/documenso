@@ -19,7 +19,7 @@ enum Role {
 }
 
 model User {
-  id                   Int                  @id @default(autoincrement())
+  id                   String               @id @default(cuid())
   name                 String?
   customerId           String?              @unique
   email                String               @unique
@@ -50,7 +50,7 @@ model PasswordResetToken {
   token     String   @unique
   createdAt DateTime @default(now())
   expiry    DateTime
-  userId    Int
+  userId    String
   User      User     @relation(fields: [userId], references: [id])
 }
 
@@ -60,7 +60,7 @@ model VerificationToken {
   token      String   @unique
   expires    DateTime
   createdAt  DateTime @default(now())
-  userId     Int
+  userId     String
   user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
@@ -76,7 +76,7 @@ model Subscription {
   planId            String             @unique
   priceId           String
   periodEnd         DateTime?
-  userId            Int
+  userId            String
   createdAt         DateTime           @default(now())
   updatedAt         DateTime           @updatedAt
   cancelAtPeriodEnd Boolean            @default(false)
@@ -88,7 +88,7 @@ model Subscription {
 
 model Account {
   id                String  @id @default(cuid())
-  userId            Int
+  userId            String
   type              String
   provider          String
   providerAccountId String
@@ -108,7 +108,7 @@ model Account {
 model Session {
   id           String   @id @default(cuid())
   sessionToken String   @unique
-  userId       Int
+  userId       String
   expires      DateTime
   user         User?    @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
@@ -121,7 +121,7 @@ enum DocumentStatus {
 
 model Document {
   id             Int                 @id @default(autoincrement())
-  userId         Int
+  userId         String
   User           User                @relation(fields: [userId], references: [id], onDelete: Cascade)
   title          String
   status         DocumentStatus      @default(DRAFT)

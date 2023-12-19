@@ -1,8 +1,16 @@
+'use client';
+
 import Link from 'next/link';
 
 import { SignInForm } from '~/components/forms/signin';
 
+const LOGIN_REDIRECT_PATH = '/documents';
+
 export default function SignInPage() {
+  // useEffect(() => {
+  //   signIn('keycloak', { callbackUrl: LOGIN_REDIRECT_PATH }).catch(console.error);
+  // }, []);
+
   return (
     <div>
       <h1 className="text-4xl font-semibold">Sign in to your account</h1>
@@ -22,14 +30,14 @@ export default function SignInPage() {
         </p>
       )}
 
-      <p className="mt-2.5 text-center">
+      {/* <p className="mt-2.5 text-center">
         <Link
           href="/forgot-password"
           className="text-muted-foreground text-sm duration-200 hover:opacity-70"
         >
           Forgot your password?
         </Link>
-      </p>
+      </p> */}
     </div>
   );
 }

@@ -5,8 +5,7 @@ import { DateTime } from 'luxon';
 import type { AuthOptions, Session, User } from 'next-auth';
 import type { JWT } from 'next-auth/jwt';
 import CredentialsProvider from 'next-auth/providers/credentials';
-import type { GoogleProfile } from 'next-auth/providers/google';
-import GoogleProvider from 'next-auth/providers/google';
+import KeycloakProvider from 'next-auth/providers/keycloak';
 
 import { prisma } from '@documenso/prisma';
 
@@ -16,7 +15,20 @@ import { getUserByEmail } from '../server-only/user/get-user-by-email';
 import { ErrorCode } from './error-codes';
 
 export const NEXT_AUTH_OPTIONS: AuthOptions = {
-  adapter: PrismaAdapter(prisma),
+  adapter: {
+    ...PrismaAdapter(prisma),
+    // Add your custom methods here
+    linkAccount: async (data) => {
+      delete data['not-before-policy'];
+      delete data['refresh_expires_in'];
+      return prisma.account.create({ data });
+    },
+    createUser: async (data) => {
+      return prisma.user.create({
+        data,
+      });
+    },
+  },
   secret: process.env.NEXTAUTH_SECRET ?? 'secret',
   session: {
     strategy: 'jwt',
@@ -70,21 +82,20 @@ export const NEXT_AUTH_OPTIONS: AuthOptions = {
         }
 
         return {
-          id: Number(user.id),
+          id: user.id,
           email: user.email,
           name: user.name,
           emailVerified: user.emailVerified?.toISOString() ?? null,
         } satisfies User;
       },
     }),
-    GoogleProvider<GoogleProfile>({
-      clientId: process.env.NEXT_PRIVATE_GOOGLE_CLIENT_ID ?? '',
-      clientSecret: process.env.NEXT_PRIVATE_GOOGLE_CLIENT_SECRET ?? '',
-      allowDangerousEmailAccountLinking: true,
-
+    KeycloakProvider({
+      clientId: process.env.NEXT_PRIVATE_KEYCLOAK_CLIENT_ID ?? '',
+      clientSecret: process.env.NEXT_PRIVATE_KEYCLOAK_CLIENT_SECRET ?? '',
+      issuer: process.env.NEXT_PRIVATE_KEYCLOAK_ISSUER ?? '',
       profile(profile) {
         return {
-          id: Number(profile.sub),
+          id: profile.sub,
           name: profile.name || `${profile.given_name} ${profile.family_name}`.trim(),
           email: profile.email,
           emailVerified: profile.email_verified ? new Date().toISOString() : null,
@@ -93,7 +104,7 @@ export const NEXT_AUTH_OPTIONS: AuthOptions = {
     }),
   ],
   callbacks: {
-    async jwt({ token, user }) {
+    async jwt({ token, user, account, profile }) {
       const merged = {
         ...token,
         ...user,
@@ -101,7 +112,7 @@ export const NEXT_AUTH_OPTIONS: AuthOptions = {
       } satisfies JWT;
 
       if (!merged.email || typeof merged.emailVerified !== 'string') {
-        const userId = Number(merged.id ?? token.sub);
+        const userId = merged.id ?? token.sub;
 
         const retrieved = await prisma.user.findFirst({
           where: {
@@ -128,7 +139,7 @@ export const NEXT_AUTH_OPTIONS: AuthOptions = {
 
         const user = await prisma.user.update({
           where: {
-            id: Number(merged.id),
+            id: merged.id,
           },
           data: {
             lastSignedIn: merged.lastSignedIn,
@@ -147,12 +158,12 @@ export const NEXT_AUTH_OPTIONS: AuthOptions = {
       } satisfies JWT;
     },
 
-    session({ token, session }) {
+    session({ session, user, token }) {
       if (token && token.email) {
         return {
           ...session,
           user: {
-            id: Number(token.id),
+            id: token.sub,
             name: token.name,
             email: token.email,
             emailVerified: token.emailVerified ?? null,

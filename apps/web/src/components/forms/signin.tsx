@@ -5,7 +5,6 @@ import { useState } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { signIn } from 'next-auth/react';
 import { useForm } from 'react-hook-form';
-import { FcGoogle } from 'react-icons/fc';
 import { z } from 'zod';
 
 import { ErrorCode, isErrorCode } from '@documenso/lib/next-auth/error-codes';
@@ -13,7 +12,7 @@ import { cn } from '@documenso/ui/lib/utils';
 import { Button } from '@documenso/ui/primitives/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@documenso/ui/primitives/dialog';
 import { FormErrorMessage } from '@documenso/ui/primitives/form/form-error-message';
-import { Input, PasswordInput } from '@documenso/ui/primitives/input';
+import { Input } from '@documenso/ui/primitives/input';
 import { Label } from '@documenso/ui/primitives/label';
 import { useToast } from '@documenso/ui/primitives/use-toast';
 
@@ -142,6 +141,18 @@ export const SignInForm = ({ className }: SignInFormProps) => {
     }
   };
 
+  const onSignInWithKeycloakClick = async () => {
+    try {
+      await signIn('keycloak', { callbackUrl: LOGIN_REDIRECT_PATH });
+    } catch (err) {
+      toast({
+        title: 'An unknown error occurred',
+        description:
+          'We encountered an unknown error while attempting to sign you In. Please try again later.',
+        variant: 'destructive',
+      });
+    }
+  };
   const onSignInWithGoogleClick = async () => {
     try {
       await signIn('google', { callbackUrl: LOGIN_REDIRECT_PATH });
@@ -160,7 +171,7 @@ export const SignInForm = ({ className }: SignInFormProps) => {
       className={cn('flex w-full flex-col gap-y-4', className)}
       onSubmit={handleSubmit(onFormSubmit)}
     >
-      <div>
+      {/* <div>
         <Label htmlFor="email" className="text-muted-forground">
           Email
         </Label>
@@ -200,9 +211,9 @@ export const SignInForm = ({ className }: SignInFormProps) => {
         <div className="bg-border h-px flex-1" />
         <span className="text-muted-foreground bg-transparent">Or continue with</span>
         <div className="bg-border h-px flex-1" />
-      </div>
+      </div> */}
 
-      <Button
+      {/* <Button
         type="button"
         size="lg"
         variant={'outline'}
@@ -212,6 +223,18 @@ export const SignInForm = ({ className }: SignInFormProps) => {
       >
         <FcGoogle className="mr-2 h-5 w-5" />
         Google
+      </Button> */}
+
+      <Button
+        type="button"
+        size="lg"
+        variant={'outline'}
+        className="bg-background text-muted-foreground border"
+        disabled={isSubmitting}
+        onClick={onSignInWithKeycloakClick}
+      >
+        {/* <FcGoogle className="mr-2 h-5 w-5" /> */}
+        Sign with Steedos ID
       </Button>
 
       <Dialog
